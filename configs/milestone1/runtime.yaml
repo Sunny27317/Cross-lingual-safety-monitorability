@@ -1,0 +1,64 @@
+# Milestone-1 execution-environment specification.
+# Decisions: DECISION_LOG.md D-020, D-023, D-024; PRE_RUN_READINESS.md §2.
+#
+# runtime_role: proposed  -> this is the REQUIRED TARGET environment, not an observed one.
+# No hardware value here has been observed. The OBSERVED environment (GPU model, CUDA
+# version, driver, exact resolved package versions) is captured AUTOMATICALLY by
+# clsm.provenance when the real probe/pilot runs, and `Provenance.validate_runtime_complete()`
+# refuses a run whose observed environment is missing those fields.
+#
+# The exact package versions below are a CONSERVATIVE, COMPATIBILITY-DRIVEN proposal
+# (not "newest"). They MUST be confirmed on the actual GPU box via the PRE_RUN_READINESS.md
+# §2.3 procedure, then `uv lock`ed + committed BEFORE any inference.
+
+runtime_role: proposed
+
+os: linux
+architecture: x86_64
+os_note: "Ubuntu 22.04 LTS or equivalent (Colab / most cloud default)"
+
+python: "3.11"                # exact; matches pyproject `requires-python = ">=3.11,<3.13"`
+
+# --- accelerator ---
+gpu_minimum: "NVIDIA L4 (24 GB, compute capability 8.9, Ada)"
+gpu_preferred: "NVIDIA A100 40 GB (compute 8.0) — fastest, headroom for k=10 batching"
+gpu_memory_min_gb: 24
+gpu_memory_preferred_gb: 40
+gpu_excluded:
+  - "NVIDIA T4 16 GB — UNSUITABLE for the frozen bf16 config (weights ≈ 15.2 GB alone;
+     no native bf16 on Turing SM 7.5; vLLM cannot pre-allocate a KV cache). See §2a."
+
+cuda: "12.4"                  # vLLM 0.8.x default build target; broad driver support; L4/A100 OK
+
+# --- dtype: NO quantization (methodological baseline) ---
+dtype: bfloat16              # the released weight dtype of DeepSeek-R1-Distill-Qwen-7B
+quantization: none           # int8/int4 would be a METHODOLOGICAL change -> needs approval + a
+                             # DECISION_LOG entry (D-024). Do NOT enable silently to fit a smaller GPU.
+
+# --- package versions (PROPOSED — confirm on the box, then lock) ---
+vllm: "0.8.5.post1"          # 0.8 line: mature DeepSeek-R1-distill support, pre-torch-2.7,
+                             # CUDA 12.4 wheel. Fallback: vllm 0.7.3 (torch 2.5.1).
+torch: "2.6.0"               # the torch version vllm 0.8.5.post1 pins
+transformers: "4.51.3"       # in vllm 0.8.5's supported range; carries Qwen2.5 / DeepSeek chat templates
+tokenizers: "0.21.1"         # transformers 4.51 dependency (usually auto-resolved)
+datasets: "3.5.0"            # any 3.x loads cais/mmlu at the pinned revision
+numpy: ">=1.26,<2.2"         # torch 2.6 / vllm 0.8.5 tested range
+huggingface_hub: ">=0.30,<1"
+flash_attn_pip_package: not_required   # vLLM 0.8.x bundles its attention backends and auto-selects
+                                       # (FlashAttention / FlashInfer / xformers). No separate wheel on L4/A100.
+xformers: bundled_with_vllm
+
+# --- pinned artifacts (see REPRODUCIBILITY.md §11) ---
+model: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B
+model_revision: "916b56a44061fd5cd7d6a8fb632557ed4f724f60"
+dataset: cais/mmlu
+dataset_revision: "c30699e8356da336a370243923dbaf21066bb9fe"
+
+# --- vLLM engine settings for the run (offline LLM class, not `vllm serve`) ---
+vllm_engine:
+  max_model_len: 20480       # prompt (<~1k) + max_new_tokens (16384) + margin; < model's 32768 native
+  gpu_memory_utilization: 0.90
+  enforce_eager: true        # disable CUDA graphs — safer memory, matches DeepSeek's official example
+  dtype: bfloat16
+  # reasoning parser NOT needed: we use the offline LLM class and split <think>…</think>
+  # ourselves in clsm.extraction (the --reasoning-parser flag is a `vllm serve` feature).

@@ -75,8 +75,7 @@ temperature 0.6, top_p 0.95, no system prompt, forced `<think>\n`,
 DeepSeek model card gives 32768 as the max for hard reasoning; 16384 is a project cap
 judged ample for MCQ, with "raise to 32768 if the truncation rate exceeds 5%". Actual
 per-generation token counts and latency are **unknown** and must be measured before the
-full pilot is authorized — see §17 (first action under run authorization is a small
-timing/token probe on ~5 items, both conditions, feeding a real compute estimate).
+full pilot — see §16a and `PRE_RUN_READINESS.md` §3 (the two-stage timing probe).
 
 ## 6. Dataset
 
@@ -230,16 +229,26 @@ next run.
 Confirmatory stage only: rerun the frozen pipeline on GPQA-Diamond (lower contamination,
 Chen + Onyame dataset). The effect direction must not reverse; it may be weaker.
 
-## 16a. Compute / runtime — must be measured before the full pilot
+## 16a. Compute / runtime / environment — must be resolved before any inference
 
-The `../MILESTONE_1_READINESS.md` §11 figures ("tens" of GPU-hours; ~20–30 MB) are
-**estimates, not measurements**. `max_new_tokens = 16384` is an upper bound (§5), not an
-expected length. **The first action under run authorization is a timing/token probe:**
-run the frozen pipeline on ~5 items × both conditions × k, record per-generation output
-token counts, wall-clock latency, and the truncation rate, and produce a real compute +
-storage estimate for the full 50-item pilot (≈ 1 000 generations + ≈ n_switched
-disclosure calls). Only then run the pilot. If truncation > 5%, raise `max_new_tokens`
-to 32768 (a config change + DECISION_LOG note) before the pilot.
+Full pre-run analysis: **`PRE_RUN_READINESS.md`** (this directory). In brief:
+
+- **Execution environment (D-020, D-023, D-024):** concrete spec in
+  `configs/milestone1/runtime.yaml` — Linux x86_64, Python 3.11, CUDA 12.4, **GPU
+  minimum NVIDIA L4 24 GB** (A100 40 GB preferred), **bf16, no quantization**. **T4
+  16 GB is excluded** — memory-infeasible for the frozen bf16 7B config
+  (`PRE_RUN_READINESS.md` §2a). The Intel-Mac dev host cannot run anything (no CUDA).
+- **`[run]` dependency pins** — proposed compatibility-driven set in `runtime.yaml` /
+  `pyproject.toml` (vllm 0.8.5.post1 / torch 2.6.0 / transformers 4.51.3 / datasets
+  3.5.0); confirm on the GPU box, `uv lock`, commit **before any inference**
+  (`PRE_RUN_READINESS.md` §2.3–2.4).
+- **Two-stage timing probe** (`PRE_RUN_READINESS.md` §3; D-025): **Stage A** infra smoke
+  (1 item × 2 conditions × k=1 = **2 generations** — model loads, template + logging
+  work; pure infra gate, no metrics) → **Stage B** the frozen **5 × 2 × 10 = 100
+  generations** (latency / tokens / truncation / VRAM / failures / parse-status; GO
+  gates **G1–G5** → the pilot). Disclosure skipped through both stages. If truncation
+  > 5%, raise `max_new_tokens` to 32768 (config change + DECISION_LOG) and re-probe.
+- `max_new_tokens = 16384` is an upper bound (§5), not an expected length.
 
 ## 16. STOP / PIVOT conditions (`RESEARCH_PLAN.md` §19)
 
@@ -257,11 +266,15 @@ to 32768 (a config change + DECISION_LOG note) before the pilot.
 
 | Step | State |
 |---|---|
-| Scaffold (`src/clsm/`, `configs/`, `tests/`) | present; corrected in the correction pass |
-| Offline unit tests | present (`make check`) |
-| §7a disclosure-classifier verification checklist | **NOT DONE** — blocks Layer 1 |
-| Confirmatory power calculation | **NOT DONE** — blocks confirmatory n |
-| Timing / token probe (§16a) | **NOT DONE** — first action under run authorization |
+| Scaffold (`src/clsm/`, `configs/`, `tests/`) | present; tie-break corrected (PR #5) |
+| Offline unit tests | present (`make check`) — **97 passing** |
+| MMLU revision + licence | **RESOLVED** — pinned `c30699e8…`, MIT (D-019) |
+| Execution-environment spec | **RESOLVED — concrete** — `configs/milestone1/runtime.yaml` (L4 24 GB min, bf16, no quant; T4 excluded — D-023/D-024) |
+| GPU box provisioned | **NOT DONE** — no L4/A100 machine yet |
+| `[run]` deps confirmed + `uv.lock`ed | **NOT DONE** — proposed set only; do on the box (`PRE_RUN_READINESS.md` §2.3–2.4) |
+| Two-stage timing probe (§16a) | **protocol frozen** (Stage A + Stage B; D-025); **not executed** |
+| Disclosure judge | **UNRESOLVED** — licence/context screen only; lock milestone = M1 disclosure-scoring step (D-021, `PRE_RUN_READINESS.md` §4.2) |
+| Confirmatory power analysis | **method defined** (`PRE_RUN_READINESS.md` §5, D-022); runs post-pilot |
 | Human disclosure audit (κ) | **NOT DONE** — run-time gate |
 | Model / dataset download | **NOT AUTHORIZED** |
 | Pilot run (n = 50) | **NOT AUTHORIZED** |

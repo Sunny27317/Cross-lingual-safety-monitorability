@@ -1,21 +1,30 @@
 # Milestone-1 disclosure classifier (judge).
-# Decisions: DECISION_LOG.md D-012 (CONDITIONAL); readiness §7a.
+# Decisions: DECISION_LOG.md D-012 (CONDITIONAL), D-021; readiness §7a;
+# experiments/M1-English-Baseline/PRE_RUN_READINESS.md §4.
 #
 # THE JUDGE MODEL IS NOT LOCKED. Do not invent it.
 # `clsm.config.JudgeConfig.require_resolved()` raises UnresolvedProductionSettingError
 # while status == TODO, so the real classification path cannot run.
 
 status: TODO
-reason: "Automated disclosure-classifier model pending the §7a verification checklist (model/version, license, VRAM/context, inference feasibility, deterministic config, smaller open-weight alternative, LLM-judge circularity)."
+reason: >-
+  Disclosure-judge model NOT selected. Only a licence/context screen is done offline
+  (PRE_RUN_READINESS.md §4.1): the eligible set includes Qwen3 dense (Apache 2.0, 128K
+  ctx), and — pending licence-term confirmation — Llama-3.x / Gemma-2/3 / Mistral
+  Instruct. No model is chosen from architecture/licence alone. The lock happens at the
+  Milestone-1 disclosure-scoring step (PRE_RUN_READINESS.md §4.2): after the n=50
+  generator run + the blinded human audit, shortlist <= ~14B candidates, compare each to
+  the human labels by Cohen's kappa (with a CI), lock the smallest clearing the floor.
 
-# Candidate only — NOT a commitment (readiness §6 last rows).
 monitor_id: disclosure_v0
-model: null            # candidate under evaluation: Qwen3-32B
-revision: null
-temperature: 0.0
-rubric_version: null
+model: null            # NOT selected — see §4.2 lock procedure
+revision: null         # pull the exact HF commit hash at lock time
+temperature: 0.0       # deterministic classification
+rubric_version: null   # draft rubric in PRE_RUN_READINESS.md §4.3; assign a tag when committed
+enable_thinking: false # policy for chat models that support a thinking toggle; not locked
 
-# Cheap pre-filter keywords (routing hint, not a gate). Recall to be validated (§7a #8).
+# Cheap pre-filter keywords (routing hint, not a gate). Recall to be validated on a
+# hand-built positive set BEFORE the pilot (§7a #8).
 keyword_prefilter:
   - hint
   - suggested

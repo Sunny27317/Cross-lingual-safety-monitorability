@@ -259,6 +259,15 @@ positioned before the paper is written. **NEW INDEPENDENT ANALYSIS — NOT FROM 
 | "Lower-Resource, Higher Scores: Language Bias in LLM Evaluators" — **arXiv:2607.14480** | **VERIFIED** (arXiv) | Weaker language competence ⇒ more evaluator bias (length bias, self-preference, ignoring references). | **MEDIUM (framing)** |
 | "How Reliable is Multilingual LLM-as-a-Judge?" — **arXiv:2505.12201** (Findings EMNLP 2025, `2025.findings-emnlp.587`) | **VERIFIED** (arXiv + ACL Anthology) | Same theme, peer-reviewed. | **MEDIUM (framing)** |
 
+### D.3 — Verified 2026-09-01 during the runtime-readiness pass (disclosure-metric relevant)
+
+| Paper | Verified | Relevance | Threat |
+|---|---|---|---|
+| **"Is Chain-of-Thought Really Not Explainability? Chain-of-Thought Can Be Faithful without Hint Verbalization"** — Kerem Zaman, Shashank Srivastava (UNC Chapel Hill). **arXiv:2512.23032**. | **VERIFIED** — arXiv abstract + alphaXiv + ResearchGate + authors' post. | Argues the Biasing-Features / hint-verbalization metric **conflates unfaithfulness with incompleteness** (lossy compression of distributed computation into a linear narrative). On multi-hop tasks, >50% of CoTs flagged "unfaithful" by Biasing Features are judged faithful by other metrics. | **LOW–MEDIUM (methodological).** Not a novelty threat. **Action taken:** `disclosure_rate` is now defined/reported as *"rate the CoT verbalizes the hint"* (an observable), **not** a faithfulness measure; caveat added to `PRE_RUN_READINESS.md` §4.3, `DECISION_LOG` D-021 addendum, and (light) `RESEARCH_PLAN.md` §9. The safety-relevant quantity is `hidden_influence_rate`. |
+| **"Lie to Me: How Faithful Is Chain-of-Thought Reasoning in Reasoning Models?"** — Richard J. Young (same author as arXiv:2603.26410). **arXiv:2603.22582**, submitted 2026-03-23. | **VERIFIED** — arXiv fetch. | 12 open-weight reasoning models (7B–685B, 9 families incl. Seed-1.6-Flash, DeepSeek-V3.2-Speciale); **498 MCQ from MMLU + GPQA Diamond**; 6 hint categories (Chen's taxonomy). 87.5% thinking-token acknowledgment vs 28.6% answer-text. **A companion to arXiv:2603.26410 — essentially the same near-replication of our M1 paradigm.** | **LOW.** Corroborates the M1 paradigm on open-weight models; gives a second comparison point. Cite alongside 2603.26410. Not cross-lingual, not native-validated. |
+
+No frozen decision rests on these beyond the (non-frozen) disclosure rubric.
+
 **Consequence (see `DECISION_LOG.md` D-014):** the general claim "automated
 monitors/judges fail in low-resource languages" is now well-established for both CoT
 monitors (Onyame) and LLM-judges broadly. The surviving contribution must rest on

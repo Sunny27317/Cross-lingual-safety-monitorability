@@ -132,8 +132,19 @@ New directories are created **when a milestone needs them**, not preemptively
 - Native-annotator personal data is not committed; annotators are referred to by an id.
 - Large model weights and large generation dumps are never committed to git directly.
 
-## 11. Open reproducibility decisions
+## 11. Milestone-1 pinned artifacts (as of 2026-09-01)
 
-`TODO — DECISION REQUIRED`: Python minor version; git-lfs vs. DVC for `data/`;
-CSV vs. W&B; deterministic-decoding policy given vLLM nondeterminism; whether to pin
-weights by SHA or accept HF revision hash as sufficient.
+| Artifact | Pin | Status |
+|---|---|---|
+| Generator model | `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` @ `916b56a44061fd5cd7d6a8fb632557ed4f724f60` | SOURCE-CODE-VERIFIED (HF API); re-confirm at run time |
+| **MMLU dataset** | `cais/mmlu` @ **`c30699e8356da336a370243923dbaf21066bb9fe`** (branch `main`; MIT) | VERIFIED via HF refs API 2026-09-01 (D-019) |
+| MMLU parquet-convert branch | `d183e18c31b6d5563d00fb87257819c64e76b985` | recorded for parquet loads |
+| Disclosure judge | not selected — only a licence/context screen done | ⚠️ UNRESOLVED (D-021 rev.) — lock milestone in `PRE_RUN_READINESS.md` §4.2 |
+| Execution environment | `configs/milestone1/runtime.yaml` — Linux x86_64, Python 3.11, CUDA 12.4, **GPU min NVIDIA L4 24 GB** (A100 pref), **bf16, quantization: none**; **T4 excluded** (D-024); not the dev machine | specified (D-020/D-023/D-024) |
+| `[run]` deps (`vllm 0.8.5.post1`/`torch 2.6.0`/`transformers 4.51.3`/`datasets 3.5.0`) + `uv.lock` | **proposed** in `runtime.yaml` (compatibility-driven, not newest); confirm on the box (§2.3), `uv lock` (§2.4), commit | ❌ UNRESOLVED |
+
+## 12. Open reproducibility decisions
+
+`TODO — DECISION REQUIRED`: exact Python minor version on the GPU box; git-lfs vs. DVC
+for `data/`; CSV vs. W&B; the finalized `[run]` version set (locked on the box, §2.3);
+whether to pin generator weights by SHA in addition to the HF revision hash.

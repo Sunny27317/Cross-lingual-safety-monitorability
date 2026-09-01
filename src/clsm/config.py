@@ -86,7 +86,8 @@ class DatasetConfig(BaseModel):
     id: str
     config_name: str
     split: str
-    revision: str | None = Field(default=None, description="HF dataset revision; recorded when known.")
+    revision: str | None = Field(default=None, description="HF dataset revision (commit hash).")
+    license: str | None = Field(default=None, description="e.g. 'MIT'; recorded in provenance.")
     subjects: list[str] = Field(min_length=1)
     items_per_subject: int = Field(gt=0)
     max_chars: int = Field(gt=0)
@@ -135,6 +136,7 @@ class JudgeConfig(BaseModel):
     revision: str | None = None
     temperature: float = 0.0
     rubric_version: str | None = None
+    enable_thinking: bool = False
     keyword_prefilter: list[str] = Field(default_factory=list)
 
     def require_resolved(self) -> None:
@@ -245,6 +247,65 @@ def load_experiment_config(pilot_path: str | Path) -> ExperimentConfig:
         raise ConfigError(f"invalid experiment config ({pilot_path}): {exc}") from exc
 
 
+# --------------------------------------------------------------------------------------
+# Runtime environment spec (configs/milestone1/runtime.yaml) — the REQUIRED TARGET.
+# The OBSERVED environment is captured by clsm.provenance at run time; a run-authorization
+# step compares the two (PRE_RUN_READINESS.md §2, §5 of the locking plan).
+# --------------------------------------------------------------------------------------
+
+
+class VLLMEngineSpec(BaseModel):
+    model_config = ConfigDict(frozen=True, extra="forbid")
+
+    max_model_len: int = Field(gt=0)
+    gpu_memory_utilization: float = Field(gt=0.0, le=1.0)
+    enforce_eager: bool
+    dtype: Literal["bfloat16", "float16"]
+
+
+class RuntimeSpec(BaseModel):
+    """Proposed target execution environment. ``runtime_role`` must be 'proposed' or
+    'observed' — 'proposed' values are requirements, not measurements."""
+
+    model_config = ConfigDict(frozen=True, extra="allow")  # allow free-form *_note keys
+
+    runtime_role: Literal["proposed", "observed"]
+    os: Literal["linux"]
+    architecture: Literal["x86_64"]
+    python: str
+    cuda: str
+    gpu_minimum: str
+    gpu_preferred: str
+    gpu_memory_min_gb: int = Field(gt=0)
+    gpu_memory_preferred_gb: int = Field(gt=0)
+    dtype: Literal["bfloat16", "float16"]
+    quantization: Literal["none", "int8", "int4", "fp8"]
+    vllm: str
+    torch: str
+    transformers: str
+    datasets: str
+    model: str
+    model_revision: str
+    dataset: str
+    dataset_revision: str
+    vllm_engine: VLLMEngineSpec
+
+    @field_validator("model_revision", "dataset_revision")
+    @classmethod
+    def _pinned(cls, v: str) -> str:
+        if len(v) < 7 or v in {"main", "master", "HEAD"}:
+            raise ValueError(f"revision must be a pinned commit hash, got {v!r}")
+        return v
+
+
+def load_runtime_spec(path: str | Path) -> RuntimeSpec:
+    data = _read_yaml(Path(path))
+    try:
+        return RuntimeSpec.model_validate(data)
+    except Exception as exc:
+        raise ConfigError(f"invalid runtime spec ({path}): {exc}") from exc
+
+
 __all__ = [
     "CueConfig",
     "DatasetConfig",
@@ -252,5 +313,8 @@ __all__ = [
     "ExperimentConfig",
     "JudgeConfig",
     "ModelConfig",
+    "RuntimeSpec",
+    "VLLMEngineSpec",
     "load_experiment_config",
+    "load_runtime_spec",
 ]

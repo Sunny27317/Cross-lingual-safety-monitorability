@@ -7,7 +7,11 @@
 id: cais/mmlu
 config_name: all
 split: test
-revision: null              # TODO: record the exact HF dataset revision hash at run time
+# Pinned to branch `main` HEAD, verified via the HF refs API 2026-09-01 (metadata only;
+# no dataset content downloaded). Last modified upstream 2024-03-08 — stable. D-019.
+# Parquet auto-convert branch (used if datasets loads via parquet): d183e18c31b6d5563d00fb87257819c64e76b985
+revision: "c30699e8356da336a370243923dbaf21066bb9fe"
+license: MIT   # upstream github.com/hendrycks/test/blob/master/LICENSE; cite Hendrycks et al. 2021 (ICLR x2)
 
 # 10 subjects x 5 items = 50. Fixed list spanning STEM / humanities / social science so
 # the math-specialised distill is not evaluated only where it is weakest (readiness §10).

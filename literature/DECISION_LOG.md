@@ -363,3 +363,163 @@ are reversed by a **new** entry, not by deleting an old one.
   `None`) and counted in `MetricsResult.n_tied_majority_{control,treatment}` with a note.
   Tests: unique majority; 5–5 tie; 3–3–2–2 tie; all-samples-different; no VALID answers;
   tie excluded from metrics + counted.
+
+## D-019 — MMLU dataset revision pinned
+- **Date:** 2026-09-01 (pre-run readiness pass)
+- **Decision:** `configs/milestone1/dataset.yaml` `revision` set to
+  **`c30699e8356da336a370243923dbaf21066bb9fe`** — the `cais/mmlu` branch `main` HEAD,
+  verified via the HF refs API (metadata only; no dataset content downloaded). Upstream
+  last modified 2024-03-08 (stable). Parquet auto-convert branch
+  `d183e18c31b6d5563d00fb87257819c64e76b985` recorded for the case where `datasets`
+  loads via parquet. **License: MIT** (upstream `github.com/hendrycks/test`); citation
+  requirement: Hendrycks et al. 2021 (ICLR) ×2.
+- **Rationale (this-turn task 2):** removes the MMLU provenance blocker; a pinned commit
+  makes item selection reproducible.
+- **Evidence:** `huggingface.co/api/datasets/cais/mmlu/refs`;
+  `experiments/M1-English-Baseline/PRE_RUN_READINESS.md` §1.
+- **Config-hash impact:** the frozen `ExperimentConfig.config_hash()` moved as pinned
+  provenance was added: `1dbb7588f614…` → `47acc3c9711b…` (D-019: `dataset.revision` +
+  `dataset.license`, `JudgeConfig.enable_thinking`) → `7e7c236bdaec…` (D-021 rev.:
+  `judge.yaml` `reason` text rewritten). Each is an intended provenance improvement, not
+  a silent change; the current hash `7e7c236b…` is what any run records. (`runtime.yaml`
+  is a standalone file and does **not** affect this hash.)
+- **Status:** ACTIVE. To confirm at run time (trivial): the revision resolves and the
+  `answer` field decodes to 0–3 (`clsm/data.py` now coerces int **or** letter).
+
+## D-020 — Execution environment: the pilot does NOT run on the development machine
+- **Date:** 2026-09-01
+- **Decision:** Milestone-1 inference (timing probe + n=50 pilot) requires an **external
+  NVIDIA CUDA GPU** (≥ 16 GB VRAM for bf16 7B — Colab free T4 is the documented Tier-A
+  target; or a rented L4/A100; or a lab GPU). The development host — an **Intel** MacBook
+  Pro (i7-9750H, AMD Radeon Pro 5300M 4 GB, macOS x86_64, no CUDA) — is for development,
+  offline tests, and doc/config authoring ONLY. It physically cannot run the pilot:
+  no CUDA GPU; no vLLM-Metal (Apple-Silicon only); PyTorch has no macOS-x86 wheel past
+  `torch 2.2.2` (our `[run]` pin `torch==2.4.0` is not installable here); CPU inference
+  of 16k-token reasoning traces on a 2019 6-core CPU is minutes–tens-of-minutes per
+  generation (~1,000 for the pilot).
+- **Rationale (this-turn task 3):** identifies the real target environment and records
+  that this machine is not it — a hard pre-run blocker.
+- **Evidence:** `system_profiler` / `sysctl` / `pip index versions torch` on the host;
+  `PRE_RUN_READINESS.md` §2.
+- **Status:** ACTIVE. **Blocker:** provision the GPU environment before any inference.
+- **Addendum 2026-09-01 (runtime-readiness pass):** the "Colab free T4 16 GB" target
+  named here is **superseded by D-024** — a T4 is memory-infeasible for the frozen bf16
+  7B config. The concrete target is now `configs/milestone1/runtime.yaml` (D-023).
+
+## D-021 — Disclosure judge: NOT selected (licence/context screen only); lock milestone stated
+- **Date:** 2026-09-01
+- **Decision:** **No disclosure-judge model is selected.** The only thing done offline
+  is a **licence + context-window screen** of the eligible set (Qwen3 dense = Apache 2.0
+  / 131,072 tok passes; Llama-3.x, Gemma-2/3, Mistral to have their licence terms
+  confirmed). **Qwen3 is an illustrative eligible candidate, not the choice** — selecting
+  any model from architecture / licence alone is explicitly rejected.
+- **The judge MUST be locked at the Milestone-1 disclosure-scoring step** — after the
+  n=50 **generator** run has produced the CoT traces AND the blinded human disclosure
+  audit is done, and BEFORE `compute_metrics` runs on the pilot / the M1 GO decision.
+  It is NOT needed for the Stage-A/B timing probe (disclosure skipped) or the generator
+  run. Lock procedure: `PRE_RUN_READINESS.md` §4.2 (shortlist ≤ ~14B candidates → run
+  each over the human-audit subset at temp 0 → Cohen's κ with a CI → lock the smallest
+  clearing the floor → `judge.yaml status: RESOLVED` + a DECISION_LOG entry with the κ).
+  If no candidate clears the floor → `RESEARCH_PLAN.md` §18 pivot.
+- **Rationale (this-turn task 7):** keep the judge unresolved through generator timing
+  validation; do not commit to Qwen3 prematurely.
+- **Evidence:** Qwen3 / Llama / Gemma / Mistral licence + context docs;
+  `PRE_RUN_READINESS.md` §4; `configs/milestone1/judge.yaml` (`status: TODO`).
+- **Status:** ⚠️ UNRESOLVED (screen only). Supersedes the "family selected" framing of
+  the earlier draft of this entry.
+- **Addendum — disclosure-metric interpretation (arXiv:2512.23032, VERIFIED):**
+  non-verbalization of a hint is **not** by itself evidence of "unfaithfulness"
+  (Zaman & Srivastava 2026 — it may be lossy narrative compression). `disclosure_rate`
+  is reported as *"rate at which the CoT verbalizes the hint"*, an observable, not a
+  faithfulness measure. The safety-relevant quantity is `hidden_influence_rate`. Caveat
+  goes in the paper's Definitions + Limitations. `PRE_RUN_READINESS.md` §4.3.
+
+## D-022 — Confirmatory n: NOT frozen; simulation-based power method defined
+- **Date:** 2026-09-01
+- **Decision:** No confirmatory sample size is frozen. The method to set it, later
+  (`PRE_RUN_READINESS.md` §5): a **Monte-Carlo simulation-based power analysis**, run
+  **after** the n=50 pilot (which supplies the generative-model parameters) and
+  **before** the confirmatory run. Closed-form proportion formulas are rejected — the
+  inference is an item-clustered bootstrap CI over a proportion with an item random
+  effect and k correlated samples per item. Grid over candidate n; M≈1000 sims per n;
+  run the frozen `compute_metrics` + the pre-registered confirmatory tests on each;
+  n\* = smallest n with power ≥ 0.8 at the minimum-interesting effect (α = .05), with a
+  sensitivity range. A small `clsm.power` module + `POWER.md` are produced then, not now.
+- **Rationale (this-turn task 6):** "prepare the power-analysis method only"; keep pilot
+  (validation) and confirmatory (inference) strictly separate.
+- **Evidence:** `PRE_RUN_READINESS.md` §5; `RESEARCH_PLAN.md` §18 (M5).
+- **Status:** ACTIVE (method). n\* pending pilot data.
+
+## D-023 — Concrete Milestone-1 execution-environment spec (`configs/milestone1/runtime.yaml`)
+- **Date:** 2026-09-01 (runtime-readiness pass)
+- **Decision:** the execution environment is now a concrete, versioned provenance file
+  `configs/milestone1/runtime.yaml` (`runtime_role: proposed`; validated by
+  `clsm.config.RuntimeSpec`): Linux x86_64, **Python 3.11**, **CUDA 12.4**, **GPU minimum
+  NVIDIA L4 24 GB** (Ada, SM 8.9; native bf16 + FlashAttention-2), **A100 40 GB
+  preferred**; **dtype bfloat16, quantization: none** (D-024). Proposed, compatibility-
+  driven (NOT newest) package pins: **vllm 0.8.5.post1 / torch 2.6.0 / transformers
+  4.51.3 / tokenizers 0.21.1 / datasets 3.5.0 / numpy >=1.26,<2.2**; no separate
+  `flash-attn` wheel (vLLM 0.8.x bundles its attention backends). vLLM engine:
+  `max_model_len 20480`, `gpu_memory_utilization 0.90`, `enforce_eager true`. `pyproject.toml`
+  `[run]` updated to this proposed set.
+- **Version rationale:** DeepSeek's official vLLM example + the `deepseek_r1` reasoning
+  parser landed in the vLLM 0.7.x era; the 0.8 line is the stable successor still on
+  `torch < 2.7` (vLLM ≥ 0.9 requires torch ≥ 2.7) with a CUDA-12.4 wheel. We use vLLM's
+  offline `LLM` class, so `--reasoning-parser` (a `vllm serve` flag) is not needed —
+  `clsm.extraction` splits `<think>…</think>` itself.
+- **Required vs observed:** `runtime.yaml` is the requirement. `clsm.provenance` captures
+  the OBSERVED GPU/CUDA/versions on every run; `validate_runtime_complete()` refuses a
+  run missing them. Observed values are never hand-entered.
+- **Locking:** `uv.lock` (preferred; `uv` is the documented env tool). Exact on-box
+  sequence: `PRE_RUN_READINESS.md` §2.3–2.4.
+- **Rationale (this-turn task 1, 4, 5):** replace the loose "external NVIDIA GPU / Colab
+  T4" with a reproducible spec + evidence.
+- **Evidence:** HF model card ("Tensor Type: BF16", context 32768, official vLLM example
+  `--max-model-len 32768 --enforce-eager`); vLLM docs (compute capability ≥ 7.0; CUDA
+  build targets; vLLM ≥ 0.9 ⇒ torch ≥ 2.7); `PRE_RUN_READINESS.md` §2.
+- **Config-hash impact:** `runtime.yaml` is a standalone provenance file, not part of
+  `ExperimentConfig` — it does not affect `config_hash()`. (The judge-reason rewrite in
+  D-021 rev. does; see the D-019 addendum for the current hash `7e7c236b…`.)
+- **Status:** ACTIVE (proposed). Becomes partly `observed` after the §2.4 lock on the box.
+
+## D-024 — NVIDIA T4 excluded; quantization is a methodological decision (not a hardware fix)
+- **Date:** 2026-09-01
+- **Decision (a) — T4 feasibility audit:** **NVIDIA T4 16 GB is classified C — UNSUITABLE**
+  for the frozen config (bf16, k=10, `max_new_tokens` 16384). Full memory budget:
+  weights ≈ 15.2 GB (7.62 B × 2 B) + CUDA/driver ≈ 0.8 GB + vLLM overhead ≈ 0.7 GB
+  ⇒ **≈ 16.7 GB before any KV cache** > 16 GB; vLLM pre-allocates the KV cache at engine
+  start and **fails to start** if it does not fit (no spilling). Also: Turing (SM 7.5)
+  has **no native bf16** (would force an fp16 dtype change) and **no FlashAttention-2**
+  (SM ≥ 8.0). **Preferred GPU: NVIDIA L4 24 GB** (or A10G 24 GB / RTX 4090 24 GB;
+  A100 40 GB best).
+- **Decision (b) — quantization:** the scientific baseline is **DeepSeek-R1-Distill-
+  Qwen-7B in bf16**. int8 / int4 / AWQ / GPTQ / fp8 change the model's numerics and can
+  change its answers and CoT. Quantization **must not be adopted silently** to fit a
+  cheaper GPU. If ever proposed it is a **methodological decision requiring user
+  approval and its own DECISION_LOG entry** (method, exact checkpoint, why the smaller
+  GPU is necessary, and an acknowledgement that quantized pilot numbers are not directly
+  comparable to a bf16 confirmatory run). `runtime.yaml` records `quantization: none`.
+- **Rationale (this-turn tasks 2, 3):** do not assume T4 works from raw parameter memory;
+  do not introduce quantization silently.
+- **Evidence:** memory-budget analysis + T4 architecture (SM 7.5, no bf16, no FA2);
+  vLLM KV-cache pre-allocation behaviour; `PRE_RUN_READINESS.md` §2a, §2b.
+- **Status:** ACTIVE.
+
+## D-025 — Timing/token probe is now TWO-STAGE (infrastructure smoke → formal probe)
+- **Date:** 2026-09-01
+- **Decision:** the probe runs in two stages.
+  **Stage A — infrastructure smoke:** 1 item × both conditions × **k = 1** = **2
+  generations**. Purpose only: model loads, chat template + `<think>` prefix work,
+  extraction runs without crashing, provenance + JSONL logging work, no OOM. A pure
+  infrastructure gate (all checks in `PRE_RUN_READINESS.md` §3.0). **No scientific metric
+  computed.**
+  **Stage B — formal timing/token probe:** the **unchanged** frozen 5 × 2 × 10 = 100
+  generations, run **only after Stage A passes**. Stage-B GO gates G1–G5 → the n=50
+  pilot. Disclosure is skipped through **both** stages (judge unresolved, D-021).
+- **The formal Stage-B design is NOT changed** — Stage A is added *before* it. Any
+  future change to Stage B (item count, k, subject) needs its own DECISION_LOG entry.
+- **Rationale (this-turn task 6):** 100 generations is expensive as the *first* hardware
+  validation; a 2-generation smoke is scientifically harmless (no metrics) and catches
+  plumbing failures cheaply.
+- **Evidence:** `PRE_RUN_READINESS.md` §3.
+- **Status:** ACTIVE.
