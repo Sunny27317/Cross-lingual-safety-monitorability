@@ -264,12 +264,21 @@ class VLLMEngineSpec(BaseModel):
 
 
 class RuntimeSpec(BaseModel):
-    """Proposed target execution environment. ``runtime_role`` must be 'proposed' or
-    'observed' — 'proposed' values are requirements, not measurements."""
+    """The experiment's **target / required** execution environment.
+
+    ``configs/milestone1/runtime.yaml`` is a target-only artifact and is **always**
+    ``runtime_role: proposed`` — it is never converted into an observation record after
+    provisioning. The **actual observed** environment is captured separately: by
+    ``observed_env.txt`` (a plain ``uv pip list`` / ``nvidia-smi`` dump), the run
+    ``manifest.json``, and ``clsm.provenance.Provenance`` (GPU model, VRAM, driver, CUDA
+    runtime, ``torch.version.cuda``, compute capability, resolved package versions,
+    ``uv.lock`` hash). Hence ``runtime_role`` is ``Literal["proposed"]`` only —
+    ``"observed"`` deliberately does not validate.
+    """
 
     model_config = ConfigDict(frozen=True, extra="allow")  # allow free-form *_note keys
 
-    runtime_role: Literal["proposed", "observed"]
+    runtime_role: Literal["proposed"]  # target-only artifact — never an observation record
     os: Literal["linux"]
     architecture: Literal["x86_64"]
     python: str

@@ -107,10 +107,33 @@ def test_runtime_spec_validates() -> None:
 
     root = Path(__file__).resolve().parents[1]
     spec = load_runtime_spec(root / "configs" / "milestone1" / "runtime.yaml")
-    assert spec.runtime_role == "proposed"       # NOT observed — no measured hardware here
+    assert spec.runtime_role == "proposed"       # target-only; never an observation record
     assert spec.os == "linux" and spec.architecture == "x86_64"
     assert spec.dtype == "bfloat16"
     assert spec.quantization == "none"           # no silent quantization (D-024)
     assert spec.gpu_memory_min_gb >= 24          # T4 (16 GB) is excluded
     assert spec.vllm_engine.max_model_len >= 16384 + 512
     assert "T4" not in spec.gpu_minimum          # T4 is not the target
+
+
+def test_runtime_role_observed_is_rejected() -> None:
+    """runtime.yaml is target-only. 'observed' must NOT validate (D-026).
+
+    The observed environment lives in observed_env.txt / manifest.json / clsm.provenance,
+    never in this config.
+    """
+    from pathlib import Path
+
+    import yaml
+    from pydantic import ValidationError
+
+    from clsm.config import RuntimeSpec, load_runtime_spec
+
+    root = Path(__file__).resolve().parents[1]
+    data = yaml.safe_load((root / "configs" / "milestone1" / "runtime.yaml").read_text())
+    data["runtime_role"] = "observed"
+    with pytest.raises(ValidationError):
+        RuntimeSpec.model_validate(data)
+
+    # sanity: the real file still validates
+    assert load_runtime_spec(root / "configs" / "milestone1" / "runtime.yaml").runtime_role == "proposed"
