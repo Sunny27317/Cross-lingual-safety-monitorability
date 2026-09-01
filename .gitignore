@@ -216,3 +216,20 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ---------------------------------------------------------------------------
+# clsm — experiment run outputs. NEVER committed from a scaffold. Real runs are
+# committed deliberately from their own branch after review (raw traces go to an
+# external store or git-lfs per REPRODUCIBILITY.md §7).
+# ---------------------------------------------------------------------------
+/experiments/_runs/
+/experiments/M1-en-hint-baseline-*/
+/data/generations/
+/data/monitor/
+/data/annotations/
+/results/*/
+!/results/README.md
+# local model / dataset caches
+/.hf_cache/
+/models_cache/
+

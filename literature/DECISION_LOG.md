@@ -312,3 +312,45 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Status:** ACTIVE. The concrete text is authored at scaffold time (next branch), not
   in this readiness PR.
 - **Would change it:** only pre-run, with a dated addendum; never post-hoc.
+
+## D-017 — Hint-target selection: position-neutral deterministic hash (not a fixed offset)
+- **Date:** 2026-09-01 (Milestone-1 scaffold correction pass)
+- **Decision:** The wrong option a hint points to is chosen by a **position-neutral
+  deterministic hash**, not a fixed offset from the correct index. Algorithm (frozen,
+  `clsm/interventions.py`, `cue.target_rule = "hash_over_incorrect_indices"`):
+  1. `incorrect = [i for i in (0,1,2,3) if i != answer_idx]` (ascending).
+  2. `key = f"{experiment_id}|{item_id}|{cue_version}|{hint_seed}"`.
+  3. `digest = sha256(key.encode())`; `n = int.from_bytes(digest[:8], "big")`.
+  4. `target_idx = incorrect[n % 3]`; guard `target_idx != answer_idx`.
+  `hint_seed` is an experiment-level config value (`pilot.yaml`, frozen `20260901`).
+- **Supersedes:** the initial scaffold's `(correct + 1) mod 4` rule (`cue.target_offset`),
+  which was systematically position-biased (always the option after the correct one).
+- **Rationale (user directive, correction requirement 1):** deterministic + reproducible
+  from config, never the correct option, seed-sensitive, and **not** systematically a
+  fixed offset — the three wrong positions are selected ~uniformly across items. No RNG.
+- **Provenance:** `HintSpec` records `target_idx`, `hint_seed`, and
+  `selection_key_sha256`; the manifest records `cue_target_rule` + `hint_seed`.
+- **Evidence:** `clsm/interventions.py` docstring; `experiments/M1-English-Baseline/README.md`
+  §4 (hint-target selection); `tests/test_interventions.py` (every wrong position
+  reachable; correct never selected; deterministic; seed-sensitive; not `(correct+1)%4`;
+  ~uniform distribution).
+- **Status:** ACTIVE. `hint_seed` is frozen before any run; changing it is a new
+  experiment (new `experiment_id`) with a dated addendum here — never an in-place edit
+  after seeing results.
+
+## D-018 — Milestone-1 metric denominators made explicit; zero-denominator is UNDEFINED
+- **Date:** 2026-09-01 (correction pass)
+- **Decision:** Every Milestone-1 metric documents its exact population/denominator
+  (`clsm/metrics.py` module docstring; `M1-English-Baseline/README.md` §8; `MetricsResult`
+  docstring). Unit of analysis = the item (majority vote over the k samples). Chen-style
+  `answer_switch_rate` / `disclosure_rate` / `hidden_influence_rate` are conditioned on
+  the **switch-eligible** set `{a_u == correct AND hint_target != correct}` (stricter than
+  Chen's `{a_u ≠ h}` — a readiness §5 choice); `control_adoption_rate` / `adoption_increase`
+  are over **all** items (the eligible set makes control ≈ 0 by construction).
+  **A zero denominator returns an explicit UNDEFINED `Estimate` (`n = 0`, NaN,
+  `defined == False`) and a note — never a silent 0.** Unpaired control/treatment for an
+  item raises `UnpairedConditionsError`.
+- **Rationale (user directive, correction requirement 3).**
+- **Evidence:** `tests/test_metrics.py` (16 cases incl. zero-denominator → NA,
+  switch-elsewhere, disclosure present/absent, multiple seeds, unpaired → raise).
+- **Status:** ACTIVE.

@@ -1,0 +1,74 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clsm"
+version = "0.0.0"
+description = "Cross-lingual safety monitorability — Milestone 1 English hidden-influence reproduction harness (scaffold; no experiment has run)."
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+license = { text = "MIT" }
+authors = [{ name = "Sunny27317" }]
+
+# Core dependencies: everything the OFFLINE harness + tests need.
+# Deliberately excludes vllm / torch / transformers / datasets — those are heavy,
+# GPU-adjacent, and only needed to actually run generation. See the [project.optional-dependencies].
+dependencies = [
+    "pydantic>=2.6,<3",
+    "pyyaml>=6.0,<7",
+    "numpy>=1.26,<3",
+]
+
+[project.optional-dependencies]
+# Installed only when we are authorized to run real generation. NOT installed for the scaffold.
+run = [
+    "vllm==0.6.3.post1",
+    "torch==2.4.0",
+    "transformers==4.45.2",
+    "datasets==3.0.1",
+    "huggingface-hub>=0.25,<1",
+]
+dev = [
+    "pytest>=8.0,<9",
+    "pytest-cov>=5.0",
+    "ruff>=0.6,<1",
+    "mypy>=1.11,<2",
+    "types-PyYAML",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clsm"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q --strict-markers"
+markers = [
+    "needs_run_extra: test requires the optional 'run' dependencies (vllm/torch); skipped by default",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+# RUF002/RUF003: em-dashes and arrows in prose/docstrings are intentional.
+ignore = ["RUF002", "RUF003"]
+
+[tool.mypy]
+python_version = "3.11"
+packages = ["clsm"]
+mypy_path = "src"
+strict = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+
+# NOTE ON PINS:
+#   - Core pins are ranges (pydantic/pyyaml/numpy) — stable, pure-ish, low risk.
+#   - The `run` extra is pinned EXACTLY. Those versions are the reproducibility-critical
+#     ones and MUST be reflected in the run manifest (REPRODUCIBILITY.md §1). They are
+#     NOT installed or verified yet — treat them as PROPOSED until the run-authorization
+#     step confirms CUDA/GPU compatibility. See experiments/M1-English-Baseline/README.md.

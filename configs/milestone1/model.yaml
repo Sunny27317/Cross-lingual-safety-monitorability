@@ -1,0 +1,14 @@
+# Milestone-1 generator model.
+# Decisions: DECISION_LOG.md D-012; MILESTONE_1_READINESS.md §6.
+# Every value below is tagged by provenance class in the readiness doc.
+
+id: deepseek-ai/DeepSeek-R1-Distill-Qwen-7B          # blueprint Phase 5
+
+# SOURCE-CODE-VERIFIED via the HF API on 2026-09-01. MUST be re-confirmed at the
+# run-authorization step (the model card may have been updated since).
+revision: "916b56a44061fd5cd7d6a8fb632557ed4f724f60"
+tokenizer_revision: "916b56a44061fd5cd7d6a8fb632557ed4f724f60"
+
+base_model: Qwen2.5-Math-7B                          # MODEL-DOCUMENTATION-RECOMMENDED (HF card)
+license: MIT                                         # MODEL-DOCUMENTATION-RECOMMENDED (HF card)
+provenance_tag: "blueprint Phase 5 + HF model card + HF API, 2026-09-01"

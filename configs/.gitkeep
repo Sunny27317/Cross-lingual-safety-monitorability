@@ -1,4 +1,0 @@
-# Placeholder to keep this directory under version control.
-# configs/ holds version-controlled experiment configuration files.
-# Every run references a config path + code commit hash (see CLAUDE.md §2.7).
-# Empty until Milestone 1.

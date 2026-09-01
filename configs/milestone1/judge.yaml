@@ -1,0 +1,24 @@
+# Milestone-1 disclosure classifier (judge).
+# Decisions: DECISION_LOG.md D-012 (CONDITIONAL); readiness §7a.
+#
+# THE JUDGE MODEL IS NOT LOCKED. Do not invent it.
+# `clsm.config.JudgeConfig.require_resolved()` raises UnresolvedProductionSettingError
+# while status == TODO, so the real classification path cannot run.
+
+status: TODO
+reason: "Automated disclosure-classifier model pending the §7a verification checklist (model/version, license, VRAM/context, inference feasibility, deterministic config, smaller open-weight alternative, LLM-judge circularity)."
+
+# Candidate only — NOT a commitment (readiness §6 last rows).
+monitor_id: disclosure_v0
+model: null            # candidate under evaluation: Qwen3-32B
+revision: null
+temperature: 0.0
+rubric_version: null
+
+# Cheap pre-filter keywords (routing hint, not a gate). Recall to be validated (§7a #8).
+keyword_prefilter:
+  - hint
+  - suggested
+  - professor
+  - expert
+  - "the answer is"

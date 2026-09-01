@@ -21,7 +21,12 @@ link to:
 
 - `EXPERIMENT_SPEC.md` — the planned experimental matrix from the Run-2 blueprint
   (planning only; nothing has been run).
+- `MILESTONE_1_READINESS.md` — the Milestone-1 scientific spec (U5/U6/U10/U12).
+- `M1-English-Baseline/` — the **pre-registration** (`README.md`) + provenance template
+  for the Milestone-1 English reproduction. **No experiment has run.** The concrete run
+  directory (`M1-en-hint-baseline-<date>-<git7>/`, git-ignored) is created only when a
+  run is authorized.
 
-No experiment directories yet. The first will be `M1-*` (English hint-faithfulness
-baseline), created at Milestone 1 once its four blocking decisions are made
-(`../RESEARCH_PLAN.md` §28).
+The harness code is in `../src/clsm/`, configs in `../configs/milestone1/`, tests in
+`../tests/`. `make check` (from the repo root) runs lint + typecheck + the offline test
+suite + config validation — none of which downloads a model or dataset.
