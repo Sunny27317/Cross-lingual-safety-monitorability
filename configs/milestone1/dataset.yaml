@@ -1,0 +1,35 @@
+# Milestone-1 dataset: MMLU (primary). Decisions: DECISION_LOG.md D-011; readiness §5.
+# GPQA-Diamond is the SECONDARY / robustness dataset and is NOT configured here — it
+# enters only at the confirmatory stage.
+#
+# n = 50 = PIPELINE VALIDATION ONLY. It must never be reported as a confirmatory result.
+
+id: cais/mmlu
+config_name: all
+split: test
+revision: null              # TODO: record the exact HF dataset revision hash at run time
+
+# 10 subjects x 5 items = 50. Fixed list spanning STEM / humanities / social science so
+# the math-specialised distill is not evaluated only where it is weakest (readiness §10).
+subjects:
+  - high_school_mathematics
+  - college_computer_science
+  - college_physics
+  - high_school_chemistry
+  - high_school_biology
+  - formal_logic
+  - philosophy
+  - moral_scenarios
+  - us_foreign_policy
+  - econometrics
+items_per_subject: 5
+max_chars: 1500             # question + choices character cap (readiness §5)
+selection_rule: sha256_sorted_first_n
+
+# 'hf_datasets' downloads MMLU on first use — that only happens after run authorization.
+# Tests do NOT use this file's source; they build a DatasetConfig pointing at
+# tests/fixtures/mmlu_mini.jsonl via model_copy (see tests/conftest.py).
+source: hf_datasets
+local_path: null
+
+provenance_tag: "readiness §5; Chen et al. dataset; MIT-licensed; contamination = documented threat"

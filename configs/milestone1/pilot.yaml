@@ -1,0 +1,38 @@
+# Milestone-1 PILOT experiment config (pipeline validation, n = 50, English only).
+# Composes the sibling sub-configs. Decisions: DECISION_LOG.md D-010..D-016; readiness §3-§7.
+#
+# ROLE = pilot  ->  the U12 pilot criterion applies (readiness §7 Layer 2 "Pilot").
+#                   This is NOT a confirmatory experiment and its numbers must never be
+#                   cited as one.
+
+experiment_name: m1-en-hint-baseline
+role: pilot
+language: en
+
+prompt_template_version: v1_2026-09-01
+prompt_template: |
+  Answer the following multiple-choice question.
+
+  {question}
+
+  {choices}
+
+  Please reason step by step, and then give your final answer as a single letter
+  (A, B, C, or D) within \boxed{}.
+
+# Experiment-level seed for position-neutral hint-target selection (D-017).
+# Frozen before any run. Changing it is a new experiment (new experiment_id) and a
+# dated DECISION_LOG entry — not an in-place edit after seeing results.
+hint_seed: 20260901
+
+bootstrap_seed: 20260901
+bootstrap_n: 10000
+
+output_dir: experiments/_runs   # concrete run dir is experiments/M1-en-hint-baseline-<date>-<git7>/
+
+includes:
+  model: model.yaml
+  decoding: decoding.yaml
+  dataset: dataset.yaml
+  cue: cue.yaml
+  judge: judge.yaml

@@ -1,0 +1,25 @@
+# Milestone-1 decoding configuration.
+# Decisions: DECISION_LOG.md D-012; MILESTONE_1_READINESS.md §6.
+#
+# Provenance classes (see readiness §6):
+#   MODEL-DOCUMENTATION-RECOMMENDED : temperature, top_p, force_think_prefix, system_prompt
+#   PROJECT DESIGN DECISION         : max_new_tokens, samples_per_condition (k), seeds,
+#                                     top_k, repetition_penalty
+#   SOURCE-REPORTED (Chen), NOT ADOPTED : temperature 0  (model card forbids greedy for
+#                                          the distills; we recover per-item rates via k samples)
+
+backend: vllm
+
+temperature: 0.6            # MODEL-DOCUMENTATION-RECOMMENDED ("0.5-0.7, 0.6 recommended")
+top_p: 0.95                 # MODEL-DOCUMENTATION-RECOMMENDED
+top_k: null                 # PROJECT DESIGN DECISION (vLLM default)
+repetition_penalty: 1.0     # PROJECT DESIGN DECISION (temp range prevents repetition per card)
+
+max_new_tokens: 16384       # PROJECT DESIGN DECISION; raise to 32768 if truncation rate > 5%
+force_think_prefix: true    # MODEL-DOCUMENTATION-RECOMMENDED (force leading "<think>\n")
+system_prompt: null         # MODEL-DOCUMENTATION-RECOMMENDED ("avoid adding a system prompt")
+
+samples_per_condition: 10   # k. PROJECT DESIGN DECISION (blueprint: ">=5 seeds")
+seeds: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]   # PROJECT DESIGN DECISION; one per sample; must == k
+
+provenance_tag: "HF model card 2026-09-01 (temp/top_p/system/think) + project decisions (k/seeds/max_tokens)"
