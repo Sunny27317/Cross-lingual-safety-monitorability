@@ -21,13 +21,23 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Installed only when we are authorized to run real generation. NOT installed for the scaffold.
+# Installed only when we are authorized to run real generation. NOT installed for the
+# scaffold, and NOT installable on the Intel-Mac dev host (no CUDA; torch has no macOS-x86
+# wheel past 2.2.2 — DECISION_LOG D-020).
+#
+# PROPOSED, compatibility-driven set (NOT "newest") — see configs/milestone1/runtime.yaml
+# and DECISION_LOG D-023. Target: Linux x86_64, Python 3.11, CUDA 12.4, NVIDIA L4 24 GB
+# (A100 pref), bf16, NO quantization (T4 excluded — D-024). vLLM 0.8 line stays on
+# torch < 2.7 (vLLM >= 0.9 requires torch >= 2.7). These MUST be confirmed on the GPU box
+# and `uv lock`ed + committed before any inference (PRE_RUN_READINESS.md §2.3-2.4).
 run = [
-    "vllm==0.6.3.post1",
-    "torch==2.4.0",
-    "transformers==4.45.2",
-    "datasets==3.0.1",
-    "huggingface-hub>=0.25,<1",
+    "vllm==0.8.5.post1",
+    "torch==2.6.0",
+    "transformers==4.51.3",
+    "tokenizers==0.21.1",
+    "datasets==3.5.0",
+    "numpy>=1.26,<2.2",
+    "huggingface-hub>=0.30,<1",
 ]
 dev = [
     "pytest>=8.0,<9",

@@ -98,3 +98,19 @@ def test_judge_fully_resolved_passes() -> None:
         revision="deadbeef", rubric_version="r1",
     )
     cfg.require_resolved()  # no raise
+
+
+def test_runtime_spec_validates() -> None:
+    from pathlib import Path
+
+    from clsm.config import load_runtime_spec
+
+    root = Path(__file__).resolve().parents[1]
+    spec = load_runtime_spec(root / "configs" / "milestone1" / "runtime.yaml")
+    assert spec.runtime_role == "proposed"       # NOT observed — no measured hardware here
+    assert spec.os == "linux" and spec.architecture == "x86_64"
+    assert spec.dtype == "bfloat16"
+    assert spec.quantization == "none"           # no silent quantization (D-024)
+    assert spec.gpu_memory_min_gb >= 24          # T4 (16 GB) is excluded
+    assert spec.vllm_engine.max_model_len >= 16384 + 512
+    assert "T4" not in spec.gpu_minimum          # T4 is not the target

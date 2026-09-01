@@ -188,7 +188,7 @@ exact n TODO)** are distinct; only the pilot is in scope for the first implement
 | **Chen et al.'s setting** | **temperature 0** ("For all evaluations, we sample with temperature 0") — **NOT ADOPTED**; the DeepSeek model card explicitly warns greedy/temp-0 causes degenerate output for the distills. Deviation documented; we recover a stable per-item rate via k samples instead. | SOURCE-REPORTED (Chen), deliberately overridden |
 | Environment pins (all recorded in the manifest) | Python, vLLM, **PyTorch**, **transformers**, **CUDA / driver**, GPU model + count, OS; plus model repo + revision, tokenizer revision | PROJECT DESIGN DECISION (`REPRODUCIBILITY.md` §1) |
 | Determinism limits | vLLM is **not** bitwise-deterministic across GPU model, batch size, engine version, or CUDA version. We **do not claim perfect determinism.** Known nondeterminism is documented in the manifest; seed-level reproducibility means "same sampling distribution", not "same bytes". A fixed seed + fixed environment is expected to reproduce aggregate rates within Monte-Carlo error, not exactly. | MODEL-DOCUMENTATION / PROJECT DESIGN DECISION |
-| Disclosure-classifier model | **NOT LOCKED — candidate only.** `Qwen3-32B` @ temp 0 is a starting candidate. Before implementation, run the **§7a verification checklist** (model/version, license, hardware/context/inference feasibility, deterministic config, a smaller-open-weight alternative, and the risk of using an LLM judge to study LLM-judge failure). The classifier is **audited against blinded human annotation** and never treated as ground truth. | PROJECT DESIGN DECISION, pending verification |
+| Disclosure-classifier model | **NOT LOCKED.** Family = **Qwen3 dense** (Apache 2.0; 131,072-token context), candidates `Qwen/Qwen3-{8B,14B,32B}`, temp 0, non-thinking mode (`configs/milestone1/judge.yaml`; D-021). §7a status: §7a table above. Locked only after the blinded human-audit κ comparison (needs real traces → needs the GPU box). Audited against blinded human annotation; never ground truth. | PROJECT DESIGN DECISION, pending the audit |
 | MMLU / GPQA question counts in Chen | **NOT REPORTED BY SOURCE** | — |
 | Chen top_p / k | **NOT REPORTED BY SOURCE** | — |
 | Chen released code | **none found** (checked arXiv HTML + web) — cannot SOURCE-CODE-VERIFY any Chen setting | — |
@@ -279,19 +279,25 @@ against — not forced to equal — the prior-work range.**
 ## 7a. Disclosure classifier — verification checklist (run BEFORE locking; overlaps U3)
 
 The automated disclosure classifier is the **instrument whose cross-lingual degradation
-the whole project later measures**. It must not become unquestioned ground truth. Before
-it is fixed in a config:
+the whole project later measures**. It must not become unquestioned ground truth. Status
+of each item as of the pre-run pass (2026-09-01) — detail in
+`experiments/M1-English-Baseline/PRE_RUN_READINESS.md` §4:
 
-| # | Verify | Why |
+| # | Verify | Status |
 |---|---|---|
-| 1 | Exact model id + revision/commit hash of the candidate judge | reproducibility |
-| 2 | License permits research use + result publication | legal |
-| 3 | Hardware / VRAM to serve it; context-window sufficient for a 16k-token trace + rubric | feasibility |
-| 4 | Inference feasibility on Tier-A/B compute (throughput for ~1k pilot calls, ~10k confirmatory) | feasibility |
-| 5 | Deterministic configuration (temp 0; pinned; document residual nondeterminism) | reproducibility |
-| 6 | Whether a **smaller open-weight** model (e.g. 7–14B) reaches adequate human agreement — prefer the smallest that does | cost + accessibility + the cross-lingual arm needs a judge that is itself inspectable |
-| 7 | **Circularity risk:** we are using an LLM judge to study LLM-judge failure. Document the mitigations: (a) blinded human audit is the reference, not the LLM; (b) English is the judge's best case, so M1 is the *most* favorable setting; (c) the classifier's measured error is propagated into every disclosure-rate CI; (d) the four-monitor design (M4) exists precisely so the automated judge is never the sole arbiter. | integrity — this is the (A)-vs-(B) problem in miniature |
-| 8 | Keyword pre-filter recall on a hand-built positive set (must not gate out true disclosures before the LLM step) | avoids a hidden false-negative floor |
+| 1 | Exact model id + revision/commit hash of the candidate judge | ⚠️ family = **Qwen3 dense** (`Qwen/Qwen3-{8B,14B,32B}`); exact model + revision NOT locked (D-021) |
+| 2 | License permits research use + result publication | ✅ **Apache 2.0** (Qwen3 dense) |
+| 3 | Context-window sufficient for a 16k-token trace + rubric | ✅ **131,072 tokens** (Qwen3) |
+| 4 | Inference feasibility (VRAM / throughput) | ⚠️ any shortlisted ≤ ~14B judge in bf16 needs an L4/A100-class GPU (T4 excluded — D-024; same memory logic as the generator); disclosure outputs are short so throughput is not the constraint |
+| 5 | Deterministic configuration | ⚠️ drafted: temp 0, non-thinking mode, pinned revision (`configs/milestone1/judge.yaml`); not locked |
+| 6 | Smaller-open-weight preference | ⚠️ plan: evaluate Qwen3-8B first, then 14B/32B, against the human audit; lock the smallest that clears the κ floor |
+| 7 | **Circularity risk** mitigations | ✅ documented: (a) blinded human audit is the reference; (b) English = judge's best case; (c) measured judge error propagated into every disclosure-rate CI; (d) the four-monitor design (M4) means no single automated judge is the arbiter |
+| 8 | Keyword pre-filter recall on a hand-built positive set | ❌ TODO (offline, once example CoTs exist) |
+| — | Disclosure rubric | ⚠️ **draft v0** in `PRE_RUN_READINESS.md` §4.3; finalize + commit + tag before any judging; same text for human annotators |
+
+**Why not locked:** the choice (8B/14B/32B; thinking vs not; rubric v1) needs a blinded
+human-annotated audit of **real Milestone-1 traces** to compute κ against — which needs
+the generator to have run on the GPU box. Left explicitly unresolved.
 
 **Human validation is mandatory, not optional.** Every reported automated-monitor number
 in this project is accompanied by, or audited against, blinded human annotation. The
@@ -352,17 +358,21 @@ smaller, math-specialized distill, not full R1; a magnitude-match is not a defen
 reproduction criterion across model classes. Direction + significance is the right
 qualitative bar; a wide plausibility band is the right quantitative layer.
 
-## 9. Remaining uncertainties (post-approval)
+## 9. Remaining uncertainties (post pre-run readiness pass, 2026-09-01)
+
+Detail: `experiments/M1-English-Baseline/PRE_RUN_READINESS.md`.
 
 | # | Uncertainty | Status | Blocking M1? |
 |---|---|---|---|
-| 1 | MMLU vs. GPQA-Diamond as primary dataset | **RESOLVED — user ruled MMLU primary, GPQA-Diamond secondary** (2026-09-01) | no |
-| 2 | Disclosure-classifier judge model | **OPEN — candidate not locked**; run the §7a checklist before implementation | yes for Layer 1 |
-| 3 | Confirmatory n | OPEN by design — power/sample-size justification required *before* freezing n; pilot does not need it | no (for the pilot) |
-| 4 | Exact hint wording / "unusual input" alert | **RESOLVED — user approved:** Chen-style neutral baseline, no alert, text frozen in config + provenance before the confirmatory run, no post-hoc tuning, variants = labelled ablations | no (text to be written into the config at scaffold time) |
-| 5 | Runtime pins (Python, vLLM, PyTorch, transformers, CUDA, GPU) | **RESOLVED in policy — user approved:** pin & record all of them; no perfect-determinism claim; document known nondeterminism | no (recorded at run time) |
-| 6 | MMLU dataset licence confirmation | OPEN — metadata only; confirm the dataset card before redistribution | no |
-| 7 | Smaller open-weight judge alternative | OPEN — part of the §7a checklist | no (Layer-1 concern) |
+| 1 | MMLU vs. GPQA-Diamond as primary dataset | **RESOLVED** — MMLU primary, GPQA-Diamond secondary | no |
+| 2 | MMLU revision + licence | **RESOLVED (D-019)** — pinned `c30699e8…`, MIT, cite Hendrycks 2021 | no |
+| 3 | Execution environment spec | **RESOLVED — concrete (D-023/D-024)** — `configs/milestone1/runtime.yaml`: Linux x86_64, Python 3.11, CUDA 12.4, **GPU min NVIDIA L4 24 GB** (A100 pref), **bf16, no quantization**; **T4 excluded**. GPU box **not yet provisioned** | **yes — provision an L4/A100 box before any inference** |
+| 4 | `[run]` deps finalized + `uv.lock`ed | **UNRESOLVED** — proposed set (vllm 0.8.5.post1 / torch 2.6.0 / transformers 4.51.3 / datasets 3.5.0) in `runtime.yaml` + `pyproject.toml`; confirm + `uv lock` on the box (`PRE_RUN_READINESS.md` §2.3–2.4) | **yes — before the smoke probe** |
+| 5 | Timing / token probe protocol | **RESOLVED — two-stage** (Stage A smoke 2 gens → Stage B 5×2×10) (`PRE_RUN_READINESS.md` §3; D-025); not executed | no (it IS the first run step) |
+| 6 | Disclosure-classifier judge model | **UNRESOLVED (D-021)** — licence/context screen only; **no model selected**; lock milestone = M1 disclosure-scoring step (`PRE_RUN_READINESS.md` §4.2); rubric draft v0 | yes for the pilot's disclosure metrics; **not** for the probe or the generator run |
+| 7 | Keyword pre-filter recall | **OPEN** — measure on a hand-built positive set before the pilot (offline) | no |
+| 8 | Confirmatory n | **DELIBERATELY NOT FROZEN (D-022)** — simulation-based power method defined; runs post-pilot | no (for the pilot) |
+| 9 | Hint wording / "unusual input" alert | **RESOLVED** — Chen-style neutral baseline, no alert, frozen in `cue.yaml` v1 (D-016) | no |
 
 ## 10. Threats to validity
 
@@ -389,19 +399,30 @@ qualitative bar; a wide plausibility band is the right quantitative layer.
 - **Prompt-format / `\boxed{}` extraction** may fail on verbose traces ⇒ parse-rate
   gate in Layer 1.
 
-## 11. Compute requirements (ESTIMATES — not measured; a probe is mandatory first)
+## 11. Compute / environment (ESTIMATES — not measured; a probe is mandatory first)
 
-- **Pilot:** 50 items × 2 conditions × 10 samples = **1,000 generations** + roughly
-  `n_eligible_switched` disclosure-classifier calls. Rough guess **1–4 GPU-hours** —
-  **unverified**. `max_new_tokens = 16384` is a cap, not an expected length.
-- **MANDATORY first action under run authorization — timing / token probe:** run the
-  frozen pipeline on ~5 items × both conditions × k, record real per-generation output
-  token counts, wall-clock latency, and truncation rate, and produce a measured compute
-  + storage estimate for the full pilot. Only then run the 50-item pilot. If truncation
-  > 5%, raise `max_new_tokens` to 32768 (config + DECISION_LOG) before the pilot.
-- **Confirmatory (n TBD):** ~n×20 generations ⇒ estimate only after the probe.
-- No training. No large downloads beyond the 7B model weights (~15 GB) and MMLU
-  (~30 MB) — **not** downloaded at this stage.
+Full analysis: `experiments/M1-English-Baseline/PRE_RUN_READINESS.md` §2–§3.
+
+- **Execution environment (D-023/D-024):** concrete spec `configs/milestone1/runtime.yaml`
+  — Linux x86_64, Python 3.11, CUDA 12.4, **GPU minimum NVIDIA L4 24 GB** (A100 40 GB
+  preferred), **bf16, quantization: none**. **T4 16 GB is EXCLUDED** — weights alone
+  (≈ 15.2 GB) + overhead exceed 16 GB and vLLM cannot pre-allocate a KV cache
+  (`PRE_RUN_READINESS.md` §2a). Quantization to fit a smaller GPU is a **methodological
+  decision** needing approval + a DECISION_LOG entry (D-024). The Intel-Mac dev host
+  cannot run anything (no CUDA).
+- **`[run]` pins:** proposed compatibility-driven set (vllm 0.8.5.post1 / torch 2.6.0 /
+  transformers 4.51.3 / datasets 3.5.0 / numpy <2.2) in `runtime.yaml` + `pyproject.toml`;
+  **confirm on the box + `uv lock` + commit before the smoke probe** (`PRE_RUN_READINESS.md`
+  §2.3–2.4).
+- **Pilot:** ~1,000 generations. Rough guess 1–4 GPU-hours — **unverified**;
+  `max_new_tokens = 16384` is a cap, not an expected length.
+- **MANDATORY first inference — TWO-STAGE probe (D-025):** Stage A infrastructure smoke
+  (2 generations — model loads, template works, logging works); then Stage B formal
+  timing/token probe (5 × 2 × 10 = 100 generations; latency / output tokens / truncation
+  / VRAM / failures / parse-status; GO gates G1–G5 → the pilot). Disclosure skipped
+  through both. Not executed. No scientific metric computed.
+- **Confirmatory (n TBD):** estimate only after the probe + pilot.
+- No downloads beyond the 7B weights and MMLU — **not** downloaded at this stage.
 
 ## 12. Expected runtime (ESTIMATE)
 

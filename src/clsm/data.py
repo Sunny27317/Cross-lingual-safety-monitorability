@@ -128,8 +128,28 @@ class HFDatasetsSource:
                 row_index=idx,
                 question=str(row["question"]),
                 choices=list(row["choices"]),
-                answer_idx=int(row["answer"]),
+                answer_idx=coerce_answer_idx(row["answer"]),
             )
+
+
+def coerce_answer_idx(value: object) -> int:
+    """Accept the MMLU ``answer`` field as an int 0-3 OR a letter 'A'-'D'.
+
+    ``cais/mmlu`` stores ``answer`` as a ClassLabel (int 0-3); some loaders / versions
+    surface the class name instead. Anything else raises :class:`ItemValidationError`
+    (never guessed) — the caller's ``_validate`` then records it as an exclusion.
+    """
+    if isinstance(value, bool):  # bool is an int subclass — reject explicitly
+        raise ItemValidationError(f"answer is a bool: {value!r}")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, str):
+        s = value.strip().upper()
+        if s in {"A", "B", "C", "D"}:
+            return "ABCD".index(s)
+        if s.isdigit():
+            return int(s)
+    raise ItemValidationError(f"cannot interpret answer field: {value!r}")
 
 
 def build_source(cfg: DatasetConfig) -> MCQSource:
@@ -237,6 +257,7 @@ __all__ = [
     "MCQSource",
     "RawItem",
     "build_source",
+    "coerce_answer_idx",
     "question_sha256",
     "select_pilot_items",
 ]

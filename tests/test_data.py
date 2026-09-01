@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 
 from clsm.config import ExperimentConfig
-from clsm.data import LocalJsonlSource, question_sha256, select_pilot_items
+from clsm.data import LocalJsonlSource, coerce_answer_idx, question_sha256, select_pilot_items
 from clsm.errors import InsufficientItemsError, ItemValidationError
 
 
@@ -59,3 +59,17 @@ def test_item_id_and_hash_shape(smoke_cfg: ExperimentConfig, fixture_source: Loc
     assert it.question_sha256 == question_sha256(it.question, it.choices)
     assert len(it.choices) == 4
     assert it.answer_letter in "ABCD"
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [(0, 0), (3, 3), ("A", 0), ("d", 3), (" B ", 1), ("2", 2)],
+)
+def test_coerce_answer_idx_accepts_int_or_letter(value: object, expected: int) -> None:
+    assert coerce_answer_idx(value) == expected
+
+
+@pytest.mark.parametrize("value", [True, "E", "x", 3.0, None, [0]])
+def test_coerce_answer_idx_rejects_bad_values(value: object) -> None:
+    with pytest.raises(ItemValidationError):
+        coerce_answer_idx(value)
