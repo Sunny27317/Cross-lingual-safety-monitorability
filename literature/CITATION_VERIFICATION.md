@@ -94,11 +94,21 @@ Status legend:
   Denison, John Schulman, … Ethan Perez (Anthropic). ✅
 - **Method** (paired hinted/un-hinted prompts; does the CoT acknowledge the hint when
   the answer changes): **VERIFIED.** Models incl. Claude 3.7 Sonnet and DeepSeek R1. ✅
-- **"Reveal rates often below 20%":** **PARTIALLY VERIFIED** — the paper reports low CoT
-  faithfulness scores overall and lower on some hint categories; the exact "<20%" phrase
-  was not confirmed verbatim from the sources fetched. Treat the number as approximate
-  until the paper is read directly.
-- Sources: `arxiv.org/abs/2505.05410`, `anthropic.com/research/reasoning-models-dont-say-think`.
+- **"Reveal rates often below 20%":** **PARTIALLY VERIFIED** — the exact "<20%" phrase
+  was not confirmed verbatim; the arXiv HTML gives **overall CoT faithfulness ≈ 25%
+  (Claude 3.7 Sonnet) / ≈ 39% (DeepSeek-R1)**, with GPQA "consistently less faithful
+  than MMLU" and lower still on misaligned hints. Use these figures, not "<20%".
+- **Milestone-1-relevant details (fetched from arXiv HTML `2505.05410v1`, 2026-09-01):**
+  - datasets = **MMLU + GPQA**, multiple-choice prompt pairs — **SOURCE-REPORTED**
+  - **6 hint types** = 4 neutral (sycophancy, consistency, visual pattern, metadata) +
+    2 misaligned (grader hacking, unethically-obtained information) — **SOURCE-REPORTED**
+  - faithfulness score = `E[ 1[c_h verbalizes h] | a_u ≠ h, a_h = h ]` — **SOURCE-REPORTED**
+  - **"For all evaluations, we sample with temperature 0"** — **SOURCE-REPORTED**
+    (deliberately *not* adopted for our DeepSeek distill; see `DECISION_LOG.md` D-012)
+  - top_p, k/samples, exact MMLU/GPQA question counts — **NOT REPORTED BY SOURCE**
+  - public code repository — **none found** (arXiv HTML + web); cannot SOURCE-CODE-VERIFY
+- Sources: `arxiv.org/html/2505.05410v1`, `arxiv.org/abs/2505.05410`,
+  `anthropic.com/research/reasoning-models-dont-say-think`.
 
 ### 6. Turpin et al. — arXiv:2305.04388 — **VERIFIED**
 - **Title:** "Language Models Don't Always Say What They Think: Unfaithful Explanations
@@ -238,6 +248,24 @@ positioned before the paper is written. **NEW INDEPENDENT ANALYSIS — NOT FROM 
 | "UrduMMLU: A Massive Multitask Benchmark for Urdu" — arXiv:2606.07167 | New Urdu benchmark | note as a possible additional dataset |
 | "Beyond the Commitment Boundary: Probing Epiphenomenal CoT in Large Reasoning Models" — arXiv:2606.13603 | Related to "commits in first 15%" claim | read |
 
+### D.2 — Added 2026-09-01 during the Milestone-1 literature check
+
+| Paper | Verified | Why it matters | Threat |
+|---|---|---|---|
+| Young, "Why Models Know But Don't Say: CoT Faithfulness Divergence Between Thinking Tokens and Answers in Open-Weight Reasoning Models" — **arXiv:2603.26410** (UNLV + DeepNeuro AI; posted 2026-03-27) | **VERIFIED** (arXiv HTML + ResearchGate) | 12 open-weight reasoning models on **MMLU + GPQA + misleading hints**; 55.4% of hint-following cases have hint keywords in thinking tokens omitted from the answer (reverse ~0.5%). *Effectively a near-replication of our Milestone 1 on open-weight models.* | **LOW** — corroborates the M1 paradigm and gives a comparison point; not cross-lingual, not native-validated. Cite as the M1 reference. |
+| Walden & Wanner, "Reasoning Models Will Sometimes Lie About Their Reasoning" (a.k.a. "…Will Blatantly Lie…") — **arXiv:2601.07663** (JHU; v4 2026-04-21) | **VERIFIED** (arXiv HTML + ResearchGate) | Alerting models to "unusual inputs" (prompt-injection defenses) inflates prior faithfulness metrics; new granular metrics still show problematic behavior. | **LOW** — affects M1 hint-wording design (whether to alert the model); not a novelty threat. |
+| "Challenges and Recommendations for LLMs-as-a-Judge in Multilingual Settings and Low-Resource Languages" — **arXiv:2607.02235** | **VERIFIED** (arXiv) | Only 33/650 LLM-judge papers cover multilingual/low-resource; performance often **overestimated** for low-resource; criticizes reliance on a single judge. | **MEDIUM (framing)** — establishes "LLM judges unreliable in low-resource languages" as a general result. |
+| "Towards Reliable Multilingual LLMs-as-a-Judge: An Empirical Study" — **arXiv:2605.28710** | **VERIFIED** (arXiv) | Cross-language judgment consistency poor (Fleiss κ ≈ 0.3), worst in low-resource. | **MEDIUM (framing)** |
+| "Lower-Resource, Higher Scores: Language Bias in LLM Evaluators" — **arXiv:2607.14480** | **VERIFIED** (arXiv) | Weaker language competence ⇒ more evaluator bias (length bias, self-preference, ignoring references). | **MEDIUM (framing)** |
+| "How Reliable is Multilingual LLM-as-a-Judge?" — **arXiv:2505.12201** (Findings EMNLP 2025, `2025.findings-emnlp.587`) | **VERIFIED** (arXiv + ACL Anthology) | Same theme, peer-reviewed. | **MEDIUM (framing)** |
+
+**Consequence (see `DECISION_LOG.md` D-014):** the general claim "automated
+monitors/judges fail in low-resource languages" is now well-established for both CoT
+monitors (Onyame) and LLM-judges broadly. The surviving contribution must rest on
+**native-human-validated CoT monitorability** + **translate-then-monitor recovery** +
+**A-vs-B separation** — not on the general judge-reliability point. Not a STOP; a
+sharpening. Flagged for the user in `MILESTONE_1_READINESS.md` §19.5.
+
 ---
 
 ## E. Overall verdict on the blueprint's citations
@@ -251,3 +279,18 @@ positioned before the paper is written. **NEW INDEPENDENT ANALYSIS — NOT FROM 
 - No citation is **CONTRADICTED**.
 - Residual risks are (i) the blueprint's secondary numbers (§C), (ii) newer 2026 work
   the blueprint predates (§D), (iii) author-list / venue fine detail on a few entries.
+
+---
+
+## F. Pending verifications before Milestone 1 implementation
+
+| Item | Status | Needed by |
+|---|---|---|
+| DeepSeek-R1-Distill-Qwen-7B model revision `916b56a44061fd5cd7d6a8fb632557ed4f724f60` | **SOURCE-CODE-VERIFIED** via HF API 2026-09-01 — re-confirm at implementation | scaffold |
+| DeepSeek-R1-Distill-Qwen-7B decoding recommendations (temp 0.5–0.7/0.6, top_p 0.95, max 32768, no system prompt, force `<think>\n`, greedy harmful, base Qwen2.5-Math-7B, MIT) | **MODEL-DOCUMENTATION-RECOMMENDED** — HF model card fetched 2026-09-01 | scaffold |
+| `cais/mmlu` licence (widely reported MIT) + exact revision hash | **TODO — UNVERIFIED** (dataset card not fetched) | before download / redistribution |
+| GPQA-Diamond access terms (gating, canary string, "do not post" norm) | **TODO — UNVERIFIED** | before the confirmatory secondary |
+| Disclosure-classifier candidate `Qwen3-32B`: exact id, revision, licence, context window, VRAM | **TODO — UNVERIFIED** | §7a checklist, before locking |
+| Smaller open-weight judge alternative (7–14B) feasibility | **TODO — UNVERIFIED** | §7a checklist |
+| Landis & Koch (1977) κ-band convention (basis for the "moderate/substantial" gate) | widely cited; the convention itself is **debated** — treat as STANDARD-METHODOLOGY, not fact | pre-registration wording |
+| Confirmatory power/sample-size calculation | **NOT DONE** — required before freezing confirmatory n | confirmatory design |

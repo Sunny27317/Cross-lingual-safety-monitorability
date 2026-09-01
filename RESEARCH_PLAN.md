@@ -72,6 +72,17 @@ Urdu's scientific role: the low-resource instance where trustworthy native groun
 is obtainable (researcher is a native speaker; ≥1 further annotator planned) and which
 Onyame omits. Not the contribution itself.
 
+**Canonical novelty statement (user-approved 2026-09-01; `DECISION_LOG.md` D-014/D-015).**
+No novelty is claimed from "monitors/judges perform worse in low-resource languages"
+(substantial prior work — Onyame 2026 for CoT monitors; arXiv:2607.02235 / 2605.28710 /
+2607.14480 / 2505.12201 for LLM-as-judge generally) or from including Urdu. The
+contribution is the **surviving intersection**: (1) native-human-validated low-resource
+CoT **monitorability**; (2) **translate-then-monitor** as a measurable recovery
+mechanism; (3) explicit **A (model unfaithfulness) vs. B (monitor/judge failure)**
+separation; (4) controlled **cross-lingual measurement validity**; (5) **Urdu as a
+native-validated test environment**, not as the claim. If a paper occupies this
+intersection ⇒ kill/pivot A, flagged immediately.
+
 ## 6. Primary research question (frozen)
 
 **When an automated CoT safety monitor reports degraded monitorability on a low-resource
