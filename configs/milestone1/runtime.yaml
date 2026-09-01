@@ -1,15 +1,23 @@
-# Milestone-1 execution-environment specification.
-# Decisions: DECISION_LOG.md D-020, D-023, D-024; PRE_RUN_READINESS.md §2.
+# Milestone-1 execution-environment specification — TARGET / REQUIRED ONLY.
+# Decisions: DECISION_LOG.md D-020, D-023, D-024, D-026; PRE_RUN_READINESS.md §2.
 #
-# runtime_role: proposed  -> this is the REQUIRED TARGET environment, not an observed one.
-# No hardware value here has been observed. The OBSERVED environment (GPU model, CUDA
-# version, driver, exact resolved package versions) is captured AUTOMATICALLY by
-# clsm.provenance when the real probe/pilot runs, and `Provenance.validate_runtime_complete()`
-# refuses a run whose observed environment is missing those fields.
+# This file is PERMANENTLY `runtime_role: proposed`. It is the experiment's target /
+# required environment and is NEVER converted into an observed-environment record after
+# provisioning. `clsm.config.RuntimeSpec.runtime_role` is Literal["proposed"] only —
+# "observed" does not validate (test: test_runtime_role_observed_is_rejected).
 #
-# The exact package versions below are a CONSERVATIVE, COMPATIBILITY-DRIVEN proposal
-# (not "newest"). They MUST be confirmed on the actual GPU box via the PRE_RUN_READINESS.md
-# §2.3 procedure, then `uv lock`ed + committed BEFORE any inference.
+# The ACTUAL OBSERVED environment is captured SEPARATELY and automatically:
+#   - observed_env.txt        (uv pip list --format=freeze + nvidia-smi -q dump)
+#   - manifest.json           (per-run; includes the uv.lock sha256)
+#   - clsm.provenance         (GPU model / VRAM / driver / CUDA runtime /
+#                              torch.version.cuda / compute capability / resolved
+#                              package versions); validate_runtime_complete() enforces it.
+# No hardware value in THIS file has been observed.
+#
+# The package versions below are a CONSERVATIVE, COMPATIBILITY-DRIVEN proposal (not
+# "newest"). They MUST be confirmed on the actual GPU box via PRE_RUN_READINESS.md
+# §2.3-2.4, then `uv lock`ed + committed BEFORE any inference. Reviewed compatibility-
+# driven updates to these PIN VALUES are allowed on the box; the role is not.
 
 runtime_role: proposed
 

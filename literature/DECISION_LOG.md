@@ -480,7 +480,12 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Config-hash impact:** `runtime.yaml` is a standalone provenance file, not part of
   `ExperimentConfig` — it does not affect `config_hash()`. (The judge-reason rewrite in
   D-021 rev. does; see the D-019 addendum for the current hash `7e7c236b…`.)
-- **Status:** ACTIVE (proposed). Becomes partly `observed` after the §2.4 lock on the box.
+- **Status:** ACTIVE. `runtime.yaml` is a **target-only** artifact — permanently
+  `runtime_role: proposed`; it is **never** converted into an observation record. The
+  observed environment is captured separately (`observed_env.txt` + `manifest.json` +
+  `clsm.provenance`). `RuntimeSpec.runtime_role` is `Literal["proposed"]` only.
+  Reviewed compatibility-driven **pin** updates to `runtime.yaml` (values, not the role)
+  are allowed on the box (§2.4). (Clarified 2026-09-01, D-026.)
 
 ## D-024 — NVIDIA T4 excluded; quantization is a methodological decision (not a hardware fix)
 - **Date:** 2026-09-01
@@ -523,3 +528,31 @@ are reversed by a **new** entry, not by deleting an old one.
   plumbing failures cheaply.
 - **Evidence:** `PRE_RUN_READINESS.md` §3.
 - **Status:** ACTIVE.
+
+## D-026 — `runtime.yaml` is target-only; `RuntimeSpec.runtime_role` narrowed to "proposed"
+- **Date:** 2026-09-01 (provenance clarification; follow-up to PR #6)
+- **Issue:** `PRE_RUN_READINESS.md` §2.4 previously said the committed `runtime.yaml`
+  would have "some fields become `runtime_role: observed`" after provisioning, and
+  `RuntimeSpec.runtime_role` allowed `Literal["proposed", "observed"]`. This contradicts
+  the intended architecture (target config vs. observation record are separate).
+- **Decision:**
+  1. `configs/milestone1/runtime.yaml` **permanently** carries `runtime_role: proposed`
+     and represents only the experiment's **target / required** environment.
+  2. It is **never** mutated into an observed-environment artifact. Reviewed
+     compatibility-driven updates to **pin values** (e.g. a different `vllm`/`torch` if
+     the box's CUDA forces it) are allowed; the role is not.
+  3. The **observed** environment lives only in `observed_env.txt`, `manifest.json`, and
+     `clsm.provenance.Provenance` (GPU model / VRAM / driver / CUDA runtime /
+     `torch.version.cuda` / compute capability / resolved package versions / `uv.lock`
+     hash).
+  4. `clsm.config.RuntimeSpec.runtime_role` is narrowed to `Literal["proposed"]`.
+     `"observed"` (or any other value) fails validation — test
+     `test_runtime_role_observed_is_rejected`.
+- **Why narrow (task 7):** there is no separate observed-YAML artifact, planned or
+  existing — observed data is plain-text / JSON / provenance-model. A dual-role schema
+  would only invite the mistake this entry fixes.
+- **Rationale:** provenance integrity — a required-environment spec and an
+  observed-environment record must not be the same file.
+- **Evidence:** `src/clsm/config.py` `RuntimeSpec`; `tests/test_config.py`;
+  `PRE_RUN_READINESS.md` §2.2, §2.4; supersedes the D-023 status line.
+- **Status:** ACTIVE. No inference / download / results involved.

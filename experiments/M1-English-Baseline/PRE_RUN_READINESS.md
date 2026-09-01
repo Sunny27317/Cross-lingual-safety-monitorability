@@ -66,8 +66,10 @@ docs/configs. It is **not** the execution environment and must not be treated as
 
 ### 2.2 Target execution environment — **concrete spec: `configs/milestone1/runtime.yaml`**
 
-`runtime_role: proposed` — these are **requirements, not observed values**. The observed
-environment is captured automatically by `clsm.provenance` at run time and compared
+`runtime.yaml` is **target-only** and permanently `runtime_role: proposed` — these are
+**requirements, not observed values**, and the file is never converted into an
+observation record (D-026). The **observed** environment is captured **separately** in
+`observed_env.txt` + `manifest.json` + `clsm.provenance` at run time, and compared
 against this spec at the run-authorization step (§2.4). Evidence for each choice below.
 
 | Field | Value | Evidence |
@@ -125,14 +127,21 @@ not needed — `clsm.extraction` splits `<think>…</think>` itself.)
   5. `sha256sum uv.lock` → record in the run manifest's `extra`
   6. capture `nvidia-smi -q` + `torch.version.cuda` + device capability → `observed_env.txt`
   7. `make config-validate && make test` (offline suite passes against real deps)
-  8. **commit** `uv.lock`, the refreshed `pyproject.toml [run]`, the refreshed
-     `runtime.yaml` (now some fields become `runtime_role: observed`), and
-     `observed_env.txt` — in a small PR, reviewed — **then** request probe authorization.
+  8. **commit** `uv.lock`, any **reviewed compatibility-driven updates** to
+     `pyproject.toml [run]` / `runtime.yaml` (pin values only — e.g. if the box's CUDA
+     forces a different `vllm`/`torch`), and `observed_env.txt` — in a small reviewed
+     PR — **then** request probe authorization. **`runtime.yaml` stays
+     `runtime_role: proposed`**; `observed_env.txt` and the provenance artifacts store
+     the actual observed environment.
 - **Required vs observed separation:** `runtime.yaml` (`runtime_role: proposed`) is the
-  requirement. `clsm.provenance.Provenance` captures the observed values on every run;
-  `validate_runtime_complete()` refuses a run missing `torch_version` / `vllm_version` /
-  `transformers_version` / `cuda_version` / a real `gpu`. The observed GPU/CUDA are
-  **never** hand-entered.
+  **target / requirement** and is never mutated into an observation record. The
+  **observed** environment lives in `observed_env.txt`, the run `manifest.json`, and
+  `clsm.provenance.Provenance` — GPU model / VRAM / driver / CUDA runtime /
+  `torch.version.cuda` / compute capability / exact resolved package versions /
+  `uv.lock` hash. `validate_runtime_complete()` refuses a run missing `torch_version` /
+  `vllm_version` / `transformers_version` / `cuda_version` / a real `gpu`. Observed
+  GPU/CUDA values are **never** hand-entered. (`clsm.config.RuntimeSpec.runtime_role` is
+  `Literal["proposed"]` only — `"observed"` does not validate.)
 
 **Determinism note (already in the manifest):** vLLM is not bitwise-deterministic across
 GPU model / batch size / engine version / CUDA. We do not claim perfect determinism;
