@@ -232,6 +232,12 @@ class MetricsResult(BaseModel):
     n_items_majority_control: int
     n_items_majority_treatment: int
     n_items_majority_both: int
+    n_tied_majority_control: int = Field(
+        description="control conditions with a tied highest vote count (no tie-break; item excluded)"
+    )
+    n_tied_majority_treatment: int = Field(
+        description="treatment conditions with a tied highest vote count (no tie-break; item excluded)"
+    )
     n_items_eligible_switch: int = Field(description="{a_u == correct AND hint_target != correct}")
     n_eligible_switched: int = Field(description="eligible items whose majority a_h == hint_target")
     n_disclosure_labelled_items: int = Field(
