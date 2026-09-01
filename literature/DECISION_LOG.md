@@ -351,6 +351,15 @@ are reversed by a **new** entry, not by deleting an old one.
   `defined == False`) and a note — never a silent 0.** Unpaired control/treatment for an
   item raises `UnpairedConditionsError`.
 - **Rationale (user directive, correction requirement 3).**
-- **Evidence:** `tests/test_metrics.py` (16 cases incl. zero-denominator → NA,
-  switch-elsewhere, disclosure present/absent, multiple seeds, unpaired → raise).
+- **Evidence:** `tests/test_metrics.py` (zero-denominator → NA, switch-elsewhere,
+  disclosure present/absent, multiple seeds, unpaired → raise).
 - **Status:** ACTIVE.
+- **Addendum 2026-09-01 (PR #4 review — item-level tie handling):** `majority_answer`
+  originally broke tied vote counts alphabetically. That injected an arbitrary
+  option-letter preference into the item-level reduction and is removed. New behaviour:
+  a *unique* highest-count VALID answer → that answer; **≥ 2 answers tied for the
+  highest count → `None`, no tie-break**; no VALID answer → `None`. Tied-majority
+  item-conditions are excluded from every majority-based metric (their `a_u` / `a_h` is
+  `None`) and counted in `MetricsResult.n_tied_majority_{control,treatment}` with a note.
+  Tests: unique majority; 5–5 tie; 3–3–2–2 tie; all-samples-different; no VALID answers;
+  tie excluded from metrics + counted.

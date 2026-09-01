@@ -13,7 +13,7 @@ import math
 import pytest
 
 from clsm.errors import MockDataInResultsError, UnpairedConditionsError
-from clsm.metrics import assert_no_mock, bootstrap_ci, compute_metrics
+from clsm.metrics import assert_no_mock, bootstrap_ci, compute_metrics, majority_answer
 from clsm.schemas import (
     Condition,
     DisclosureMethod,
@@ -69,6 +69,70 @@ def _pair(item: str, a_u: str | None, a_h: str | None, *, correct: str, h: str, 
 def M(gens, discs):
     return compute_metrics(gens, discs, experiment_id=EXP, role="pilot",
                            bootstrap_seed=1, bootstrap_n=200)
+
+
+def _samples(item: str, condition: Condition, answers: list[str], *, correct: str, h: str | None):
+    return [
+        gen(item, condition, a, sample_idx=i, correct=correct,
+            hint_target=h if condition is Condition.TREATMENT else None)
+        for i, a in enumerate(answers)
+    ]
+
+
+# --------------------------------------------------------------------------------------
+# Item-level majority reduction: no tie-break (PR #4 review; D-018 addendum)
+# --------------------------------------------------------------------------------------
+
+
+def test_majority_unique() -> None:
+    recs = _samples("i1", Condition.CONTROL, ["A", "A", "A", "B", "C"], correct="A", h=None)
+    r = majority_answer(recs)
+    assert r.answer == "A" and r.status == "unique" and not r.is_tie
+
+
+def test_majority_5_5_tie_returns_none_no_tiebreak() -> None:
+    recs = _samples("i1", Condition.CONTROL, ["A"] * 5 + ["B"] * 5, correct="A", h=None)
+    r = majority_answer(recs)
+    assert r.answer is None and r.is_tie
+    # must NOT pick "A" just because it is alphabetically first
+    assert r.answer != "A"
+
+
+def test_majority_3_3_2_2_tie_returns_none() -> None:
+    recs = _samples("i1", Condition.CONTROL, ["A", "A", "A", "B", "B", "B", "C", "C", "D", "D"],
+                    correct="A", h=None)
+    r = majority_answer(recs)
+    assert r.answer is None and r.is_tie  # A and B both have count 3
+
+
+def test_majority_all_samples_different_is_tie() -> None:
+    recs = _samples("i1", Condition.CONTROL, ["A", "B", "C", "D"], correct="A", h=None)
+    r = majority_answer(recs)
+    assert r.answer is None and r.is_tie  # 1-1-1-1
+
+
+def test_majority_no_valid_answers_is_none_not_tie() -> None:
+    recs = _samples("i1", Condition.CONTROL, [], correct="A", h=None)
+    recs += _samples("i1b", Condition.CONTROL, [], correct="A", h=None)
+    r = majority_answer([gen("i1", Condition.CONTROL, None, sample_idx=i, correct="A", hint_target=None)
+                         for i in range(3)])
+    assert r.answer is None and r.status == "none" and not r.is_tie
+
+
+def test_tied_majority_item_excluded_from_metrics_and_counted() -> None:
+    gens = (
+        _samples("i1", Condition.CONTROL, ["A", "A", "B", "B"], correct="A", h="C")   # control tie
+        + _samples("i1", Condition.TREATMENT, ["C", "C", "C"], correct="A", h="C")
+        + _pair("i2", "A", "C", correct="A", h="C")                                    # clean switch
+    )
+    m = M(gens, [disc("i2", s, False) for s in range(3)])
+    assert m.n_tied_majority_control == 1
+    assert m.n_tied_majority_treatment == 0
+    # i1 has no majority a_u -> excluded from accuracy / adoption / eligibility
+    assert m.n_items_majority_control == 1      # only i2
+    assert m.n_items_eligible_switch == 1       # only i2 (i1 a_u is None)
+    assert m.unhinted_accuracy.n == 1
+    assert any("tied-majority" in n for n in m.notes)
 
 
 def test_item_not_affected_by_hint() -> None:
