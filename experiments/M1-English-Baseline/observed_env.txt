@@ -1,0 +1,88 @@
+Milestone-1 OBSERVED environment record
+=========================================
+This file records ACTUAL, MEASURED environment observations only. It is never a
+target/requirement (that is configs/milestone1/runtime.yaml, runtime_role: proposed,
+permanently — D-026). Every entry below is timestamped and labelled with the session
+that produced it. No value here is invented.
+
+-----------------------------------------------------------------------------
+OBSERVATION #1 — 2026-09-01 — GPU environment provisioning attempt
+Branch: research/milestone-1-gpu-runtime-lock
+Tool: Claude Code, local Bash tool (the ONLY execution environment available to this
+      session — see note at the end)
+-----------------------------------------------------------------------------
+
+$ nvidia-smi
+(eval):1: command not found: nvidia-smi
+-> NOT FOUND. No NVIDIA driver / no NVIDIA GPU visible to this shell.
+
+$ nvidia-smi -q
+(eval):1: command not found: nvidia-smi
+-> NOT FOUND (same as above).
+
+$ uname -a
+Darwin Sunnys-Macbook-Pro.local 25.3.0 Darwin Kernel Version 25.3.0: Wed Jan 28
+20:53:28 PST 2026; root:xnu-12377.91.3~2/RELEASE_X86_64 x86_64
+
+$ cat /etc/os-release
+cat: /etc/os-release: No such file or directory
+-> Not a Linux system at all (macOS/Darwin has no /etc/os-release).
+
+$ sw_vers
+ProductName:        macOS
+ProductVersion:      26.3.1 (a)
+BuildVersion:        25D771280a
+
+$ python3 --version
+Python 3.9.6                    (system Python)
+$ python3.11 --version
+Python 3.11.15                  (project venv interpreter, already in use)
+
+$ sysctl -n machdep.cpu.brand_string
+Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+
+$ sysctl -n hw.memsize
+34359738368                     (32 GB system RAM)
+
+$ system_profiler SPDisplaysDataType | grep -E "Chipset Model|VRAM|Vendor"
+Chipset Model: Intel UHD Graphics 630   | VRAM (Dynamic, Max): 1536 MB | Vendor: Intel
+Chipset Model: AMD Radeon Pro 5300M     | VRAM (Total): 4 GB          | Vendor: AMD
+
+torch / vllm / transformers / tokenizers / datasets / huggingface_hub versions:
+NOT INSTALLED, NOT ATTEMPTED. Installation was not attempted because the hardware gate
+(Task 2 below) fails before any [run]-extra install step is reached.
+
+torch.cuda.is_available(): NOT CHECKED (torch not installed; no CUDA present regardless).
+
+uv.lock: NOT CREATED. sha256: N/A.
+
+-----------------------------------------------------------------------------
+SUMMARY OF OBSERVATION #1
+-----------------------------------------------------------------------------
+OS               : macOS 26.3.1 (Darwin 25.3.0), NOT Linux
+Architecture     : x86_64
+Python           : 3.11.15 available in the project venv; system default 3.9.6
+NVIDIA driver    : none installed / not applicable
+GPU              : none (Intel UHD Graphics 630 integrated + AMD Radeon Pro 5300M 4 GB
+                   discrete — neither is NVIDIA; no CUDA support on either)
+VRAM (relevant)  : 0 GB NVIDIA VRAM (AMD Radeon Pro 5300M has 4 GB, but is not CUDA-
+                   capable and is far below the 24 GB target regardless)
+CUDA runtime     : not present / not installable (no NVIDIA driver on this host)
+Compute capability: N/A — no CUDA device
+
+-----------------------------------------------------------------------------
+IMPORTANT NOTE ON SCOPE
+-----------------------------------------------------------------------------
+This session's Bash tool executes ONLY on the local development machine used
+throughout this project (the same Intel MacBook Pro documented in
+PRE_RUN_READINESS.md D-020). This session has NO mechanism to provision, connect to,
+or execute commands on a separate cloud/remote GPU instance (Colab, a rented L4/A100,
+or a university lab machine). "Cloning/syncing the repository" per the task's step 1
+was performed on this same local machine's existing clone — there is no second,
+GPU-equipped machine in this session's reach.
+
+Provisioning an actual NVIDIA GPU environment (Colab, GCP, AWS, Lambda, RunPod, or a
+lab machine) is an action the USER must take outside this tool session. A future
+Claude Code session invoked FROM WITHIN that provisioned environment (e.g. a Colab
+runtime with its own shell access, or an SSH session into a rented GPU box) would be
+able to complete Tasks 1-7 for real. This session cannot simulate that access.

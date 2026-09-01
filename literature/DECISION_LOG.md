@@ -556,3 +556,41 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Evidence:** `src/clsm/config.py` `RuntimeSpec`; `tests/test_config.py`;
   `PRE_RUN_READINESS.md` §2.2, §2.4; supersedes the D-023 status line.
 - **Status:** ACTIVE. No inference / download / results involved.
+
+## D-027 — GPU provisioning attempted; this tool session has no GPU / no provisioning mechanism
+- **Date:** 2026-09-01
+- **Decision / finding:** A Milestone-1 GPU-environment-provisioning task was carried
+  out against this Claude Code session's Bash tool. **Observation (full raw output in
+  `experiments/M1-English-Baseline/observed_env.txt`, Observation #1):** the tool
+  executes only on the project's existing development host — the same Intel MacBook Pro
+  documented in D-020 (macOS/Darwin, x86_64, Intel UHD 630 + AMD Radeon Pro 5300M 4 GB,
+  **no NVIDIA GPU**, `nvidia-smi` not found, no `/etc/os-release` — not Linux). This
+  session has **no mechanism** to provision, SSH into, or otherwise reach a separate
+  cloud/remote GPU instance (Colab, GCP, AWS, Lambda, RunPod, or a lab machine).
+- **Consequence:** per `PRE_RUN_READINESS.md` §2's own gate ("GPU < 24 GB ⇒ STOP"; here
+  there is no NVIDIA GPU at all — a stronger failure), hardware validation **fails**.
+  Tasks requiring a GPU (dependency install, `uv.lock` creation, `torch.cuda`
+  verification, Stage A/B, the pilot) were correctly **not attempted** — attempting a
+  `[run]`-extra install here would not exercise the target CUDA stack (as already
+  established in D-020: no macOS-x86 `torch ≥ 2.3` wheel exists) and would only spend
+  bandwidth for zero provenance value.
+- **`runtime.yaml` unchanged** — no compatibility-driven pin change occurred (there was
+  no real hardware to test compatibility against); it remains the proposed target,
+  `runtime_role: proposed`. No `uv.lock` was created.
+- **Cache safety check (Task 7):** the local HF cache (`~/.cache/huggingface`, 3.2 GB)
+  contains only pre-existing, unrelated entries (`models--gpt2`, `datasets--
+  amazon_polarity`, dated 2026-03-11 — months before this project) from prior unrelated
+  use of this machine. **None** of `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B`,
+  `cais/mmlu`, GPQA, or any Qwen judge candidate are present.
+- **What this means going forward:** provisioning a real NVIDIA GPU environment is an
+  action the **user** must take outside this tool session. A Claude Code session
+  invoked *from within* that environment (its own shell/SSH access) can complete the
+  hardware observation, compatibility check, dependency lock, and offline validation
+  for real.
+- **Rationale:** research integrity — do not fabricate a hardware observation, do not
+  pretend an install/lock happened, do not silently skip the STOP gate the readiness
+  protocol itself specifies.
+- **Evidence:** `experiments/M1-English-Baseline/observed_env.txt` Observation #1 (raw
+  command output); `PRE_RUN_READINESS.md` §2.5.
+- **Status:** ACTIVE. **Blocker unchanged from D-020**: no GPU box provisioned. No
+  inference, no download, no results occurred.
