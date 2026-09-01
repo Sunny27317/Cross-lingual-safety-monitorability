@@ -148,6 +148,24 @@ GPU model / batch size / engine version / CUDA. We do not claim perfect determin
 `clsm.provenance` records the exact environment; a run reproduces "same distribution",
 not "same bytes".
 
+### 2.5 Provisioning attempt log (2026-09-01) — **still blocked; see `observed_env.txt`**
+
+A GPU-provisioning task was run against this Claude Code session's tool environment.
+**Observation:** this session's Bash tool executes only on the same Intel-Mac
+development host described in §2.1 (no NVIDIA GPU, not Linux; `nvidia-smi` not found).
+The session has **no mechanism** to provision or connect to a separate cloud/remote GPU
+machine — full raw output in `experiments/M1-English-Baseline/observed_env.txt`
+(Observation #1). Per §2.2's own gate ("if GPU < 24 GB → STOP"; here there is no NVIDIA
+GPU at all), hardware validation **fails** and Tasks 3–5 (dependency resolution,
+install, `uv.lock`) were correctly **not attempted** — installing the `[run]` extra here
+would not exercise the target CUDA stack and would only consume bandwidth for no
+provenance value. D-027.
+
+**What this means going forward:** provisioning an actual NVIDIA GPU environment
+(Colab, a rented L4/A100, or a lab machine) is an action the **user** must take outside
+this tool session. A Claude Code session invoked *from within* that provisioned
+environment (its own shell/SSH access) would be able to complete Tasks 1–7 for real.
+
 ### 2a. T4 16 GB feasibility audit — **verdict: C, UNSUITABLE** (for the frozen config)
 
 Not a raw-parameter estimate — a full memory budget for **vLLM + DeepSeek-R1-Distill-
@@ -451,6 +469,9 @@ and the GPQA-Diamond secondary frozen.
 | **C. n=50 pipeline-validation pilot** | **NO** | all of B's blockers **plus** (4) Stage-B GO gates G1–G5 not evaluated; (5) disclosure judge not locked *(needed only for the pilot's disclosure metrics — §4.2; the generator run could precede the lock)*; (6) keyword pre-filter recall not checked |
 | **D. Confirmatory experiment** | **NO** | all of C's blockers **plus** (7) no confirmatory `n` (needs the post-pilot power simulation — §5, D-022); (8) confirmatory pre-registration + minimum-effect statement not written; (9) GPQA-Diamond access terms unconfirmed |
 
-**Next physical step:** provision an **L4 24 GB (or A100)** environment, run the §2.3
-on-box confirmation + §2.4 lock, commit `uv.lock` + the refreshed pins + `observed_env.txt`
-in a small reviewed PR, **then** request authorization for the Stage-A smoke probe.
+**Next physical step:** provision an **L4 24 GB (or A100)** environment **outside this
+tool session** (§2.5 — a provisioning attempt from within this session confirmed it has
+no GPU and no mechanism to reach one), run the §2.3 on-box confirmation + §2.4 lock
+*from within that environment*, commit `uv.lock` + the refreshed pins +
+`observed_env.txt` in a small reviewed PR, **then** request authorization for the
+Stage-A smoke probe.
