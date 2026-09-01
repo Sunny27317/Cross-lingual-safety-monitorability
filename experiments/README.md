@@ -13,8 +13,15 @@ link to:
 
 - Confirmatory vs. exploratory framing must be explicit.
 - Scientific decisions (model, language, dataset, metric, threshold, test) are
-  documented and dated, never changed silently.
+  documented and dated in `../literature/DECISION_LOG.md`, never changed silently.
 - An experiment is "done" only when it has actually run and its provenance is
-  recorded.
+  recorded (`../REPRODUCIBILITY.md` §8).
 
-Empty until Milestone 1.
+## Current contents
+
+- `EXPERIMENT_SPEC.md` — the planned experimental matrix from the Run-2 blueprint
+  (planning only; nothing has been run).
+
+No experiment directories yet. The first will be `M1-*` (English hint-faithfulness
+baseline), created at Milestone 1 once its four blocking decisions are made
+(`../RESEARCH_PLAN.md` §28).

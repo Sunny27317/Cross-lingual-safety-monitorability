@@ -16,7 +16,13 @@ convenience, or producing a positive-looking result.
 - **Title:** Cross-lingual safety monitorability — native-validated measurement of
   the monitor-validity gap for Urdu reasoning traces.
 - **Current verdict:** **YELLOW — PROCEED, BUT ONLY WITH A NARROWED
-  CONTRIBUTION.**
+  CONTRIBUTION.** Re-affirmed 2026-09-01 after independent verification of the Run-2
+  blueprint's citations (`literature/DECISION_LOG.md` D-007).
+- **Provenance chain:** `literature/RUN2_BLUEPRINT.pdf` (immutable original) →
+  `literature/RUN2_BLUEPRINT_HANDOFF.md` (structured extraction) →
+  `literature/{CITATION_VERIFICATION,COMPETITOR_MATRIX,DECISION_LOG}.md` →
+  `RESEARCH_PLAN.md`, `experiments/EXPERIMENT_SPEC.md`, `REPRODUCIBILITY.md`. Never edit
+  the PDF; update derived docs, not history.
 - **Narrowed contribution:** A measurement-validity study. When automated safety
   monitoring *appears* to degrade on Urdu reasoning traces, determine whether this
   reflects (A) genuine model unfaithfulness or (B) failure of the automated
@@ -130,26 +136,27 @@ An experiment without recorded provenance is not a finished experiment.
 
 ## 3. Milestone gating
 
-Work is **milestone-gated**. Do not skip ahead. Do not expand scope (e.g. to six
-languages) before the GO/PIVOT checkpoint.
+Work is **milestone-gated**. Do not skip ahead. Do not expand scope (e.g. to the full
+six-language ladder) before the Milestone 4 gate, or to a manuscript before Milestone 5.
+Full objectives / prerequisites / outputs / validation / GO-PIVOT-STOP criteria for each
+milestone are in `RESEARCH_PLAN.md` §18; kill/pivot criteria in §19.
 
-- **Milestone 0 — Research governance & reproducibility infrastructure.**
-  (Current milestone. No experiments, no model downloads, no compute.)
-- **Milestone 1 — Reproduce an established English hint-faithfulness baseline** on
-  a small sample (~50 items). Initial target model from the validated blueprint:
-  `DeepSeek-R1-Distill-Qwen-7B`. Must eventually measure at least: answer
-  switching under misleading vs. correct hints, and disclosure of hint influence
-  in visible reasoning. **Do not implement yet.**
-- **Milestone 2 — Small native-validated Urdu pilot** (~10–50 items).
-- **Milestone 3 — Compare automated Urdu monitoring vs. native-human Urdu
-  evaluation.** The gap between them is the **monitor-validity gap**.
-- **Milestone 4 — Translate Urdu reasoning traces to English, rerun monitoring**,
-  measure signal recovery (translate-then-monitor).
-- **Milestone 5 — GO / PIVOT decision** based on observed effect sizes and
-  measurement validity.
-
-Only after Milestone 5 may the project expand toward a larger multilingual
-experiment.
+- **Milestone 0 — Governance + validated research design.** (Current. No experiments, no
+  model downloads, no compute.) Includes the Run-2 blueprint import + verification.
+- **Milestone 1 — English hint-faithfulness baseline reproduction** (~50 items,
+  `DeepSeek-R1-Distill-Qwen-7B`, free compute): answer-switch rate under misleading vs.
+  correct/no hint, and disclosure rate in the visible CoT. **Blocked on decisions
+  U5/U6/U10/U12 (`RESEARCH_PLAN.md` §28). Do not implement yet.**
+- **Milestone 2 — Multilingual evaluation pipeline + small Urdu pilot** (~10–50 items).
+- **Milestone 3 — Native Urdu validation** (blinded human ground truth; ≥2 annotators;
+  Cohen's κ). Blocked on U8/U15.
+- **Milestone 4 — Four-monitor cross-lingual experiments** (automated-English /
+  automated-in-language / native-human / translate-then-English) across the ladder;
+  estimate the **monitor-validity gap** and translation recovery. Blocked on U3/U9/U13.
+- **Milestone 5 — Controls, ablations, statistics, robustness** → explicit
+  **GO / PIVOT / KILL** decision on observed effect sizes and measurement validity.
+- **Milestone 6 — Paper / preprint**, only if scientifically justified (a
+  well-characterized null is justified).
 
 ---
 
@@ -164,10 +171,13 @@ experiment.
 4. Do not download models or datasets, or run expensive compute, unless the
    current milestone explicitly calls for it and the user has approved it.
 5. When information required by the plan (a paper, threshold, language set, model,
-   dataset, hypothesis, statistical method) is **not** supplied by the user and
-   **not** independently verifiable from repository materials, write
-   **`TODO — import/verify from Run-2 blueprint`** rather than guessing.
-6. Do not invent the contents of the original Run-2 literature review.
+   dataset, hypothesis, statistical method) is **not** in `literature/RUN2_BLUEPRINT.pdf`
+   / `RUN2_BLUEPRINT_HANDOFF.md`, **not** supplied by the user, and **not** independently
+   verifiable, write **`TODO — DECISION REQUIRED`** (a choice) or **`TODO — UNVERIFIED`**
+   (a citation) rather than guessing. Decisions the blueprint left open are catalogued as
+   U1–U17 in `RUN2_BLUEPRINT_HANDOFF.md` §27.
+6. Do not invent the contents of `literature/RUN2_BLUEPRINT.pdf`; read it. Do not edit it.
+   Update derived documents, never the provenance artifact.
 7. Keep confirmatory vs. exploratory framing explicit in every analysis artefact.
 8. If asked to do something that violates Section 2, refuse and explain why.
 

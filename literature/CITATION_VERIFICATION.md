@@ -1,0 +1,253 @@
+# Citation Verification — Run-2 Blueprint
+
+**Purpose:** independent verification (Phase B / Phase 3) of every central citation and
+numeric claim imported from `literature/RUN2_BLUEPRINT.pdf`.
+**Method:** web search + direct fetch of arXiv abstract/HTML and ACL Anthology pages,
+2026-09-01, by the Claude Code session doing the Run-2 integration.
+**Verifier note:** the assistant's own training cutoff predates several of these 2026
+papers; every status below rests on the live sources listed, not on prior knowledge.
+
+Status legend:
+- **VERIFIED** — identity (title/authors/venue/ID) confirmed against a primary or
+  authoritative secondary source.
+- **PARTIALLY VERIFIED** — the paper is confirmed real, but a specific attributed claim,
+  number, venue detail, or author list was not fully confirmed from the sources checked.
+- **TODO — UNVERIFIED** — could not be confirmed from available sources.
+- **CONTRADICTED** — a source contradicts the blueprint.
+
+---
+
+## A. Core competitor papers
+
+### 1. Onyame et al. — arXiv:2605.27901 — **VERIFIED** (identity) / see sub-items
+- **Title:** "The Fragility of Chain-of-Thought Monitoring Across Typologically Diverse
+  Languages." ✅
+- **Authors:** Eric Onyame, Runtao Zhou, Kowshik Thopalli, Bhavya Kailkhura, Chirag
+  Agarwal. ✅ (matches blueprint's "Onyame, Zhou, Thopalli, Kailkhura & Agarwal")
+- **Affiliation:** UVA + Lawrence Livermore National Laboratory. ✅
+- **Code:** `github.com/AikyamLab/multilingual-monitoring`. ✅
+- **Project page:** `multilingual-cot-monitoring.github.io`. ✅
+- **Headline numbers** ("95.9% across 8B–120B"; "100% in low-resource"; "first 15% of
+  generation"): **VERIFIED** — present verbatim in the abstract as quoted by the
+  blueprint. ✅
+- **13 languages / Urdu absence:** **VERIFIED via arXiv HTML** — languages surfaced from
+  the HTML body: English, Chinese, Spanish, French, German, Japanese (high);
+  Vietnamese, Arabic, Korean, Russian (mid); Swahili, Telugu, Bengali (low). **Urdu is
+  NOT among them.** This *confirms* the blueprint's suspected-but-unconfirmed claim.
+  → Still cross-check Table 6 / Appendix C in the published PDF before citing in a paper.
+- **Judge model:** **PARTIALLY VERIFIED / update to blueprint** — the arXiv HTML states
+  *"we use GPT-5.1 as the verification judge to monitor CoT reasoning"* and *"a
+  rubric-based LLM-as-a-judge pipeline with GPT-5.4"* for taxonomy classification. The
+  blueprint said the "GPT-5.1 judge" attribution was *unverified*; the current HTML
+  asserts it. Model-name strings ("GPT-5.1", "GPT-5.4") are unusual — confirm against
+  Appendix D.2 of the published PDF.
+- **No native-speaker validation:** **VERIFIED** — HTML: *"We validate the judge through
+  manual inspection of samples across all languages."* No bilingual/native annotator.
+- **No translate-then-monitor:** **VERIFIED** — HTML fetch found no discussion of
+  translating CoTs to English before monitoring.
+- **Base-accuracy control exists (Baseline Error Rate, App. B.1/B.6):** **TODO —
+  UNVERIFIED** from the fetch; plausible, blueprint asserts it. Do not claim competitors
+  ignored difficulty.
+- Sources: `arxiv.org/abs/2605.27901`, `arxiv.org/html/2605.27901`,
+  `github.com/AikyamLab/multilingual-monitoring`.
+
+### 2. Zhao et al. — arXiv:2510.09555 — **VERIFIED** (with correction)
+- **Title:** "A Comprehensive Evaluation of Multilingual Chain-of-Thought Reasoning:
+  Performance, Consistency, and Faithfulness Across Languages." ✅
+- **Authors:** Raoyuan Zhao, Yihong Liu, Hinrich Schütze, Michael A. Hedderich. ✅
+  (blueprint's bare "Zhao et al." — first author is **Raoyuan Zhao**, not verified
+  further by blueprint)
+- **Venue:** Findings of the ACL: EACL 2026, pp. 5223–5247, Rabat, Morocco. ✅
+- **Claim** ("language compliance + truncation/error-injection faithfulness across
+  languages incl. Bengali and Yoruba"): **PARTIALLY VERIFIED** — the abstract confirms
+  performance/consistency/faithfulness across languages; the specific Bengali/Yoruba +
+  error-injection details were not individually confirmed from the snippet. Check the
+  paper's method section.
+- Sources: `aclanthology.org/2026.findings-eacl.276/`, `arxiv.org/html/2510.09555`.
+
+### 3. Qi et al. — arXiv:2505.22888 — **VERIFIED** (with title correction)
+- **Blueprint label:** "Qi et al. … XReasoning … Language-compliance + accuracy
+  tradeoff … Findings EMNLP 2025."
+- **Actual title:** "When Models Reason in Your Language: Controlling Thinking Language
+  Comes at the Cost of Accuracy." ✅
+- **Authors:** Jirui Qi, Shan Chen, Zidi Xiong, Raquel Fernández, Danielle S. Bitterman,
+  Arianna Bisazza. ✅
+- **XReasoning benchmark; in-language reasoning aids oversight but costs accuracy:**
+  **VERIFIED** — this is the paper's central finding, exactly as the blueprint uses it.
+- **Venue "Findings of EMNLP 2025":** **TODO — UNVERIFIED** from sources checked (arXiv +
+  HF paper page confirmed; ACL Anthology record not fetched). Low risk.
+- Sources: `arxiv.org/abs/2505.22888`, `huggingface.co/papers/2505.22888`.
+
+### 4. Xiong, Chen, Qi & Lakkaraju — arXiv:2505.13774 — **VERIFIED**
+- **Title:** "Measuring the Faithfulness of Thinking Drafts in Large Reasoning Models." ✅
+- **Authors:** Zidi Xiong, Shan Chen, Zhenting Qi, Himabindu Lakkaraju (Harvard). ✅
+- **Venue:** NeurIPS 2025 (poster; `neurips.cc/virtual/2025/poster/120231`; OpenReview
+  `1UL4dxvfcJ`). ✅
+- **Method** (counterfactual intervention: Intra-Draft + Draft-to-Answer faithfulness):
+  **VERIFIED.** ✅
+- Sources: `arxiv.org/abs/2505.13774`, `neurips.cc/virtual/2025/poster/120231`,
+  `openreview.net/forum?id=1UL4dxvfcJ`.
+
+### 5. Chen et al. — arXiv:2505.05410 — **VERIFIED** (with title)
+- **Actual title:** "Reasoning Models Don't Always Say What They Think." ✅
+- **Authors:** Yanda Chen, Joe Benton, Ansh Radhakrishnan, Jonathan Uesato, Carson
+  Denison, John Schulman, … Ethan Perez (Anthropic). ✅
+- **Method** (paired hinted/un-hinted prompts; does the CoT acknowledge the hint when
+  the answer changes): **VERIFIED.** Models incl. Claude 3.7 Sonnet and DeepSeek R1. ✅
+- **"Reveal rates often below 20%":** **PARTIALLY VERIFIED** — the paper reports low CoT
+  faithfulness scores overall and lower on some hint categories; the exact "<20%" phrase
+  was not confirmed verbatim from the sources fetched. Treat the number as approximate
+  until the paper is read directly.
+- Sources: `arxiv.org/abs/2505.05410`, `anthropic.com/research/reasoning-models-dont-say-think`.
+
+### 6. Turpin et al. — arXiv:2305.04388 — **VERIFIED**
+- **Title:** "Language Models Don't Always Say What They Think: Unfaithful Explanations
+  in Chain-of-Thought Prompting." ✅
+- **Authors:** Miles Turpin, Julian Michael, Ethan Perez, Samuel R. Bowman. ✅
+- **Venue:** NeurIPS 2023. ✅
+- **Method** (biasing features, e.g. answer-always-(A); up to 36% accuracy drop on 13
+  BBH tasks; GPT-3.5 + Claude 1.0): **VERIFIED.** ✅
+- Sources: `arxiv.org/abs/2305.04388`, `dblp.org/rec/journals/corr/abs-2305-04388`.
+
+### 7. Lanham et al. — arXiv:2307.13702 — **VERIFIED**
+- **Title:** "Measuring Faithfulness in Chain-of-Thought Reasoning." ✅
+- **Authors:** Tamera Lanham, Anna Chen, Ansh Radhakrishnan, … (Anthropic; 28+ authors). ✅
+- **Method** (intervene on CoT: add mistakes / paraphrase / truncate; larger models →
+  less faithful on most tasks): **VERIFIED.** ✅
+- Sources: `arxiv.org/abs/2307.13702`, `dblp.org/rec/journals/corr/abs-2307-13702`.
+
+### 8. Emmons et al. — arXiv:2507.05246 — **VERIFIED** (with title)
+- **Actual title:** "When Chain of Thought is Necessary, Language Models Struggle to
+  Evade Monitors." ✅
+- **Authors:** Scott Emmons, Erik Jenner, David K. Elson, Rif A. Saurous, Senthooran
+  Rajamanoharan, Heng Chen, Irhum Shafkat, Rohin Shah (Google DeepMind). ✅
+- **Framework** (CoT-as-rationalization vs. CoT-as-computation; monitorability ≠
+  faithfulness): **VERIFIED.** ✅
+- Sources: `arxiv.org/abs/2507.05246`, `ui.adsabs.harvard.edu/abs/2025arXiv250705246E`.
+
+### 9. Korbak et al. — arXiv:2507.11473 — **VERIFIED**
+- **Title:** "Chain of Thought Monitorability: A New and Fragile Opportunity for AI
+  Safety." ✅
+- **Authors:** Tomek Korbak, Mikita Balesni, Elizabeth Barnes, Yoshua Bengio, + ~40
+  co-authors (multi-org position paper). ✅
+- Submitted 15 Jul 2025. Defines CoT monitorability. **VERIFIED.** ✅
+- Sources: `arxiv.org/abs/2507.11473`, `ar5iv.labs.arxiv.org/html/2507.11473`.
+
+### 10. Yang et al. — arXiv:2511.08525 — **VERIFIED**
+- **Title:** "Investigating CoT Monitorability in Large Reasoning Models." ✅
+- **First author:** Shu Yang, et al. ✅
+- **Content** (verbalization + monitor reliability; *"there exists a gap between being
+  monitorable and being monitored correctly"*; proposes "MoME" monitoring paradigm):
+  **VERIFIED.** ✅
+- ⚠️ **Novelty-relevant:** the phrase *"gap between being monitorable and being monitored
+  correctly"* is conceptually adjacent to this project's "monitor-validity gap." Yang et
+  al. is English-only per the blueprint, so it is not a direct competitor, but it should
+  be positioned explicitly in Related Work. Raised in `COMPETITOR_MATRIX.md`.
+- Sources: `arxiv.org/abs/2511.08525`, `alphaxiv.org/overview/2511.08525`.
+
+### 11. Persian CoT Faithfulness — ACL Anthology 2026.loreslm-1.27 — **VERIFIED** (with detail)
+- **Title:** "A Comprehensive Evaluation of Chain-of-Thought Faithfulness in Persian
+  Classification Tasks." ✅
+- **Authors:** Shakib Yazdani, Cristina España-Bonet, Eleftherios Avramidis, Yasser
+  Hamidullah, Josef van Genabith (DFKI et al.). ✅
+- **Venue:** 2nd Workshop on Language Models for Low-Resource Languages (LoResLM 2026),
+  co-located with EACL 2026, Rabat, 28–29 Mar 2026. ✅
+- **Scope:** 15 classification datasets, 6 LMs (small / large / reasoning), English +
+  Persian prompting, LLM-as-judge + human eval. ✅
+- **"Native human evaluation" specifically:** **PARTIALLY VERIFIED** — "human eval" is
+  confirmed; that the human evaluators were *native Persian speakers* was not confirmed
+  from the snippet. Confirm from the PDF before relying on the "native-validation
+  precedent" framing.
+- **"Did not address monitorability / Urdu / translation recovery":** consistent with
+  the abstract (classification-task faithfulness, Persian) — **PARTIALLY VERIFIED**
+  (absence is hard to prove from an abstract; a full read is cheap and should be done).
+- Sources: `aclanthology.org/2026.loreslm-1.27.pdf`,
+  `dfki.de/web/forschung/projekte-publikationen/publikation/16737`.
+
+### 12. UrduBench — arXiv:2601.21000 — **VERIFIED**
+- **Title:** "UrduBench: An Urdu Reasoning Benchmark using Contextually Ensembled
+  Translations with Human-in-the-Loop." ✅
+- **Authors:** Muhammad Ali Shafique, Areej Mehboob, Layba Fiaz, Muhammad Usman Qadeer,
+  Hamza Farooq. Published 28 Jan 2026. ✅
+- **Content:** contextually-ensembled MT + human-in-the-loop; translates MGSM, MATH-500,
+  CommonSenseQA, OpenBookQA to Urdu. Leaderboard repo:
+  `github.com/traversaal-ai/urdubench_leaderboard`. **VERIFIED.** ✅
+  → This directly supports the blueprint's Phase 6 claim that MGSM / CommonSenseQA /
+  OpenBookQA already have Urdu translations.
+- **"DeepSeek-R1-Distill-Qwen-14B sustains difficulty well" (per UrduBench):** **TODO —
+  UNVERIFIED** — specific model finding not confirmed from the snippet.
+- Sources: `arxiv.org/abs/2601.21000`, `dblp.org/rec/journals/corr/abs-2601-21000`.
+
+---
+
+## B. Faculty / institutional claims
+
+### 13. Depeng Xu — bias-mitigation paper — **VERIFIED** (with author-list note)
+- **Title:** "Fine-tuning LLMs with Cross-Attention-based Weight Decay for Bias
+  Mitigation" (method: CrAWD). ✅
+- **Venue:** Findings of the ACL: EMNLP 2025, pp. 15785–15798, Suzhou, China.
+  ACL Anthology `2025.findings-emnlp.854`. ✅ (pages match the blueprint exactly)
+- **Authors:** **PARTIALLY VERIFIED** — the blueprint gives two slightly different lists
+  ("Haque, Fu, Xu, Yuan & Niu" and "Farsheed Haque, Zhe Fu, Shuhan Yuan, Xi Niu"). ACL
+  Anthology page not fetched for the canonical ordering. Confirm before citing.
+- **UNC Charlotte Center for TAIMing AI membership + "2025 TAIMing AI Seed Grant
+  Award":** **VERIFIED** — `taiming-ai.charlotte.edu` news post
+  ("Congratulations to Dr. Depeng Xu on a Major Research Achievement", 2025-08-30).
+- Sources: `aclanthology.org/2025.findings-emnlp.854/`,
+  `taiming-ai.charlotte.edu/2025/08/30/...`, `dblp.org/pid/212/1161`.
+
+### Other UNC Charlotte names (Bunescu, Fan, Zadrozny, Shaikh) — **TODO — UNVERIFIED**
+Not independently checked in this pass. The blueprint's characterizations (titles,
+Emeritus transition, industry move) must be confirmed before any outreach or any
+repository statement treats them as fact. No one has agreed to supervise.
+
+### Himabindu Lakkaraju (Harvard) — **VERIFIED** (research alignment only)
+- Confirmed as senior author on Xiong et al. arXiv:2505.13774 (NeurIPS 2025), Harvard.
+- **No admissions inference of any kind.** The blueprint itself forbids this.
+
+---
+
+## C. Secondary numeric / factual claims from the blueprint
+
+| Claim | Status | Note |
+|---|---|---|
+| "~60% raw-MT label agreement for Urdu vs. ~90% English" | **TODO — UNVERIFIED** | No source cited in the blueprint; find the primary source or treat as an assumption to be measured in the Urdu pilot. |
+| Onyame tiers languages via zero-shot GPQA on "Kimi K2.6" (>60% high / 30–60% mid / <30% low) | **PARTIALLY VERIFIED** | Tiering method quoted from the paper by the blueprint; "Kimi K2.6" as a model name is **UNVERIFIED**. |
+| Qwen3-8B "~119-language coverage" vs. "~30 for the DeepSeek distills" | **TODO — UNVERIFIED** | Check the Qwen3 model card / technical report; check DeepSeek-R1-Distill base coverage. Do before Milestone 2. |
+| MGSM = "250 items, 10+ languages incl. Bengali" | **PARTIALLY VERIFIED** | MGSM is 250 problems; language list to confirm from the MGSM source (Shi et al.). |
+| Chen et al. "reveal rates often below 20%" | **PARTIALLY VERIFIED** | See §A.5. |
+| ACL/EMNLP/NeurIPS/EACL deadline months (Feb/May/summer/fall) | **TODO — UNVERIFIED** | Confirm each cycle at project start. |
+
+---
+
+## D. Newer evidence found during verification (NOT in the blueprint)
+
+These surfaced in searches on 2026-09-01 and were **not** cited by the Run-2 report.
+None is confirmed to pre-empt the surviving contribution, but each must be read and
+positioned before the paper is written. **NEW INDEPENDENT ANALYSIS — NOT FROM RUN-2.**
+
+| Paper (as surfaced) | Why it matters | Action |
+|---|---|---|
+| "Measuring Chain-of-Thought Monitorability Through Faithfulness and Verbosity" — arXiv:2510.27378 | Another CoT-monitorability measurement framework | read; position in Related Work |
+| "A Pragmatic Way to Measure Chain-of-Thought Monitorability" — arXiv:2510.23966 | Ditto | read; position |
+| "Measuring Faithfulness Depends on How You Measure: Classifier Sensitivity in LLM CoT Evaluation" — arXiv:2603.20172 | **Directly about judge/classifier sensitivity in CoT faithfulness eval** — i.e. the (A)-vs-(B) confound at the heart of this project | **HIGH priority read**; may strengthen or partially scoop the "monitor failure" framing (likely English) |
+| "Why Do Safety Guardrails Degrade Across Languages?" — arXiv:2605.17173 | Cross-lingual safety degradation (guardrails, not CoT monitors) | read; likely adjacent, not competing |
+| "Safety Alignment Illusion: The Cross-Lingual Safety Gap in LLMs" — arXiv:2608.18131 | Cross-lingual safety alignment gap | read; adjacent |
+| "LLM Safety Alignment in Low-Resource Languages: A Systematic Literature Review" — arXiv:2608.14626 | SLR — useful for Related Work coverage | mine its bibliography |
+| "Riazi-8B: An Urdu LLM for Mathematical Reasoning" — arXiv:2606.25568 | New Urdu reasoning model | note as a possible additional generator |
+| "UrduMMLU: A Massive Multitask Benchmark for Urdu" — arXiv:2606.07167 | New Urdu benchmark | note as a possible additional dataset |
+| "Beyond the Commitment Boundary: Probing Epiphenomenal CoT in Large Reasoning Models" — arXiv:2606.13603 | Related to "commits in first 15%" claim | read |
+
+---
+
+## E. Overall verdict on the blueprint's citations
+
+- **12 / 12** competitor/foundational papers in the Phase 0 table are **real and
+  correctly identified** (titles for #3, #5, #8 differ from the blueprint's shorthand
+  labels — corrected above; none is fabricated).
+- The **single most novelty-critical set of claims** — Onyame et al. used no native
+  validation, did not test translate-then-monitor, and does not include Urdu — is
+  **VERIFIED against the primary source**.
+- No citation is **CONTRADICTED**.
+- Residual risks are (i) the blueprint's secondary numbers (§C), (ii) newer 2026 work
+  the blueprint predates (§D), (iii) author-list / venue fine detail on a few entries.
