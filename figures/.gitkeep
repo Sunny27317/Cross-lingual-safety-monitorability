@@ -1,0 +1,4 @@
+# Placeholder to keep this directory under version control.
+# figures/ holds generated figures. Every figure must be reproducible from code
+# + a real results file. No hand-made or illustrative figures of fake data.
+# Empty until there are real results.
