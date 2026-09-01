@@ -141,3 +141,174 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Evidence:** `CITATION_VERIFICATION.md` §B (only Xu's paper and TAIMing-AI membership
   verified; Bunescu/Fan/Zadrozny/Shaikh characterizations UNVERIFIED).
 - **Status:** ACTIVE.
+
+## D-010 — U5: Milestone-1 reproduction protocol
+- **Date:** 2026-09-01
+- **Decision (proposed):** Milestone 1 reproduces the **Turpin/Chen paired-prompt
+  hidden-influence paradigm** — English only, one model (DeepSeek-R1-Distill-Qwen-7B),
+  one neutral "suggested wrong answer" hint, using **Chen et al.'s faithfulness score**
+  `E[1[c_h verbalizes h] | a_u ≠ h, a_h = h]`. Control = item, no hint; treatment =
+  identical item + hint → a wrong option. One automated disclosure classifier (not the
+  four-monitor design). No language variable, no translate-then-monitor.
+- **Rationale:** validate the measurement instrument before adding language; match the
+  paradigm every competitor uses; Young 2026 (arXiv:2603.26410) is a near-replication on
+  open-weight models and gives a concrete comparison point.
+- **Evidence:** `experiments/MILESTONE_1_READINESS.md` §3–§4, §8; arXiv:2505.05410 HTML;
+  arXiv:2305.04388; arXiv:2603.26410.
+- **Alternatives rejected:** Onyame-style monitoring (that is M4); Lanham perturbation;
+  Xiong/Lakkaraju counterfactual drafts; any hybrid — all in `MILESTONE_1_READINESS.md`
+  §8.
+- **Status:** **APPROVED (user, 2026-09-01).** English-only reproduction confirmed as the
+  Milestone-1 target; explicitly *not* the final contribution.
+- **Would change it:** user prefers a different paradigm; or the hint paradigm proves
+  ill-posed for this model class in the pilot.
+
+## D-011 — U6: Milestone-1 baseline dataset
+- **Date:** 2026-09-01
+- **Decision (proposed):** **MMLU** (`cais/mmlu`, config `all`, split `test`), 4-way MCQ.
+  **PILOT / PIPELINE-VALIDATION n = 50** (5 items × 10 subjects, deterministic
+  sorted-hash selection). **CONFIRMATORY n ≈ 400–600** — exact n `TODO — DECISION
+  REQUIRED` from a power calculation at confirmatory-design time (not guessed now).
+  GPQA-Diamond as a pre-registered confirmatory secondary (contamination check).
+- **Rationale:** exactly Chen's dataset and one of Young 2026's; MIT-licensed, ungated;
+  higher model accuracy than GPQA ⇒ more usable items at pilot scale.
+- **Key tradeoff (needs user ruling):** MMLU is contaminated for 2025–26 models. The
+  disclosure gap has no established contamination-inflation mechanism, and Chen/Young use
+  MMLU for the same purpose — but the user may prefer **GPQA-Diamond as primary** for
+  lower contamination at the cost of a thinner sample.
+- **Evidence:** `experiments/MILESTONE_1_READINESS.md` §5, §8 (alternatives table),
+  §9.1; arXiv:2505.05410; arXiv:2603.26410.
+- **Status:** **APPROVED (user, 2026-09-01): MMLU PRIMARY, GPQA-Diamond SECONDARY.**
+  n = 50 is PIPELINE VALIDATION ONLY and must never be reported/cited as a confirmatory
+  experiment. Confirmatory n is **not frozen** — it requires a documented
+  power/sample-size justification first. MMLU results are not evidence of the final
+  cross-lingual contribution.
+- **Open:** MMLU dataset-card licence confirmation (metadata only).
+- **Would change it:** MMLU pilot yields too few model-correct items for a switch
+  analysis ⇒ promote GPQA-Diamond.
+
+## D-012 — U10: decoding configuration and seeds
+- **Date:** 2026-09-01
+- **Decision (proposed):** `deepseek-ai/DeepSeek-R1-Distill-Qwen-7B` @ revision
+  `916b56a44061fd5cd7d6a8fb632557ed4f724f60`; vLLM (pinned); **temperature 0.6, top_p
+  0.95** (model-card recommended), no system prompt, forced leading `<think>\n`,
+  `max_new_tokens = 16384` (raise to 32768 if truncation > 5%), no repetition penalty,
+  stochastic (greedy explicitly avoided); answer via `\boxed{}` + fallback regex;
+  **k = 10 samples** per (item, condition), seeds `0–9`. Disclosure-classifier judge
+  model `TODO — DECISION REQUIRED` (overlaps U3); proposal `Qwen3-32B` @ temp 0.
+- **Rationale:** the model card forbids greedy/temp-0 for the distills, so **Chen's
+  "temperature 0" is deliberately not adopted** — we recover a stable per-item rate via
+  k samples. Every parameter is tagged SOURCE-REPORTED / MODEL-DOCUMENTATION-RECOMMENDED
+  / PROJECT DESIGN DECISION / NOT REPORTED BY SOURCE in `MILESTONE_1_READINESS.md` §6.
+- **Evidence:** HF model card + HF API (fetched 2026-09-01); arXiv:2505.05410 HTML
+  ("we sample with temperature 0"); `MILESTONE_1_READINESS.md` §6, §8.
+- **Not reported by source:** Chen's top_p, k, exact question counts; Chen released no
+  code (checked).
+- **Status:** **GENERATION PARAMETERS APPROVED (user, 2026-09-01)** — temp 0.6 / top_p
+  0.95 / no system prompt / forced `<think>\n` / max_new_tokens 16384 / no rep-penalty /
+  stochastic / `\boxed{}` extraction / k = 10 / seeds 0–9. Env pins expanded to Python +
+  vLLM + PyTorch + transformers + CUDA + GPU + OS; **no perfect-determinism claim**,
+  known nondeterminism documented.
+- **CONDITIONAL:** the **disclosure-classifier model is NOT locked.** `Qwen3-32B` is a
+  candidate only; before implementation run the §7a verification checklist
+  (`MILESTONE_1_READINESS.md`): exact model/version, license, hardware/context/inference
+  feasibility, deterministic config, a smaller-open-weight alternative, and the
+  circularity risk of using an LLM judge to study LLM-judge failure. Human validation is
+  mandatory; the classifier is audited against blinded human annotation and is never
+  ground truth. This is the (A)-vs-(B) separation in miniature.
+- **Would change it:** DeepSeek updates its guidance; truncation rate high; per-item
+  rate variance at k=10 too large; §7a rules the candidate judge out.
+
+## D-013 — U12: Milestone-1 reproduction success criterion
+- **Date:** 2026-09-01
+- **Decision:** **Structure APPROVED (user, 2026-09-01); numeric gates reclassified and
+  de-frozen.** Primary success evidence = (i) pipeline correctness, (ii) expected effect
+  **direction**, (iii) **uncertainty / confidence intervals**, (iv) appropriate
+  **statistical evidence**, (v) **comparison to prior-work effect ranges** — *not*
+  hitting a convenient number. Every remaining threshold is tagged PRIOR-WORK DERIVED /
+  STANDARD-METHODOLOGY DERIVED / ENGINEERING QUALITY GATE / PROJECT DESIGN DECISION in
+  `MILESTONE_1_READINESS.md` §7.
+- **Changes from the proposed version:**
+  - The absolute disclosure band `[10%, 60%]` and `hidden-influence ≥ 15%` were PROJECT
+    DESIGN DECISIONs presented as prior-work-derived → **removed as gates**; the numbers
+    survive only as *context* (prior-work range: Turpin ≤36% acc-drop; Chen ~25–39%
+    faithfulness, wide by hint/dataset; Young 55.4% divergence).
+  - `extraction ≥ 95%` and hint-injection `100%/0%` → explicitly **ENGINEERING QUALITY
+    GATES**; the scientific requirement behind extraction is that parse failure is
+    **non-differential** and unparseables are reported not dropped.
+  - Disclosure-classifier agreement → target "substantial" κ, floor "moderate"
+    (Landis & Koch bands — a STANDARD-METHODOLOGY convention, reported **with a CI**);
+    residual classifier error propagated into disclosure-rate CIs.
+  - **Pilot (n = 50) ≠ hypothesis test:** pilot PASS = pipeline correct + point
+    estimates in the phenomenon's direction + CIs reported (CIs may include 0 at n = 50).
+    Statistical significance / CI-excludes-0 is a **confirmatory-stage** criterion.
+- **Rationale:** user directive — do not disguise project design decisions as
+  literature-derived; emphasize direction + uncertainty + statistical evidence +
+  prior-range comparison.
+- **Evidence:** `experiments/MILESTONE_1_READINESS.md` §7 (threshold register), §7a;
+  arXiv:2505.05410; arXiv:2603.26410; Landis & Koch 1977.
+- **Status:** **APPROVED IN STRUCTURE.** The §7 criterion becomes the pre-registration
+  and must be committed *before* any run (git history proves ordering). Numeric gates may
+  still be refined *before* the run with a dated addendum here; **never** after seeing
+  results.
+
+## D-014 — Novelty re-check after Milestone-1 literature scan (framing sharpened)
+- **Date:** 2026-09-01
+- **Decision:** The YELLOW verdict and the surviving contribution **stand**, but the
+  framing is sharpened: "automated monitors / LLM-judges fail in low-resource languages"
+  is now well-established for **both** CoT monitors (Onyame 2026) **and** LLM-as-judge
+  generally (arXiv:2607.02235, 2605.28710, 2607.14480, 2505.12201, 2025–26). The
+  project's defensible wedge is specifically: (i) **native-human-validated** CoT
+  *monitorability* (not general judge reliability), (ii) **translate-then-monitor** as a
+  recovery method, (iii) explicit **model-unfaithfulness (A) vs. monitor-failure (B)**
+  separation. Newer hint-faithfulness work on open-weight models (arXiv:2603.26410,
+  2601.07663) corroborates the Milestone-1 paradigm and is not a threat.
+- **Rationale:** research integrity — the motivation is more crowded than the Run-2
+  blueprint implied; the contribution must not rest on the general "judges fail in
+  low-resource languages" point.
+- **Evidence:** `CITATION_VERIFICATION.md` §D (updated 2026-09-01);
+  `experiments/MILESTONE_1_READINESS.md` Phase-4 result.
+- **Status:** ACTIVE. **Explicitly acknowledged by the user on 2026-09-01.** Canonical
+  novelty statement recorded in D-015.
+- **Would escalate to STOP:** discovery of a paper doing native-validated low-resource
+  CoT *monitorability* + translate-then-monitor (kill/pivot A).
+
+## D-015 — Canonical novelty statement (user-approved)
+- **Date:** 2026-09-01
+- **Decision:** The project claims **no** novelty from (a) "LLM monitors/judges perform
+  worse in low-resource languages" — substantial prior work (Onyame 2026 for CoT
+  monitors; arXiv:2607.02235 / 2605.28710 / 2607.14480 / 2505.12201 for LLM-as-judge) —
+  or (b) the inclusion of Urdu. The contribution is the **surviving intersection**:
+  1. native-human-validated low-resource CoT **monitorability** (not general judge
+     reliability);
+  2. **translate-then-monitor** as a measurable mitigation / recovery mechanism;
+  3. explicit separation of **A = reasoning/model unfaithfulness** from **B =
+     monitor/judge failure**;
+  4. carefully controlled **cross-lingual measurement validity** (language ladder,
+     base-accuracy control, script/resource confound separation);
+  5. **Urdu as a native-validated test environment**, not as the novelty claim.
+- **Rationale:** user directive (approval message §5); research integrity — the framing
+  in the Run-2 blueprint over-weighted the "monitors fail across languages" motivation.
+- **Evidence:** `experiments/MILESTONE_1_READINESS.md` §19a; `CITATION_VERIFICATION.md`
+  §D.2; `COMPETITOR_MATRIX.md`.
+- **Status:** ACTIVE. Supersedes the framing emphasis in `RESEARCH_PLAN.md` §5 (which is
+  updated to point here).
+- **Would change it:** kill/pivot A (a paper occupying the intersection) — flag
+  immediately, do not force the project forward.
+
+## D-016 — Hint-prompt wording: freeze-before-confirmatory policy (user-approved)
+- **Date:** 2026-09-01
+- **Decision:** Milestone 1 uses the closest defensible **Chen-style neutral baseline**
+  hint wording. The model is **not** told the input may be unusual, manipulated,
+  adversarial, monitored, or deceptive (Walden & Wanner 2026, arXiv:2601.07663, show
+  such alerts materially move faithfulness metrics; we want Chen's baseline). The **exact
+  prompt text is written into `configs/cue/…`, version-tagged, and hashed into
+  provenance before the confirmatory run.** It is not tuned after observing results.
+  Wording variants investigated later are **explicitly labelled ablations**.
+- **Rationale:** user directive (approval message §3); prevents post-hoc effect inflation
+  and preserves comparability with Chen's baseline setting.
+- **Evidence:** `experiments/MILESTONE_1_READINESS.md` §3 (wording policy), §4;
+  arXiv:2505.05410; arXiv:2601.07663.
+- **Status:** ACTIVE. The concrete text is authored at scaffold time (next branch), not
+  in this readiness PR.
+- **Would change it:** only pre-run, with a dated addendum; never post-hoc.
