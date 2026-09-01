@@ -142,7 +142,7 @@ New directories are created **when a milestone needs them**, not preemptively
 | Disclosure judge | not selected — only a licence/context screen done | ⚠️ UNRESOLVED (D-021 rev.) — lock milestone in `PRE_RUN_READINESS.md` §4.2 |
 | Execution environment | `configs/milestone1/runtime.yaml` — Linux x86_64, Python 3.11, CUDA 12.4, **GPU min NVIDIA L4 24 GB** (A100 pref), **bf16, quantization: none**; **T4 excluded** (D-024); not the dev machine | specified (D-020/D-023/D-024) |
 | `[run]` deps (`vllm 0.8.5.post1`/`torch 2.6.0`/`transformers 4.51.3`/`datasets 3.5.0`) + `uv.lock` | **proposed** in `runtime.yaml` (compatibility-driven, not newest); confirm on the box (§2.3), `uv lock` (§2.4), commit | ❌ UNRESOLVED |
-| GPU provisioning attempt (2026-09-01) | This tool session's Bash environment is the same Intel Mac used for development (no NVIDIA GPU, not Linux) — it is **not** a GPU box and has no mechanism to provision or reach one. `nvidia-smi` not found; no CUDA. See `experiments/M1-English-Baseline/observed_env.txt` (D-027). | ❌ BLOCKED — a real GPU environment must be provisioned by the user, outside this session |
+| GPU provisioning attempt (2026-09-01) | This tool session's Bash environment is the same Intel Mac used for development (no NVIDIA GPU, not Linux) — it is **not** a GPU box and has no mechanism to provision or reach one. `nvidia-smi` not found; no CUDA. Archived (NOT the canonical `observed_env.txt`, which is reserved for the authorized GPU runtime — see `environment_checks/README.md`): `experiments/M1-English-Baseline/environment_checks/2026-09-01-local-mac.txt` (D-027). | ❌ BLOCKED — a real GPU environment must be provisioned by the user, outside this session |
 
 ## 12. Open reproducibility decisions
 

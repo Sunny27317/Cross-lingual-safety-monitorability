@@ -560,9 +560,11 @@ are reversed by a **new** entry, not by deleting an old one.
 ## D-027 — GPU provisioning attempted; this tool session has no GPU / no provisioning mechanism
 - **Date:** 2026-09-01
 - **Decision / finding:** A Milestone-1 GPU-environment-provisioning task was carried
-  out against this Claude Code session's Bash tool. **Observation (full raw output in
-  `experiments/M1-English-Baseline/observed_env.txt`, Observation #1):** the tool
-  executes only on the project's existing development host — the same Intel MacBook Pro
+  out against this Claude Code session's Bash tool. **Observation (full raw output
+  archived — NOT in `observed_env.txt`, which does not yet exist and is reserved for
+  the authorized GPU runtime — see the artifact-roles clarification below — but in**
+  `experiments/M1-English-Baseline/environment_checks/2026-09-01-local-mac.txt`**):**
+  the tool executes only on the project's existing development host — the same Intel MacBook Pro
   documented in D-020 (macOS/Darwin, x86_64, Intel UHD 630 + AMD Radeon Pro 5300M 4 GB,
   **no NVIDIA GPU**, `nvidia-smi` not found, no `/etc/os-release` — not Linux). This
   session has **no mechanism** to provision, SSH into, or otherwise reach a separate
@@ -590,7 +592,18 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Rationale:** research integrity — do not fabricate a hardware observation, do not
   pretend an install/lock happened, do not silently skip the STOP gate the readiness
   protocol itself specifies.
-- **Evidence:** `experiments/M1-English-Baseline/observed_env.txt` Observation #1 (raw
-  command output); `PRE_RUN_READINESS.md` §2.5.
+- **Artifact-roles clarification (addendum, PR #8 review):** the failed local-Mac
+  observation does **not** occupy the canonical `observed_env.txt` — that name is
+  reserved for the actual observed environment of the **authorized NVIDIA GPU runtime**
+  that will run Stage A/B, created only once such an environment is provisioned and
+  validated. This attempt is archived instead at
+  `experiments/M1-English-Baseline/environment_checks/2026-09-01-local-mac.txt`, with
+  role documentation in `environment_checks/README.md` and
+  `PRE_RUN_READINESS.md` §2.4's artifact-roles table: `runtime.yaml` = target/proposed;
+  `environment_checks/*.txt` = unsuccessful/exploratory checks; `observed_env.txt` =
+  reserved for the authorized runtime; `manifest.json`/`clsm.provenance` = per-run
+  provenance.
+- **Evidence:** `experiments/M1-English-Baseline/environment_checks/2026-09-01-local-mac.txt`
+  (raw command output); `PRE_RUN_READINESS.md` §2.4–2.5.
 - **Status:** ACTIVE. **Blocker unchanged from D-020**: no GPU box provisioned. No
   inference, no download, no results occurred.

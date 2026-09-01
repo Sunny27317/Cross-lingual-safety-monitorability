@@ -133,33 +133,39 @@ not needed — `clsm.extraction` splits `<think>…</think>` itself.)
      PR — **then** request probe authorization. **`runtime.yaml` stays
      `runtime_role: proposed`**; `observed_env.txt` and the provenance artifacts store
      the actual observed environment.
-- **Required vs observed separation:** `runtime.yaml` (`runtime_role: proposed`) is the
-  **target / requirement** and is never mutated into an observation record. The
-  **observed** environment lives in `observed_env.txt`, the run `manifest.json`, and
-  `clsm.provenance.Provenance` — GPU model / VRAM / driver / CUDA runtime /
-  `torch.version.cuda` / compute capability / exact resolved package versions /
-  `uv.lock` hash. `validate_runtime_complete()` refuses a run missing `torch_version` /
-  `vllm_version` / `transformers_version` / `cuda_version` / a real `gpu`. Observed
-  GPU/CUDA values are **never** hand-entered. (`clsm.config.RuntimeSpec.runtime_role` is
-  `Literal["proposed"]` only — `"observed"` does not validate.)
+- **Required vs observed separation — four distinct artifact roles, do not conflate:**
+  | Artifact | Role |
+  |---|---|
+  | `configs/milestone1/runtime.yaml` | **target / requirement** — permanently `runtime_role: proposed`; never mutated into an observation record (D-026) |
+  | `experiments/M1-English-Baseline/environment_checks/*.txt` | archive of **unsuccessful or exploratory** provisioning/environment checks (e.g. a run from a non-GPU host) — never authoritative |
+  | `experiments/M1-English-Baseline/observed_env.txt` | **reserved** — created only once a real NVIDIA GPU environment is provisioned + validated for the experiment; the actual observed environment for Stage A/B |
+  | `manifest.json` / `clsm.provenance.Provenance` | per-run observed provenance — GPU model / VRAM / driver / CUDA runtime / `torch.version.cuda` / compute capability / exact resolved package versions / `uv.lock` hash |
+
+  `validate_runtime_complete()` refuses a run missing `torch_version` / `vllm_version` /
+  `transformers_version` / `cuda_version` / a real `gpu`. Observed GPU/CUDA values are
+  **never** hand-entered. (`clsm.config.RuntimeSpec.runtime_role` is `Literal["proposed"]`
+  only — `"observed"` does not validate.)
 
 **Determinism note (already in the manifest):** vLLM is not bitwise-deterministic across
 GPU model / batch size / engine version / CUDA. We do not claim perfect determinism;
 `clsm.provenance` records the exact environment; a run reproduces "same distribution",
 not "same bytes".
 
-### 2.5 Provisioning attempt log (2026-09-01) — **still blocked; see `observed_env.txt`**
+### 2.5 Provisioning attempt log (2026-09-01) — **still blocked; archived, not `observed_env.txt`**
 
 A GPU-provisioning task was run against this Claude Code session's tool environment.
 **Observation:** this session's Bash tool executes only on the same Intel-Mac
 development host described in §2.1 (no NVIDIA GPU, not Linux; `nvidia-smi` not found).
 The session has **no mechanism** to provision or connect to a separate cloud/remote GPU
-machine — full raw output in `experiments/M1-English-Baseline/observed_env.txt`
-(Observation #1). Per §2.2's own gate ("if GPU < 24 GB → STOP"; here there is no NVIDIA
-GPU at all), hardware validation **fails** and Tasks 3–5 (dependency resolution,
-install, `uv.lock`) were correctly **not attempted** — installing the `[run]` extra here
-would not exercise the target CUDA stack and would only consume bandwidth for no
-provenance value. D-027.
+machine — full raw output archived at
+`experiments/M1-English-Baseline/environment_checks/2026-09-01-local-mac.txt`
+(this is an **exploratory/unsuccessful check, not the canonical `observed_env.txt`** —
+see the artifact-roles note in §2.4 and `environment_checks/README.md`; `observed_env.txt`
+does not exist yet and is reserved for the authorized GPU runtime). Per §2.2's own gate
+("if GPU < 24 GB → STOP"; here there is no NVIDIA GPU at all), hardware validation
+**fails** and Tasks 3–5 (dependency resolution, install, `uv.lock`) were correctly **not
+attempted** — installing the `[run]` extra here would not exercise the target CUDA
+stack and would only consume bandwidth for no provenance value. D-027.
 
 **What this means going forward:** provisioning an actual NVIDIA GPU environment
 (Colab, a rented L4/A100, or a lab machine) is an action the **user** must take outside
