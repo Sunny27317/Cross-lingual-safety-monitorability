@@ -1,9 +1,24 @@
-Milestone-1 OBSERVED environment record
-=========================================
-This file records ACTUAL, MEASURED environment observations only. It is never a
-target/requirement (that is configs/milestone1/runtime.yaml, runtime_role: proposed,
-permanently — D-026). Every entry below is timestamped and labelled with the session
-that produced it. No value here is invented.
+Milestone-1 environment check — ARCHIVED, EXPLORATORY / UNSUCCESSFUL PROVISIONING ATTEMPT
+============================================================================
+This is an ARCHIVAL file under experiments/M1-English-Baseline/environment_checks/,
+NOT the canonical observed_env.txt. It records one exploratory GPU-provisioning
+attempt that FAILED to reach a real GPU environment (see summary below): the tool
+session that produced it had no NVIDIA GPU / no CUDA / no mechanism to reach one.
+
+Artifact roles (do not conflate):
+  - configs/milestone1/runtime.yaml            = proposed/required TARGET environment
+                                                  (permanently runtime_role: proposed)
+  - environment_checks/*.txt (THIS FILE)       = unsuccessful or exploratory
+                                                  provisioning/environment checks
+  - experiments/M1-English-Baseline/observed_env.txt (does NOT exist yet)
+                                                = reserved for the ACTUAL observed
+                                                  environment of the AUTHORIZED NVIDIA
+                                                  GPU runtime that will run Stage A/B,
+                                                  once one is provisioned and validated
+  - manifest.json / clsm.provenance            = per-run observed provenance
+
+Every entry below is timestamped and labelled with the session that produced it. No
+value here is invented. Content preserved verbatim from the original observation.
 
 -----------------------------------------------------------------------------
 OBSERVATION #1 — 2026-09-01 — GPU environment provisioning attempt
