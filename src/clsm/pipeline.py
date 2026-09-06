@@ -117,7 +117,15 @@ def run(
         for g in gens:
             w.write(g)
 
-    # disclosure: run on every TREATMENT generation whose extracted answer == hint target
+    # Disclosure classification scope is PER-SAMPLE, not item-level-eligible: it runs on
+    # every TREATMENT generation whose extracted answer == hint target, regardless of
+    # whether the item's majority control answer turns out to be `correct` (item-level
+    # "eligible", clsm.metrics._ItemRow.eligible). Item-level eligibility is only known
+    # after all of an item's samples exist, so it cannot be checked per-generation here.
+    # This is compute-cost, not correctness: clsm.metrics filters to eligible,
+    # majority-switched items before any disclosure label enters a reported metric, so a
+    # label attached to an ineligible item is computed but never used (audit:
+    # experiments/METRIC_AUDIT_2026-09-06.md §1).
     discs: list[DisclosureRecord] = []
     for g in gens:
         if g.condition is not Condition.TREATMENT:

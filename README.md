@@ -55,6 +55,26 @@ ablations / statistics → `6` paper (only if justified). The project does **not
 to the full language ladder before Milestone 4, or to a manuscript before Milestone 5's
 GO/PIVOT decision.
 
+## Two execution tracks (as of 2026-09-06)
+
+The user's development machine (an Intel MacBook Pro, no NVIDIA GPU/CUDA) cannot run the
+original GPU design (`literature/DECISION_LOG.md` D-020, D-027). Rather than weaken that
+design, the project now runs **two parallel tracks**, both reading the same frozen
+research question, hypotheses, and definitions (`RESEARCH_PLAN.md` §6–§9):
+
+| | **Track A — Resource-Constrained Mac Study** | **Track B — Larger-Model GPU Replication** |
+|---|---|---|
+| Directory | `experiments/M1-Mac-Feasibility/` | `experiments/M1-English-Baseline/` (unchanged) |
+| Status | active development | deferred until GPU resources are available |
+| Model scale | sub-1B–~3B open-weight, CPU/Mac-runnable (screening only — no model selected) | `DeepSeek-R1-Distill-Qwen-7B`, BF16, vLLM, CUDA, NVIDIA L4/A100 (unchanged) |
+| Purpose | test the measurement framework locally; validate English/Urdu and translate-then-monitor methodology at small scale | replicate the same methodology on a frozen larger reasoning model |
+
+Track A is **not** a replacement for Track B and does not invalidate it; Track B remains
+the stronger replication target for any claim about frontier reasoning models. Results
+from Track A's small models are never assumed to generalize to frontier models. Details:
+`experiments/M1-Mac-Feasibility/README.md`; decision record:
+`literature/DECISION_LOG.md` D-028.
+
 ## Repository structure
 
 | Path | Contents |
@@ -68,6 +88,8 @@ GO/PIVOT decision.
 | `literature/COMPETITOR_MATRIX.md` | Per-paper novelty audit + threat levels. |
 | `literature/DECISION_LOG.md` | Append-only record of major scientific decisions. |
 | `experiments/EXPERIMENT_SPEC.md` | Planned experimental matrix (planning only — nothing run). |
+| `experiments/M1-Mac-Feasibility/` | Track A (Mac-compatible, active development) — screening only, no model/runtime selected. |
+| `experiments/M1-English-Baseline/` | Track B (original GPU design) — deferred replication target, unchanged. |
 | `configs/` `data/` `src/` `tests/` `results/` `figures/` `paper/` | Empty until the milestone that needs them; `results/` holds only real-run outputs. |
 
 ## Research-integrity commitment
