@@ -1,0 +1,246 @@
+Track A — Gate A: llama.cpp runtime installation and local verification
+Date (UTC): 2026-09-06T23:14:08Z
+Branch: research/mac-runtime-feasibility
+Authorization: Gate A explicitly authorized by the user (runtime installation/build
+only). Gate B (model download), Gate C (single-model smoke run), and Gate D
+(multi-candidate feasibility screen) remain NOT AUTHORIZED.
+
+Purpose: INFRASTRUCTURE PROVENANCE. This is NOT a scientific result. No model was
+downloaded or loaded. No inference occurred. This file records what was installed/built
+and how, so the exact runtime can be reproduced.
+
+================================================================================
+1. Machine (unchanged since the 2026-09-06 preflight)
+================================================================================
+
+Architecture:      x86_64 (Intel), NOT Apple Silicon
+macOS version:      26.3.1 (Darwin 25.3.0)
+CPU:                Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz (6 physical / 12 logical)
+RAM:                34359738368 bytes (32 GiB)
+GPU:                AMD Radeon Pro 5300M, 4 GB VRAM (not used -- see §5)
+CUDA:               none
+
+================================================================================
+2. Build prerequisites -- before / after
+================================================================================
+
+BEFORE this Gate-A work:
+  $ which cmake
+  cmake not found
+  -> cmake was NOT installed (confirmed in the 2026-09-06 preflight and re-confirmed
+     immediately before installing, below)
+
+Action taken: `brew install cmake` (Homebrew 5.1.14). This is the ONLY package
+installed in this Gate-A step. Ollama, MLX, and CUDA tooling were NOT installed
+(explicitly out of scope).
+
+AFTER:
+  $ cmake --version
+  cmake version 4.4.3
+
+  $ clang --version
+  Apple clang version 17.0.0 (clang-1700.6.3.2)
+  Target: x86_64-apple-darwin25.3.0
+  Thread model: posix
+  InstalledDir: /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin
+  (unchanged from the preflight -- clang was already present)
+
+  $ make --version | head -1
+  GNU Make 3.81
+  (unchanged from the preflight -- make was already present)
+
+  $ brew --version
+  Homebrew 5.1.14
+  (unchanged -- already present)
+
+================================================================================
+3. llama.cpp -- primary-source repository and pinned revision
+================================================================================
+
+Repository (canonical, as of this check):  https://github.com/ggml-org/llama.cpp
+  NOTE: the commonly-cited URL `github.com/ggerganov/llama.cpp` now issues an HTTP
+  redirect to `ggml-org/llama.cpp` (confirmed via the GitHub API,
+  `GET /repos/ggerganov/llama.cpp` -> `{"message":"Moved Permanently",
+  "url":"https://api.github.com/repositories/612354784"}`, then
+  `GET` with redirect-follow resolving to `full_name: "ggml-org/llama.cpp"`,
+  `default_branch: "master"`, `archived: false`). This is the same underlying
+  repository (same repository id), not a different/unrelated fork -- the GitHub
+  organization it lives under changed. The canonical clone URL used below is the
+  `ggml-org` one.
+
+Selected revision: tag `v0.4.0`
+  Chosen because: it is the latest tagged, published GitHub Release as of this check
+  (published 2026-09-04T19:56:47Z, i.e. two days before this work), NOT a random
+  floating commit and NOT "master" (which moves). This satisfies "a current
+  stable/recent upstream revision" without an untagged/arbitrary pin.
+
+Resolution chain (recorded so the pin is independently re-derivable):
+  - `GET /repos/ggml-org/llama.cpp/releases/latest` -> tag_name: "v0.4.0",
+    published_at: "2026-09-04T19:56:47Z"
+  - `GET /repos/ggml-org/llama.cpp/git/refs/tags/v0.4.0` -> annotated tag object sha
+    `5ac847190e979e0da7c4a21806630805f396d487`
+  - `GET /repos/ggml-org/llama.cpp/git/tags/5ac847190e979e0da7c4a21806630805f396d487`
+    -> dereferences to commit `object.sha = 5266f24da75dc449bd56cbed7addb9c8e4a6a73e`
+  - `GET /repos/ggml-org/llama.cpp/commits/5266f24da75dc449bd56cbed7addb9c8e4a6a73e`
+    -> confirmed real commit, message "llama.cpp : bump version to 0.4.0 (#28386)",
+    authored 2026-09-04T12:22:38Z
+
+PINNED COMMIT SHA:  5266f24da75dc449bd56cbed7addb9c8e4a6a73e
+Tag:                v0.4.0
+Date:               2026-09-04 (12:22:38Z author date)
+
+Local checkout confirmation:
+  $ git log -1 --format="%H %s %ai"
+  5266f24da75dc449bd56cbed7addb9c8e4a6a73e llama.cpp : bump version to 0.4.0 (#28386) 2026-09-04 15:22:38 +0300
+  $ git describe --tags
+  v0.4.0
+
+Clone location: /Users/mac3/tools/llama.cpp  (OUTSIDE this research repository, per
+  instruction -- NOT vendored into the git history of
+  Sunny27317/Cross-lingual-safety-monitorability).
+
+================================================================================
+4. Build command and result
+================================================================================
+
+Working directory: /Users/mac3/tools/llama.cpp
+
+  $ cmake -B build -DGGML_METAL=OFF -DCMAKE_BUILD_TYPE=Release
+  $ cmake --build build --config Release -j 6
+
+Configure-time detections (from CMake's own output, not assumed):
+  - CMAKE_SYSTEM_PROCESSOR: x86_64
+  - GGML_SYSTEM_ARCH: x86
+  - "Including CPU backend"; "x86 detected"; CPU backend variant "ggml-cpu: -march=native"
+  - "Accelerate framework found" -> BLAS found via Apple's Accelerate framework
+    (Accelerate.framework) -- a CPU-only math-library optimization, NOT GPU
+    acceleration. Enabled by CMake's own default on macOS; left as-is.
+  - "Could NOT find OpenMP" (warning only, non-fatal) -- OpenMP was not available;
+    the build proceeded without it.
+  - No Metal, OpenCL, CUDA, or Vulkan backend was configured or built (explicitly
+    disabled Metal via -DGGML_METAL=OFF; none of the others were requested).
+
+Build result: SUCCESS. `cmake --build` completed with no errors; all targets
+including `llama-cli`, `llama-server`, `llama-quantize`, `llama-bench`, etc. built.
+Total build tree size: ~164 MB (`build/`); full clone incl. build: ~773 MB.
+
+Why `-DGGML_METAL=OFF` was chosen explicitly (not left to CMake's own default):
+llama.cpp's own build docs state "On MacOS, Metal is enabled by default" -- generically
+for macOS, not restricted to Apple Silicon. This machine's GPU is an AMD Radeon Pro
+5300M (a discrete GPU, not Apple Silicon's unified-memory architecture that llama.cpp's
+Metal backend is primarily developed and tested against). Per the explicit instruction
+not to assume Metal acceleration is available/useful and not to pretend AMD GPU
+acceleration exists if it does not, the conservative, reproducible choice made here is
+to force CPU-only execution outright (`-DGGML_METAL=OFF`, llama.cpp's own documented
+flag "to force CPU execution", `docs/build.md` line 686) rather than leave an untested,
+unverified GPU-acceleration path enabled by default. This also matches Track A's
+existing framing throughout `READINESS.md` as a CPU-compatible track. No claim is made
+here about whether Metal-via-AMD would or would not have worked -- it was not tested,
+and is out of scope for Gate A.
+
+================================================================================
+5. Binary verification -- NO MODEL LOADED, NO INFERENCE
+================================================================================
+
+Binary path: /Users/mac3/tools/llama.cpp/build/bin/llama-cli
+
+  $ ./build/bin/llama-cli --version
+  version: 0.4.0-dev (build 10809, commit 5266f24da)
+  built with AppleClang 17.0.0.17000603 for Darwin x86_64
+  (exit code: 0)
+
+  $ ./build/bin/llama-cli --help
+  (prints usage; exit code: 0; no model path was passed, no model was loaded)
+
+  $ file build/bin/llama-cli
+  build/bin/llama-cli: Mach-O 64-bit executable x86_64
+
+  $ otool -L build/bin/llama-cli
+  @rpath/libllama-cli-impl.dylib
+  @rpath/libllama-server-impl.dylib
+  @rpath/libmtmd.0.dylib
+  /usr/local/opt/openssl@3/lib/libssl.3.dylib
+  /usr/local/opt/openssl@3/lib/libcrypto.3.dylib
+  /System/Library/Frameworks/CoreFoundation.framework/...
+  /System/Library/Frameworks/Security.framework/...
+  @rpath/libllama-common.0.dylib
+  @rpath/libllama.0.dylib
+  @rpath/libggml.0.dylib
+  @rpath/libggml-cpu.0.dylib
+  @rpath/libggml-blas.0.dylib
+  @rpath/libggml-base.0.dylib
+  /usr/lib/libc++.1.dylib
+  /usr/lib/libSystem.B.dylib
+
+  CONFIRMS: only `libggml-cpu` and `libggml-blas` (Accelerate/CPU BLAS) backends are
+  linked. NO Metal.framework, NO OpenCL, NO CUDA, NO Vulkan library is linked anywhere
+  in the dependency graph. This is a genuinely CPU-only build -- not merely a claim.
+
+No warnings were emitted by `--version` or `--help`. The program launched successfully
+both times (exit code 0). No model path was ever passed to any command in this file.
+
+================================================================================
+6. Model-file / dataset-file inventory -- confirms NOTHING was downloaded
+================================================================================
+
+llama.cpp's own cache directories (would exist only after a `-hf`/model-pull command):
+  $ ls ~/Library/Caches/llama.cpp   -> No such file or directory
+  $ ls ~/.cache/llama.cpp           -> No such file or directory
+  CONFIRMS: no model-pull / auto-download command was ever invoked (the `llama-app` /
+  `download.cpp`-based download machinery exists in this llama.cpp version but was
+  never exercised).
+
+Hugging Face cache -- compared against the documented pre-existing state (D-027,
+2026-09-01, and the 2026-09-06 Track-A preflight):
+  $ ls ~/.cache/huggingface/hub
+  datasets--amazon_polarity
+  models--gpt2
+  $ ls ~/.cache/huggingface/datasets
+  amazon_polarity   <lock file>
+  CONFIRMS: byte-for-byte the same two pre-existing, unrelated entries as before this
+  Gate-A work (dated months before this project, per D-027). Nothing new. These
+  pre-existing files were NOT deleted or modified.
+
+Weight/dataset-extension search (research repo + the new llama.cpp checkout):
+  $ find ~/tools/llama.cpp -iname "*.gguf" -o -iname "*.safetensors" -o -iname "*.pt" -o -iname "*.pth"
+  -> 19 files under ~/tools/llama.cpp/models/*.gguf (see below); zero .safetensors,
+     .pt, or .pth files anywhere.
+  $ find <research repo> -iname "*.gguf" -o -iname "*.safetensors" -o -iname "*.pt" -o -iname "*.pth"
+  -> zero .gguf/.safetensors/.pt files; one unrelated `distutils-precedence.pth`
+     (a Python packaging metadata file inside .venv, NOT a PyTorch checkpoint).
+
+IMPORTANT -- nature of the 19 `.gguf` files under `~/tools/llama.cpp/models/`:
+  These are `ggml-vocab-<tokenizer-name>.gguf` files (e.g. `ggml-vocab-llama-bpe.gguf`,
+  `ggml-vocab-qwen2.gguf`, `ggml-vocab-gemma-4.gguf`, ...). They are VOCABULARY-ONLY
+  test fixtures used by llama.cpp's OWN test suite (tokenizer-conformance tests) --
+  they contain tokenizer/vocab data only, NOT model weight tensors, and are far too
+  small to be real checkpoints (0.6 MB - 15.8 MB each; the smallest real candidate
+  model in `MODEL_SCREEN.md`, Qwen3-1.7B, is ~3.4 GB in bf16). They are:
+    - tracked in git at the pinned commit (`git ls-files models/` lists all 19; 19 is
+      also the exact count found on disk -- nothing extra was added)
+    - present because `git clone` brought down the full pinned-commit source tree,
+      NOT because any download command was run by this session
+    - `git status --porcelain models/` is empty -- no local modification or addition
+  These are explicitly NOT counted as "a model was downloaded" for the purposes of
+  this Gate-A report. This distinction is recorded precisely per instruction, not
+  glossed over.
+
+`.bin` file check (per instruction, not assumed to be model weights without checking):
+  $ find ~/tools/llama.cpp -iname "*.bin"
+  -> build/CMakeFiles/4.4.3/CMakeDetermineCompilerABI_C.bin (8,568 bytes)
+  -> build/CMakeFiles/4.4.3/CMakeDetermineCompilerABI_CXX.bin (8,576 bytes)
+  `file` confirms both are tiny Mach-O x86_64 executables -- CMake's own standard
+  compiler-ABI-detection probe binaries, generated during `cmake -B build`. Not
+  model-related in any way.
+
+CONCLUSION: no model weights and no datasets were downloaded by this Gate-A work.
+
+================================================================================
+7. Confirmations
+================================================================================
+
+- No model was loaded by any command run in this file.
+- No inference (of any kind, on any input) occurred.
+- No scientific metric was computed.
+- Gate B (model download), Gate C (single-model smoke run), and Gate D
+  (multi-candidate feasibility screen) were NOT attempted and remain NOT AUTHORIZED.

@@ -70,13 +70,18 @@ primary research question (`RESEARCH_PLAN.md` §6), the five hypotheses H1–H5,
 four-monitor design, and the A-vs-B (model unfaithfulness vs. monitor failure)
 distinction are unchanged and apply identically to both tracks.
 
-## 3. What is NOT decided by this document
+## 3. What is (and is NOT) decided as of this writing
 
+**Decided:** the Mac runtime is llama.cpp, built from pinned commit
+`5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`), CPU-only
+(`-DGGML_METAL=OFF`), locally installed and verified — Gate A, complete 2026-09-06
+(`READINESS.md` §0, §1.6; `literature/DECISION_LOG.md` D-033).
+
+**Still NOT decided:**
 - No model is chosen (`MODEL_SCREEN.md` — screening only, criteria in `EXPERIMENT_SPEC.md` §4).
-- No Mac runtime (llama.cpp / transformers-CPU / other) is chosen (`READINESS.md` §3).
-- No quantization level is chosen (`EXPERIMENT_SPEC.md` §6).
-- No inference has occurred, no weights or datasets have been downloaded
-  (`READINESS.md` §1–§2).
+- No quantization level is chosen (`EXPERIMENT_SPEC.md` §6; `READINESS.md` §3).
+- No inference has occurred, no model weights or datasets have been downloaded
+  (Gate B, `READINESS.md` §0 — NOT AUTHORIZED).
 
 ## 4. Contents of this directory
 
@@ -88,14 +93,32 @@ distinction are unchanged and apply identically to both tracks.
   (license, multilingual/Urdu evidence, context length, memory class, runtime options,
   reasoning-trace elicitability) — no winner selected.
 - `READINESS.md` — Mac runtime-architecture options (Intel Mac, not Apple Silicon),
-  compatibility research, and the overall GO/NO-GO checklist for the tiny feasibility
-  benchmark (design only — not run).
+  compatibility research, the authorization-gate sequence (Gate A–D), and the overall
+  GO/NO-GO checklist for the tiny feasibility benchmark (design + a self-tested runner
+  scaffold — no real model run).
+- `environment_checks/` — dated, exploratory, non-scientific records of what is actually
+  installed on the development machine (same role as
+  `M1-English-Baseline/environment_checks/` for Track B). Never authoritative for a real
+  run; a preflight input only.
+- `fixtures/` — `smoke_questions.jsonl`, 5 hand-written synthetic MCQ items for
+  infrastructure testing only. Not MMLU, not GPQA, no scientific value.
+- `run_feasibility.py` — the feasibility-screen entrypoint. Its default (`--dry-run`)
+  mode exercises the full harness plumbing against `MockFeasibilityBackend` (TEST-ONLY);
+  `--real` refuses unconditionally — Gate A (runtime installation) is complete, but
+  Gates B–D (`READINESS.md` §0) are not.
+- `runtime.local.example.yaml` — a documented (not code-validated) template recording
+  the locked runtime (llama.cpp, pinned commit) alongside the still-`UNSELECTED`
+  model/quantization fields and the gate status.
+- `feasibility_runs/` (git-ignored) — output of `run_feasibility.py`; never `results/`.
 
 ## 5. Relationship to the existing harness
 
 `src/clsm/` (schemas, metrics, disclosure, pipeline) is shared by both tracks — the
 metric definitions, denominators, and majority-vote / tie policy
-(`literature/DECISION_LOG.md` D-018) do not change because the model is smaller. Any
-Mac-track-specific code (a CPU/llama.cpp generation backend, a Mac-specific config
-group) is a *new* module alongside the existing `clsm.generation.VLLMBackend`, added
-only when this track is authorized to write code — not yet.
+(`literature/DECISION_LOG.md` D-018) do not change because the model is smaller.
+`src/clsm/feasibility.py` is Track-A-specific scaffold code: a deliberately **separate**
+data model (`FeasibilityRecord`, not `GenerationRecord`) so a feasibility-screen output
+can never be passed into `clsm.metrics.compute_metrics` by accident (verified by a
+dedicated test, `tests/test_feasibility.py`). A CPU/llama.cpp real backend
+(implementing `clsm.feasibility.FeasibilityBackend`) is a *new* module added only once
+Gate A/B are authorized — not yet; only the TEST-ONLY mock exists today.

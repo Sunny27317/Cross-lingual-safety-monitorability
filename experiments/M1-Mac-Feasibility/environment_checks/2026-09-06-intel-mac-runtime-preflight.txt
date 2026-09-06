@@ -1,0 +1,185 @@
+Track A — Mac runtime feasibility preflight
+Date (UTC): 2026-09-06T21:52:44Z
+Branch: research/mac-runtime-feasibility
+Purpose: EXPLORATORY ENVIRONMENT CHECK ONLY. This is NOT a scientific result, NOT a
+benchmark, NOT a pilot. It records observed facts about the local development machine
+before any runtime installation or model download is authorized (Gate A, see
+EXPERIMENT_SPEC.md / this run's report). All commands below are non-destructive
+(read-only queries); nothing was installed, downloaded, or modified by collecting this
+file.
+
+================================================================================
+1. Hardware / OS
+================================================================================
+
+$ uname -a
+Darwin MacBookPro 25.3.0 Darwin Kernel Version 25.3.0: Wed Jan 28 20:53:28 PST 2026; root:xnu-12377.91.3~2/RELEASE_X86_64 x86_64
+
+$ uname -m
+x86_64
+
+$ sw_vers
+ProductName:            macOS
+ProductVersion:         26.3.1
+ProductVersionExtra:    (a)
+BuildVersion:           25D771280a
+
+$ sysctl -n machdep.cpu.brand_string
+Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+
+$ sysctl hw.memsize
+hw.memsize: 34359738368   (= 32 GiB)
+
+$ sysctl -n hw.ncpu hw.physicalcpu
+12   (logical)
+6    (physical)
+
+$ df -h /
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk1s4s1   466Gi    17Gi   184Gi     9%    455k  1.9G    0%   /
+
+Confirms this is an Intel x86_64 Mac, NOT Apple Silicon (ARM64) — consistent with
+`literature/DECISION_LOG.md` D-020/D-027 and `READINESS.md` §0. No GPU query was run
+(no NVIDIA GPU is expected or relevant here; AMD Radeon Pro 5300M 4 GB is not a
+CUDA-capable device and is not evaluated as an inference target for Track A, which is
+CPU-only per `READINESS.md`). ~183 GB free disk — comfortably sufficient for any single
+candidate model in `MODEL_SCREEN.md` (all under ~10 GB unquantized) if a download is
+later authorized.
+
+================================================================================
+2. Python / toolchain
+================================================================================
+
+$ python3 --version
+Python 3.9.6
+
+$ which python3
+/usr/bin/python3
+
+$ python3.11 --version
+Python 3.11.15
+
+$ which python3.11
+/usr/local/bin/python3.11
+
+$ /Users/mac3/cross-lingual-safety-monitorability/.venv/bin/python --version
+Python 3.11.15
+
+Two Python interpreters are present: the macOS-system `/usr/bin/python3` (3.9.6, NOT
+used by this project) and a Homebrew-installed `python@3.11` (3.11.15), which is what
+the project's `.venv` (already present, used for the offline test suite) is built from.
+This matches the pin already used for Track B's development
+(`experiments/M1-English-Baseline/PRE_RUN_READINESS.md` §2.1) and satisfies the
+project's `pyproject.toml` `requires-python = ">=3.11,<3.13"` constraint. No new Python
+install is needed for basic tooling; a fresh venv for any Track-A runtime dependencies
+would still need to be created when authorized.
+
+$ git --version
+git version 2.52.0
+
+================================================================================
+3. Build / package tooling
+================================================================================
+
+$ which brew && brew --version
+/usr/local/bin/brew
+Homebrew 5.1.14
+-> INSTALLED
+
+$ which cmake && cmake --version
+cmake not found
+-> NOT INSTALLED
+
+$ which make && make --version
+/usr/bin/make
+GNU Make 3.81
+-> INSTALLED (Apple/BSD-flavored make, ships with Xcode Command Line Tools)
+
+$ which clang && clang --version
+/usr/bin/clang
+Apple clang version 17.0.0 (clang-1700.6.3.2)
+Target: x86_64-apple-darwin25.3.0
+-> INSTALLED (Xcode Command Line Tools toolchain)
+
+$ xcode-select -p
+/Applications/Xcode.app/Contents/Developer
+-> Xcode Command Line Tools are configured (full Xcode.app, not just the standalone CLT)
+
+$ brew list | grep -iE "cmake|llama|ollama|python|uv|ninja"
+python@3.11
+-> only python@3.11 is installed via Homebrew among the tools checked; no ninja either
+
+================================================================================
+4. Candidate local-LLM runtimes — installed / not installed
+================================================================================
+
+$ which llama-cli
+llama-cli not found
+-> NOT INSTALLED
+
+$ which llama-server
+llama-server not found
+-> NOT INSTALLED
+
+$ which ollama && ollama --version
+ollama not found
+-> NOT INSTALLED
+
+$ which uv && uv --version
+uv not found
+-> NOT INSTALLED  (note: `REPRODUCIBILITY.md` §1 and `PRE_RUN_READINESS.md` §2.4 name
+   `uv` as the project's preferred dependency/lockfile tool for Track B; it is also not
+   installed on this machine as of this check)
+
+$ python3 -m venv --help (exit code check only)
+-> AVAILABLE (Python's built-in `venv` module works; a fallback per `Makefile`'s `env`
+   target documentation)
+
+$ which pip3 && pip3 --version
+/usr/bin/pip3
+pip 26.0.1 from /Users/mac3/Library/Python/3.9/lib/python/site-packages/pip (python 3.9)
+-> INSTALLED (system pip, bound to the 3.9 system interpreter, not the project's 3.11)
+
+$ ls -d ~/llama.cpp /usr/local/opt/llama.cpp
+No such file or directory (both paths)
+-> no local llama.cpp source checkout or Homebrew-linked install found at the obvious
+   locations checked
+
+================================================================================
+5. Hugging Face cache — confirms no target model/dataset already cached
+================================================================================
+
+$ ls ~/.cache/huggingface/hub
+datasets--amazon_polarity
+models--gpt2
+
+$ ls ~/.cache/huggingface/datasets
+amazon_polarity
+<lock file>
+
+Only pre-existing, unrelated cache entries are present (same finding as
+`literature/DECISION_LOG.md` D-027's 2026-09-01 check: `gpt2` + `amazon_polarity`, dated
+months before this project). None of the Track-A `MODEL_SCREEN.md` candidates, MMLU, or
+GPQA are present. This listing read only directory/file NAMES already on local disk — it
+did not query Hugging Face's servers and did not download anything.
+
+================================================================================
+6. Summary — what this means for Gate A (runtime installation authorization)
+================================================================================
+
+- Build toolchain (clang, make, Homebrew) is already present and sufficient to build
+  llama.cpp from source if that path is chosen — `cmake` is the one commonly-needed
+  build tool NOT currently installed (llama.cpp's CMake build path would need it;
+  its plain `make` build path, where still supported, would not).
+- Homebrew is present, which also makes `brew install llama.cpp` (a prebuilt-binary
+  path) or `brew install ollama` available as an alternative to building from source —
+  neither has been installed; this is a factual capability note, not a decision.
+- No local-LLM runtime (llama.cpp, Ollama) and no `uv` are installed yet. Nothing was
+  installed by this check.
+- Python 3.11.15 (matching the project's pin) is already available via Homebrew and via
+  the existing project `.venv` — a `transformers`-CPU path would not need a new Python
+  install, only new packages in a venv.
+- No target model weights or datasets are cached locally.
+- Disk space is not a constraint (184 GB free) for any candidate in `MODEL_SCREEN.md`.
+
+This file is an input to Gate A planning only. It authorizes nothing by itself.
