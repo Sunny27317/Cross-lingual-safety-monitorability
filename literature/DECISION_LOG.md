@@ -780,3 +780,149 @@ are reversed by a **new** entry, not by deleting an old one.
   `experiments/METRIC_AUDIT_2026-09-06.md` (addendum).
 - **Status:** ACTIVE. No inference occurred; this is a code-level addition plus
   documentation, not a scientific result.
+
+## D-032 — First real Mac-feasibility-stage planning: environment preflight, primary-source model re-verification, runtime recommendation, quantization candidates named, feasibility-runner scaffold (no install / download / inference)
+- **Date:** 2026-09-06
+- **Decision:** Began the first real Track-A feasibility stage (still planning/screening,
+  not the scientific experiment). Five sub-decisions, all documented in place rather than
+  summarized only here:
+  1. **Environment preflight** (`experiments/M1-Mac-Feasibility/environment_checks/
+     2026-09-06-intel-mac-runtime-preflight.txt`): non-destructive, read-only commands
+     confirmed this machine is Intel x86_64 macOS (26.3.1), 32 GB RAM, 6 physical/12
+     logical cores, ~183 GB free disk; Homebrew/`make`/`clang` present, `cmake` /
+     `ollama` / `uv` / `llama.cpp` absent; Python 3.11.15 already available via Homebrew
+     (matching the project's pin) alongside the macOS-system 3.9.6; only pre-existing,
+     unrelated HF cache entries present (`gpt2`, `amazon_polarity` — same as D-027's
+     2026-09-01 finding). Nothing was installed by collecting this file.
+  2. **Model-fact re-verification against primary sources** (`MODEL_SCREEN.md`, revised):
+     the original same-day screen used search snippets only; this pass fetched each
+     candidate's actual Hugging Face model card. Result: Qwen3-1.7B, Llama-3.2-3B-
+     Instruct, Gemma-3-4B-it, and Phi-4-mini-instruct's previously-reported facts were
+     confirmed (parameter count, license, context length, language claims). **Two new
+     negative findings:** Llama-3.2-3B-Instruct's Urdu absence is now confirmed (not
+     merely suspected) from its own 8-language official list; Phi-4-mini-instruct's
+     22-language official list is now confirmed to exclude Urdu (previously
+     `TODO — UNVERIFIED`, now a verified negative). **One new limitation surfaced:**
+     Gemma-3-4b-it's card describes it as a vision-language (multimodal) model, not
+     pure text — not previously recorded. **Candidate 5's identity was corrected**, not
+     removed or newly added: the original tentative "~3B-class Urdu fine-tune" guess
+     resolves to a specific, verified repository, `large-traversaal/Alif-1.0-8B-
+     Instruct` (base `unsloth/Meta-Llama-3.1-8B`, **8B parameters — exceeds the
+     "sub-1B–~3B" screening ceiling more than Gemma-3-4B does**), Apache 2.0, with
+     first-party GGUF conversions on its own repo (Q2_K 3.18 GB through F16 16.1 GB)
+     and a claimed (author-reported, not independently re-verified) human-annotated
+     Urdu evaluation benchmark. Kept in the screen despite exceeding the size ceiling
+     because it is the only candidate found with dedicated, benchmarked Urdu
+     instruction-tuning — this tradeoff is stated explicitly, not hidden. **No
+     candidate was removed**; none of the neutral removal criteria
+     (`EXPERIMENT_SPEC.md` §2–3) were triggered by any candidate.
+  3. **Runtime recommendation** (`READINESS.md` §2, restructured): **llama.cpp, driven
+     directly (not via Ollama), with GGUF files** remains the recommendation, now
+     against an explicit criteria table (version pinning, exact revision handling,
+     seeded generation, chat-template handling, provenance burden) and Ollama
+     specifically assessed against reproducibility criteria and rejected as *primary*
+     for adding an indirection layer (registry tag → GGUF mapping) this project does
+     not need — not for any compatibility problem. **Not installed.**
+  4. **Quantization candidates named, none selected** (`READINESS.md` §3): `Q8_0`,
+     `Q6_K`, `Q5_K_M`, `Q4_K_M`, anchored to Alif-1.0-8B-Instruct's real published GGUF
+     file sizes (3.18–16.1 GB) as evidence that quantized 8B-class models fit this
+     machine's 32 GB RAM with wide headroom. Selection criteria are neutral (fits RAM,
+     acceptable latency, output stability, reproducibility, least-aggressive-that-works)
+     — explicitly not scientific-behavior-driven. Track B's `bf16`/`quantization: none`
+     is untouched (`configs/milestone1/runtime.yaml` — zero diff).
+  5. **Feasibility-runner scaffold** (`src/clsm/feasibility.py`,
+     `experiments/M1-Mac-Feasibility/run_feasibility.py`,
+     `experiments/M1-Mac-Feasibility/fixtures/smoke_questions.jsonl`): a deliberately
+     **separate** record type (`FeasibilityRecord`, not `clsm.schemas.GenerationRecord`)
+     so a feasibility output cannot be passed into `clsm.metrics.compute_metrics` by
+     accident (verified by `tests/test_feasibility.py::
+     test_feasibility_record_is_structurally_incompatible_with_compute_metrics`); a
+     `MODE = "feasibility"` guard (`assert_feasibility_mode`); a path guard refusing to
+     write under any `results/` path
+     (`write_feasibility_records`); and a 5-item synthetic MCQ fixture (not MMLU, not
+     GPQA) for infrastructure testing only. The scaffold was self-tested **end-to-end
+     using `MockFeasibilityBackend` only** (a deterministic, TEST-ONLY canned
+     responder) — this proves the prompt-rendering / control-treatment / extraction /
+     JSONL-output plumbing works, without touching any real model. `run_feasibility.py
+     --real` refuses unconditionally (no backend implemented; Gates A–D unmet).
+  Formalized the **authorization-gate sequence** (`READINESS.md` §0): Gate A (runtime
+  install) → Gate B (model download) → Gate C (single-model smoke run) → Gate D
+  (multi-candidate feasibility screen). **This entry reaches only the end of Gate-A
+  planning** — nothing past a recommendation has been authorized.
+- **Rationale:** this-turn instructions — begin the first real Mac feasibility stage
+  under the same non-negotiable rules as before (no inference, no downloads, no
+  quantization selection, no scientific metrics, outcome-independent model/runtime
+  choice); verify model facts from primary sources rather than search snippets;
+  correct rather than paper over a previously-tentative candidate identity once its
+  real facts are known.
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/
+  2026-09-06-intel-mac-runtime-preflight.txt`; `MODEL_SCREEN.md` (revised, primary-
+  source citations inline); `READINESS.md` (revised, §0 gates + §2 runtime + §3
+  quantization); `src/clsm/feasibility.py`; `tests/test_feasibility.py` (8 new tests);
+  `experiments/M1-Mac-Feasibility/run_feasibility.py`;
+  `experiments/M1-Mac-Feasibility/fixtures/smoke_questions.jsonl` +
+  its `README.md`.
+- **Status:** ACTIVE. No runtime installed, no model downloaded, no dataset downloaded,
+  no real-model inference occurred (only `MockFeasibilityBackend` was exercised, exactly
+  as `clsm.generation.MockBackend` already is for Track B's own offline tests), no
+  scientific metric computed. **Next required authorization: Gate A** (a specific
+  runtime + pinned version, to install).
+
+## D-033 — Gate A complete: llama.cpp runtime installed, built from a pinned revision, and locally verified
+- **Date:** 2026-09-06
+- **Decision:** Following explicit Gate-A authorization (runtime installation only —
+  no model download, no dataset download, no inference, no quantization selection, no
+  Track-B changes), llama.cpp was installed, built, and locally verified as Track-A's
+  runtime **implementation** (not merely a recommendation, D-032 §3). Locked facts:
+  - **Repository:** `https://github.com/ggml-org/llama.cpp` — confirmed via the GitHub
+    API that `github.com/ggerganov/llama.cpp` now redirects here (same repository,
+    same numeric repository id, moved GitHub organization — not a different or
+    unrelated fork).
+  - **Pinned commit:** `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`, the
+    latest published GitHub Release at pin time, 2026-09-04 — not a floating `master`
+    reference), resolved via the GitHub API's tag → annotated-tag-object →
+    commit chain (full chain recorded in
+    `environment_checks/2026-09-06-llamacpp-gate-a.txt` §3, independently
+    re-derivable).
+  - **Build:** `cmake -B build -DGGML_METAL=OFF -DCMAKE_BUILD_TYPE=Release` then
+    `cmake --build build --config Release -j 6`, from a clone at `~/tools/llama.cpp`
+    (outside this research repo, not vendored into git history). Build succeeded.
+  - **Backend: CPU-only, verified not merely claimed.** `GGML_SYSTEM_ARCH: x86`;
+    `ggml-cpu` backend with `-march=native`; BLAS via Apple's Accelerate framework
+    (a CPU math-library optimization, not GPU acceleration). Metal was **explicitly
+    disabled** (`-DGGML_METAL=OFF`) rather than left at CMake's macOS-default
+    Metal-enabled setting, because this machine's AMD Radeon Pro 5300M is a discrete
+    GPU, not the Apple-Silicon unified-memory architecture llama.cpp's Metal backend
+    targets — no claim is made about whether Metal-via-AMD would work; it was not
+    tested. `otool -L` on the built `llama-cli` confirms no Metal/OpenCL/CUDA/Vulkan
+    library is linked anywhere in its dependency graph.
+  - **Build prerequisite installed:** `cmake` 4.4.3 via Homebrew (the only package
+    installed this step — no Ollama, no MLX, no CUDA tooling).
+  - **Binary verified without a model:** `~/tools/llama.cpp/build/bin/llama-cli
+    --version` and `--help` both launch successfully (exit 0); no model path was ever
+    passed to any command.
+- **What is still UNSELECTED (unaffected by this entry):** model (`MODEL_SCREEN.md`,
+  5 candidates, none locked); quantization level (`READINESS.md` §3, none locked).
+  Gate B (model download), Gate C (single-model smoke run), and Gate D (multi-candidate
+  feasibility screen) remain **NOT AUTHORIZED**. Building and verifying a runtime is an
+  infrastructure milestone, not a claim that the scientific study is "ready."
+- **Also added this entry:** `src/clsm/feasibility.discover_llamacpp_binary` — a
+  runtime-discovery guard (binary-exists + `--version` check only, never a model path),
+  tested against temporary fake executables (never the user's real `~/tools` path) in
+  `tests/test_feasibility.py`; and
+  `experiments/M1-Mac-Feasibility/runtime.local.example.yaml`, a documented (not
+  code-validated) template recording the runtime/model/quantization/gate state as of
+  this entry, with all machine-specific paths marked as example values.
+- **Rationale:** this-turn Gate-A authorization; research-integrity requirement to
+  record exact, independently-reproducible provenance (repo URL, pinned commit, build
+  command, build result) before treating any runtime as usable, per `CLAUDE.md` §2.7.
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/
+  2026-09-06-llamacpp-gate-a.txt` (full raw command transcript);
+  `experiments/M1-Mac-Feasibility/READINESS.md` §1.6, §4 (updated);
+  `experiments/M1-Mac-Feasibility/runtime.local.example.yaml`;
+  `src/clsm/feasibility.py` (`discover_llamacpp_binary`,
+  `RuntimeDiscoveryResult`); `tests/test_feasibility.py` (4 new discovery-guard tests).
+- **Status:** ACTIVE. No model downloaded, no dataset downloaded, no inference
+  occurred, no scientific metric computed, no quantization selected, no model selected.
+  **Next required authorization: Gate B** (a specific model weight, from
+  `MODEL_SCREEN.md`, to download).

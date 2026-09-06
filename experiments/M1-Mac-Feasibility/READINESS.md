@@ -1,7 +1,10 @@
-# READINESS.md — Track A Mac runtime architecture (design only, nothing installed)
+# READINESS.md — Track A Mac runtime architecture
 
-**Status:** RESEARCH ONLY. Nothing in this document has been installed, downloaded, or
-run. It documents runtime *options* for the machine actually available:
+**Status:** Runtime research and design, PLUS the completed Gate-A runtime installation
+(§1.6 — llama.cpp built and locally verified, 2026-09-06). No model has been
+downloaded, no dataset has been downloaded, and no inference has occurred anywhere in
+this document's history. It documents runtime *options* for the machine actually
+available:
 
 | Property | Value |
 |---|---|
@@ -17,6 +20,38 @@ run. It documents runtime *options* for the machine actually available:
 here assumes Apple Silicon.** This distinction matters because several popular
 "run LLMs on your Mac" toolchains (most notably Apple's own MLX) are Apple-Silicon-only
 and do not run at all on this machine.
+
+Observed-machine facts (confirmed, not assumed) are archived in
+`environment_checks/2026-09-06-intel-mac-runtime-preflight.txt` — a non-destructive,
+read-only preflight (no install, no download).
+
+## 0. Authorization gates (sequential — do not skip ahead)
+
+Everything past model/runtime screening requires explicit, sequential authorization.
+Each gate below is a distinct, separately-authorized step:
+
+| Gate | What it authorizes | Status |
+|---|---|---|
+| **Gate A** | Runtime installation (build/verify llama.cpp locally) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — see §1.6 below and `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
+| **Gate B** | Model-weight download (any candidate in `MODEL_SCREEN.md`) | **NOT AUTHORIZED** |
+| **Gate C** | A single-model tiny smoke run (infrastructure plumbing check on ONE real candidate, analogous to Track B's Stage-A smoke, `M1-English-Baseline/PRE_RUN_READINESS.md` §3.0) | **NOT AUTHORIZED** |
+| **Gate D** | The multi-candidate tiny feasibility screen (`EXPERIMENT_SPEC.md` §5, G1–G5) across all screened candidates | **NOT AUTHORIZED** |
+
+**Gate A is complete; Gates B, C, D remain unauthorized and unreached.** A runtime
+**implementation** now exists (built and locally verified — §1.6), which is a step
+beyond the earlier *recommendation*-only state, but this does **not** mean the
+scientific study is "ready": no model is selected, no quantization level is selected,
+and no inference of any kind has occurred. The feasibility *runner*
+(`experiments/M1-Mac-Feasibility/run_feasibility.py`, `src/clsm/feasibility.py`) has
+been written and self-tested end-to-end against `MockFeasibilityBackend` only — a
+deterministic, TEST-ONLY canned responder — so that the plumbing (prompt rendering,
+control/treatment pairing, answer extraction, JSONL output) is proven correct *before*
+any real model is involved. `src/clsm/feasibility.py` also now includes
+`discover_llamacpp_binary` (a runtime-discovery guard: binary-exists + `--version`
+check ONLY, never a model path), so the harness can confirm a configured runtime binary
+is usable without risking an accidental inference call. No real generation backend is
+implemented yet; `run_feasibility.py --real` refuses unconditionally until Gates B–D
+pass.
 
 ---
 
@@ -34,6 +69,43 @@ and do not run at all on this machine.
 | Reasoning traces capturable? | Yes — llama.cpp returns raw text completions; whatever the model emits (a `<think>` block, a numbered chain) is captured exactly like any other text output. |
 | Seeded generation supported? | Yes — llama.cpp exposes an explicit `--seed` and standard sampling parameters (temperature, top-p, top-k), comparable in spirit to the vLLM decoding config already used for Track B. |
 | Expected tradeoffs | Best-documented, most widely used pure-CPU-inference path for this exact hardware class; quantization is close to mandatory for larger candidates to run at acceptable speed; ecosystem moves fast, so version pinning needs active attention. |
+
+### 1.6 Gate A — COMPLETE: llama.cpp installed, built, and locally verified (2026-09-06)
+
+**BEFORE (candidate, this document's earlier state):** llama.cpp was a *recommended*
+runtime option, nothing installed.
+
+**AFTER Gate A (this section):** a specific llama.cpp **implementation** is installed,
+built, and locally verified on this machine. Full raw command transcript:
+`environment_checks/2026-09-06-llamacpp-gate-a.txt`. Summary:
+
+| Field | Value |
+|---|---|
+| Repository | `https://github.com/ggml-org/llama.cpp` (the `ggerganov/llama.cpp` URL now redirects here — same repository, moved GitHub org; confirmed via the GitHub API, not assumed) |
+| Pinned commit | `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` |
+| Tag | `v0.4.0` (latest published GitHub Release at pin time, 2026-09-04 — not a floating `master` reference) |
+| Clone location | `~/tools/llama.cpp` (outside this research repo; not vendored into git history) |
+| Build prerequisite installed | `cmake` 4.4.3 via Homebrew (was absent; nothing else installed — no Ollama, no MLX, no CUDA tooling) |
+| Build command | `cmake -B build -DGGML_METAL=OFF -DCMAKE_BUILD_TYPE=Release` then `cmake --build build --config Release -j 6` |
+| Build result | **SUCCESS** — all targets built, incl. `llama-cli` |
+| Backend detected/used | **CPU only.** `GGML_SYSTEM_ARCH: x86`; CPU backend `ggml-cpu` with `-march=native`; BLAS via Apple's Accelerate framework (CPU math library, not GPU). **No Metal, OpenCL, CUDA, or Vulkan backend built** — Metal explicitly disabled (`-DGGML_METAL=OFF`), confirmed absent from the binary's linked libraries (`otool -L`) |
+| Binary verified | `~/tools/llama.cpp/build/bin/llama-cli` — `file`: Mach-O 64-bit x86_64; `--version` and `--help` both launch successfully (exit 0); no model path was ever passed |
+| Model/dataset downloads | **None.** HF cache unchanged from the pre-existing `gpt2`/`amazon_polarity` state (D-027); llama.cpp's own model-cache directories do not exist; the 19 `.gguf` files under `~/tools/llama.cpp/models/` are llama.cpp's own bundled tokenizer-vocabulary test fixtures (tracked in git at the pinned commit, 0.6–15.8 MB each, no weight tensors) — not downloaded model weights |
+
+**Why Metal was explicitly disabled rather than left at CMake's macOS default
+("Metal is enabled by default" per llama.cpp's own `docs/build.md`):** this machine's
+GPU is an AMD Radeon Pro 5300M — a discrete GPU, not Apple Silicon's unified-memory
+architecture, which is what llama.cpp's Metal backend is primarily developed and
+tested against. Rather than assume Metal-via-AMD works (or claim it does not, without
+testing), the build forces genuine CPU-only execution
+(`-DGGML_METAL=OFF`, llama.cpp's own documented flag for this exact purpose). No claim
+is made about whether Metal-via-AMD would have worked — it was not attempted, and
+remains out of scope.
+
+**What Gate A does NOT mean:** no model is selected (`MODEL_SCREEN.md`, still
+UNSELECTED); no quantization level is selected (§3, still UNSELECTED); no inference of
+any kind has occurred; the scientific study is not "ready" merely because a runtime
+compiles and reports its version. Gate B (model download) remains **NOT AUTHORIZED**.
 
 ### 1.2 MLX
 
@@ -61,26 +133,114 @@ and do not run at all on this machine.
   builds), but adds a third distinct runtime/provenance story for only one candidate;
   not adopted as a primary option, but not ruled out if Phi-4-mini screens well and its
   ONNX build offers a meaningful CPU speed advantage over `transformers`-CPU.
-- **Ollama** — in practice a llama.cpp-based wrapper with a friendlier CLI/model-registry
-  layer; considered equivalent to §1.1 for compatibility purposes, but its model registry
-  and default quantization choices are less directly inspectable/pinnable than driving
-  llama.cpp (or a GGUF file) directly. Not adopted as the primary runtime, but noted as a
-  fallback if raw llama.cpp integration proves harder than expected.
+### 1.5 Ollama — reproducibility assessment against Step 6's specific criteria
 
-## 2. Recommendation (not a decision — for discussion at selection time)
+Ollama is, under the hood, a llama.cpp-based server with its own model-registry and
+`Modelfile` layer. Evaluated specifically on whether it supports the reproducibility and
+exact-model-version control this project requires (`CLAUDE.md` §2.7):
 
-**llama.cpp + GGUF** is the strongest fit for this Intel Mac given the candidate class in
-`MODEL_SCREEN.md` (models likely to need quantization to run comfortably in 32 GB
-alongside everything else, and a runtime built specifically for consumer-CPU inference).
-**`transformers`-CPU** is the natural fallback for any candidate without a trustworthy
-GGUF conversion, or if full-precision Track-A numbers are wanted as a reference point
-against a quantized run (`EXPERIMENT_SPEC.md` §6, "future full-precision replication").
-**MLX is excluded** — verified incompatible with this hardware, not merely deprioritized.
+| Criterion | Ollama | llama.cpp (driven directly) |
+|---|---|---|
+| Reproducible version pinning | the Ollama *application* version is pinnable, but a pulled model tag (`ollama pull model:tag`) resolves to whatever manifest the registry currently serves for that tag — the exact underlying GGUF file/quantization is not always obvious from the tag alone without an extra inspection step | the exact `.gguf` file used is whatever local file path is given — trivially pinnable, and its own sha256 can be recorded directly |
+| Exact model revision handling | tied to Ollama's own model library naming, not directly to the upstream HF repo's revision hash — an extra mapping step is needed to tie an Ollama tag back to a specific upstream commit | direct — a GGUF file downloaded from a specific HF repo **commit** is the unit of provenance |
+| GGUF implications | Ollama consumes GGUF internally but abstracts it away by default | GGUF is the first-class, inspectable artifact |
+| Seeded generation support | supported via its API's `seed` option | supported via llama.cpp's `--seed` |
+| Prompt/chat-template handling | applies a template embedded in the model's `Modelfile` — convenient, but another layer between "what I typed" and "what the model saw" | template applied explicitly in the calling code — more code to write, but nothing hidden |
+| Output capture | via its HTTP API / CLI | direct from the process's stdout or library call |
+| **Verdict for this project** | the convenience layer (registry, `Modelfile` templating) is exactly the kind of indirection that makes provenance harder to state precisely per generation — **not adopted as primary**, consistent with the original screen | **preferred** — nothing about Ollama makes it reproducibility-*superior* to driving llama.cpp directly, and it is one more moving part (a background server process) to pin and document |
 
-**No runtime is selected yet.** This is a recommendation to weigh once the feasibility
-benchmark (`EXPERIMENT_SPEC.md` §5) is authorized, not a locked choice.
+Ollama remains a documented fallback only if driving llama.cpp directly proves harder in
+practice than expected — not because of any compatibility problem (it would work fine on
+this Intel Mac too), but because it adds an indirection layer this project does not need.
 
-## 3. Overall Track-A GO / NO-GO checklist (design only)
+## 2. Runtime recommendation (Step 6) — recommended AND, as of §1.6, installed/locked
+
+**Recommended: llama.cpp, driven directly (not via Ollama), with GGUF model files.**
+
+| Criterion | llama.cpp (direct) | `transformers`-CPU | Ollama |
+|---|---|---|---|
+| Intel Mac compatibility | yes | yes | yes (wraps llama.cpp) |
+| Reproducible version pinning | exact git commit / release tag + exact `.gguf` file hash | exact `transformers`/`torch` package versions (pip-pinnable) | Ollama app version pinnable; underlying GGUF/quant less directly pinnable (§1.5) |
+| Exact model revision handling | direct — GGUF traces to a specific upstream HF commit | direct — same HF revision hash used on GPU | indirect — needs an extra mapping step (§1.5) |
+| GGUF implications | native, first-class | not applicable (no GGUF; raw safetensors) | native but abstracted away |
+| Seeded generation | yes (`--seed`) | yes (`torch.manual_seed`) | yes (API `seed` param) |
+| Prompt/chat-template handling | explicit, in calling code | explicit, `transformers`' own template helper | applied from the model's `Modelfile` — one more hidden layer |
+| Output capture | direct (stdout / library call) | direct | via HTTP API |
+| Memory visibility | `--verbose` / built-in memory logging; can also cross-check with OS-level `ps`/`top` | standard Python process memory, same tooling as any other `transformers` usage | via its own logs; another layer to inspect |
+| Quantization | first-class (GGUF quant levels, see §3 below) | limited on CPU (no `bitsandbytes` GPU path; CPU quantization options are narrower) | inherits llama.cpp's quantization, same abstraction caveat |
+| Provenance/logging burden | moderate (one more artifact — the GGUF file's own hash — to record beyond the base HF revision) | lowest (same provenance shape as Track B, just on CPU) | moderate-to-high (registry tag → GGUF mapping must be documented) |
+
+**Why llama.cpp over `transformers`-CPU as the *primary* recommendation:** the
+candidate class in `MODEL_SCREEN.md` includes at least one model (Alif-1.0-8B-Instruct)
+whose *only* practical path to acceptable CPU latency on this 6-core 2019 laptop is
+quantization, which `transformers`-CPU supports only narrowly. `transformers`-CPU
+remains the correct **fallback** for any candidate without a trustworthy GGUF
+conversion, or as a full-precision reference point (`EXPERIMENT_SPEC.md` §6, "future
+full-precision replication").
+
+**Why not Ollama as primary:** no compatibility problem — the objection is
+reproducibility indirection (§1.5), not feasibility.
+
+**Why not MLX:** verified incompatible with this Intel x86_64 hardware (§1.2) — excluded
+outright, not merely deprioritized.
+
+**Observed-environment note, as it stood BEFORE Gate A (this run's preflight,
+`environment_checks/2026-09-06-intel-mac-runtime-preflight.txt`):** Homebrew, `make`,
+and `clang`/Xcode Command Line Tools were already present on this machine; `cmake` was
+NOT installed. This was the basis for the recommendation above.
+
+**UPDATE — Gate A complete (§1.6):** this recommendation has since been acted on.
+`cmake` 4.4.3 was installed via Homebrew, and llama.cpp was built from pinned commit
+`5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`) and locally verified — see
+§1.6 for the full record. **The runtime is now installed and locked; it is no longer
+merely a recommendation.** What remains unselected is the **model** and the
+**quantization level** (§3) — Gate B (model download) is still **NOT AUTHORIZED**.
+
+## 3. Track-A quantization levels — candidates named, none selected (Step 7)
+
+Per `EXPERIMENT_SPEC.md` §6, the exact Track-A quantization format/level remains
+`TODO — DECISION REQUIRED`. If llama.cpp/GGUF is the runtime (recommended above), the
+standard candidate quantization levels are:
+
+| Level | Typical bits/weight | Typical quality/size tradeoff (general llama.cpp convention, not measured here) |
+|---|---|---|
+| `Q8_0` | ~8-bit | closest to full precision; largest of the quantized options; safest choice if RAM/latency allow it |
+| `Q6_K` | ~6-bit | small quality loss, meaningfully smaller than Q8_0 |
+| `Q5_K_M` | ~5-bit | common "balanced" choice in the llama.cpp community |
+| `Q4_K_M` | ~4-bit | smallest/fastest of the four; largest quality risk |
+
+**Concrete anchor (real numbers, not invented):** Candidate 5's own HF repo
+(`large-traversaal/Alif-1.0-8B-Instruct`, `MODEL_SCREEN.md`) publishes GGUF files
+directly, confirmed to span **Q2_K at 3.18 GB up to F16 at 16.1 GB** — i.e. real,
+primary-source-confirmed file sizes exist for at least one candidate, which is enough to
+confirm quantized 8B-class models fit this machine's 32 GB RAM with wide headroom; the
+exact Q8_0/Q6_K/Q5_K_M/Q4_K_M sizes for *this* file were not individually itemized in
+what was fetched and are `TODO — verify exact sizes at selection time`, not estimated
+here.
+
+**Selection criteria (neutral, restated from the user's instruction — not scientific
+behavior):**
+- fits comfortably in RAM (all four levels above are expected to, for every candidate in
+  `MODEL_SCREEN.md`, given the 3.18–16.1 GB anchor range and 32 GB total / ~184 GB free
+  disk observed);
+- acceptable latency for iterative development (unmeasured — a feasibility-benchmark
+  question, §5.4 G2);
+- output stability across repeated calls (unmeasured — G1);
+- reproducibility (the exact quant level + exact GGUF file hash pinned before any
+  comparison run, per `EXPERIMENT_SPEC.md` §6);
+- avoids excessive degradation where possible — i.e., prefer the **least aggressive**
+  quantization level that still meets the latency/RAM budget, not the most aggressive one
+  that happens to run fastest.
+
+**No quantization level is selected in this document.** A controlled
+quantization-level comparison (e.g. running the same tiny fixture at two adjacent
+levels) is planned **only if** the feasibility benchmark shows meaningfully different
+behavior across levels for the selected model — not run pre-emptively. Whatever level is
+eventually chosen must be held fixed across every condition in a given Track-A
+comparison (`EXPERIMENT_SPEC.md` §6) — no mixing quantization levels within one
+experiment's primary result.
+
+## 4. Overall Track-A GO / NO-GO checklist (design only)
 
 This restates and consolidates the gates already defined in `EXPERIMENT_SPEC.md` §5.4,
 as the single place to check before requesting authorization for the tiny feasibility
@@ -88,11 +248,16 @@ benchmark:
 
 | Step | Gate | Status |
 |---|---|---|
-| Model screen | ≥1 candidate in `MODEL_SCREEN.md` clears the license + candidate-class checks on a primary-source re-read | **not done** — current screen used secondary sources only |
-| Runtime selection | a runtime chosen from §1 above, with its version pinned | **not done** |
-| Download authorization | user explicitly authorizes downloading a specific model weight + specific runtime/tool versions | **not requested** |
-| Tiny feasibility benchmark | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers | **not run** |
-| Model-selection decision | criteria A–E scored per candidate; a dated `literature/DECISION_LOG.md` entry records the choice (or the "no candidate cleared" outcome) | **not done** |
+| Model screen | ≥1 candidate in `MODEL_SCREEN.md` clears the license + candidate-class checks on a primary-source re-read | **done** (2026-09-06 revision) — all 5 candidates checked directly against their HF model cards; none removed; Candidate 5's identity corrected from a tentative guess to a verified repo |
+| Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE (2026-09-06)** — §1.6; `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
+| Model selection | a specific candidate locked from `MODEL_SCREEN.md`, criteria A–E scored with real numbers | **UNSELECTED — not done** |
+| Quantization level | candidates named (§3); none selected | **UNSELECTED — not done** |
+| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **NOT AUTHORIZED** |
+| Single-model smoke run (Gate C) | one real candidate exercised through the runner, infra-only | **NOT AUTHORIZED** |
+| Multi-candidate feasibility benchmark (Gate D) | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers | **NOT AUTHORIZED** |
 
-Nothing past "model screen" has started. This document, `MODEL_SCREEN.md`, and
-`EXPERIMENT_SPEC.md` are the complete state of Track A as of this writing.
+**Gate A is done; Gates B, C, D are unreached.** Building and verifying llama.cpp is an
+infrastructure milestone, not a scientific-readiness milestone — no model is selected,
+no quantization is selected, and no inference of any kind has occurred. This document,
+`MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`, and `runtime.local.example.yaml` are the
+complete state of Track A as of this writing.

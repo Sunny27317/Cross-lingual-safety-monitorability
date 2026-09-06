@@ -224,6 +224,7 @@ __marimo__/
 # ---------------------------------------------------------------------------
 /experiments/_runs/
 /experiments/M1-en-hint-baseline-*/
+/experiments/M1-Mac-Feasibility/feasibility_runs/
 /data/generations/
 /data/monitor/
 /data/annotations/

@@ -1,0 +1,64 @@
+# Track-A runtime configuration TEMPLATE — EXAMPLE ONLY, not a locked config.
+#
+# This file is NOT consumed by any code yet (no clsm.config schema validates it — that
+# is deliberate; Track B's clsm.config.RuntimeSpec is CUDA/vLLM-specific and frozen for
+# Track B, and must not be repurposed for a CPU/llama.cpp runtime it was never designed
+# for). This template exists so a future, real Track-A run config has a documented shape
+# to start from, and so "what does Gate A actually lock in" has a single, inspectable
+# artifact.
+#
+# ALL machine-specific absolute paths below are placeholder/example values (an actual
+# committed run config would either use a relative/documented path convention or keep
+# genuinely local paths in a git-ignored file, not this tracked example).
+#
+# STATUS AFTER GATE A (2026-09-06): runtime IMPLEMENTATION is installed, built, and
+# locally verified (see environment_checks/2026-09-06-llamacpp-gate-a.txt). Model and
+# quantization remain UNSELECTED. Gate B (model download) is NOT authorized. No
+# inference has occurred. Building llama.cpp does not make the scientific study "ready."
+
+runtime:
+  name: llama.cpp
+  status: INSTALLED_AND_VERIFIED  # Gate A complete; NOT the same as "study ready"
+  source_repo: https://github.com/ggml-org/llama.cpp
+  commit: "5266f24da75dc449bd56cbed7addb9c8e4a6a73e"   # pinned; tag v0.4.0
+  tag: v0.4.0
+  build_flags:
+    - "-DGGML_METAL=OFF"        # forced CPU-only; see environment_checks/2026-09-06-llamacpp-gate-a.txt §4
+    - "-DCMAKE_BUILD_TYPE=Release"
+  binary: "~/tools/llama.cpp/build/bin/llama-cli"  # EXAMPLE local path; not committed as a real path assumption
+  architecture: x86_64
+  gpu_backend: none               # verified via `otool -L`: no Metal/OpenCL/CUDA/Vulkan linked
+  cpu_backend: ggml-cpu (Accelerate/BLAS)  # Apple Accelerate framework, CPU-only math acceleration
+
+model:
+  status: UNSELECTED              # MODEL_SCREEN.md: 5 candidates screened, none locked
+  candidate_shortlist:
+    - Qwen/Qwen3-1.7B
+    - meta-llama/Llama-3.2-3B-Instruct
+    - google/gemma-3-4b-it
+    - microsoft/Phi-4-mini-instruct
+    - large-traversaal/Alif-1.0-8B-Instruct
+  hf_repo_id: null
+  revision: null
+  gguf_file: null
+  gguf_sha256: null
+  download_status: NOT_AUTHORIZED  # Gate B
+
+quantization:
+  status: UNSELECTED              # EXPERIMENT_SPEC.md §6 / READINESS.md §3: TODO — DECISION REQUIRED
+  candidates_considered:
+    - Q8_0
+    - Q6_K
+    - Q5_K_M
+    - Q4_K_M
+  type: null
+  selection_will_be: "neutral (fits RAM, latency, stability, reproducibility) — never scientific-behavior-driven"
+
+execution:
+  mode: feasibility              # clsm.feasibility.MODE — never "scientific"/"confirmatory"
+  scientific_metrics_enabled: false  # clsm.metrics.compute_metrics is never called from this track's scaffold
+  gate_status:
+    gate_a_runtime_installation: AUTHORIZED_AND_COMPLETE
+    gate_b_model_download: NOT_AUTHORIZED
+    gate_c_single_model_smoke_run: NOT_AUTHORIZED
+    gate_d_multi_candidate_feasibility_screen: NOT_AUTHORIZED
