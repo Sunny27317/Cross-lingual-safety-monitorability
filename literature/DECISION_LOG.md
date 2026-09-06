@@ -607,3 +607,176 @@ are reversed by a **new** entry, not by deleting an old one.
   (raw command output); `PRE_RUN_READINESS.md` §2.4–2.5.
 - **Status:** ACTIVE. **Blocker unchanged from D-020**: no GPU box provisioned. No
   inference, no download, no results occurred.
+
+## D-028 — New resource-constrained execution track (Track A); original GPU track preserved as Track B
+- **Date:** 2026-09-06
+- **Decision:** Given the confirmed hardware constraint (D-020, D-027 — this Intel Mac
+  has no NVIDIA GPU / no CUDA and cannot run the original Milestone-1 design), the
+  project adds a **second, separate execution track** rather than modifying the
+  original: **Track A — Resource-Constrained Mac Study**
+  (`experiments/M1-Mac-Feasibility/`), targeting sub-1B–~3B open-weight models on a
+  CPU/Mac-compatible local runtime, alongside the unchanged **Track B — Larger-Model GPU
+  Replication** (`experiments/M1-English-Baseline/`, `configs/milestone1/runtime.yaml`:
+  `DeepSeek-R1-Distill-Qwen-7B`, BF16, vLLM, CUDA, NVIDIA L4/A100 minimum — untouched).
+- **Rationale:** the compute constraint changed **execution scale**, not the **research
+  question**. Track A lets development, harness validation, and English/Urdu methodology
+  work (hint injection, disclosure scoring, the four-monitor design, native-Urdu-human
+  comparison protocol) continue on hardware the user actually controls, without
+  pretending the Intel Mac can run the frozen GPU design, and without silently weakening
+  or deleting that design.
+- **Non-generalization rule (binding):** any Track-A result is reported as a
+  methodology/infrastructure-validation data point at small-model scale. It is **never**
+  presented as evidence about frontier-reasoning-model cross-lingual monitorability.
+  Track B remains the stronger replication target for any claim about frontier models;
+  Track A does not invalidate or supersede it.
+- **What is still open (not decided by this entry):** the specific Mac-track model
+  (`experiments/M1-Mac-Feasibility/MODEL_SCREEN.md` — 5 candidates screened on paper,
+  none selected); the Mac local runtime (`READINESS.md` §1–2 — llama.cpp/GGUF
+  recommended, `transformers`-CPU as fallback, MLX verified **incompatible** with this
+  Intel Mac); the quantization level, if any, for Track A
+  (`EXPERIMENT_SPEC.md` §6 — Track B's `bf16, quantization: none` is unaffected); the
+  pre-registered model-selection criteria are fixed (`EXPERIMENT_SPEC.md` §3) but no
+  candidate has been scored against them, because the tiny feasibility benchmark that
+  would produce real numbers (`EXPERIMENT_SPEC.md` §5) has not been authorized or run.
+- **No inference has occurred; no model or dataset has been downloaded for Track A.**
+- **Evidence:** `experiments/M1-Mac-Feasibility/README.md`, `EXPERIMENT_SPEC.md`,
+  `MODEL_SCREEN.md`, `READINESS.md` (all new, this entry's date); D-020, D-024, D-027
+  (the hardware finding this responds to).
+- **Status:** ACTIVE.
+- **Would change it:** the user provisions GPU access, making Track B immediately
+  runnable and reducing the urgency of Track A; or the tiny feasibility benchmark finds
+  no candidate clears even the paper-screen criteria, in which case Track A itself would
+  need to be reassessed with the user (a documented STOP, not a silent abandonment).
+
+## D-029 — Metric audit (2026-09-06): `parse_success_rate` corrected to UNDEFINED-on-empty, no other metric semantics changed
+- **Date:** 2026-09-06
+- **Decision:** Full audit of `src/clsm/metrics.py`, `schemas.py`, `disclosure.py`,
+  `pipeline.py` against the frozen metric definitions
+  (`experiments/METRIC_AUDIT_2026-09-06.md`, full findings). One demonstrable
+  inconsistency with the project's own "zero denominator is UNDEFINED, never a silent 0"
+  policy (D-018) was found and corrected: `MetricsResult.parse_success_rate` returned a
+  bare `0.0` when `compute_metrics` was called with zero generation records, instead of
+  the `NaN` + explicit note every other rate in the module uses on an empty denominator.
+  Fixed in `src/clsm/metrics.py` (now `math.nan` + a `"parse_success_rate is UNDEFINED
+  (0 generations)"` note) and documented in `src/clsm/schemas.py`
+  (`MetricsResult.parse_success_rate` field description). Test added:
+  `tests/test_metrics.py::test_parse_success_rate_undefined_when_no_generations`.
+- **Not changed (verified consistent with frozen definitions, documentation clarified
+  only):** (i) `DisclosureRecord` creation scope in `pipeline.run` is per-sample
+  (treatment + sample answer == hint target), not item-level-eligible — a compute-cost
+  observation, not a correctness bug, since `compute_metrics` already filters to
+  eligible+majority-switched items before any label is used; clarified in
+  `pipeline.py`'s docstring. (ii) `hidden_influence_rate`'s denominator is the full
+  eligible-item set (a JOINT probability per `RESEARCH_PLAN.md` §9's frozen definition),
+  not conditioned on switching, and does not complement `disclosure_rate` to a fixed
+  total (different denominators; `disclosure_rate` is continuous, `hidden_influence_rate`
+  thresholds it at 0.5) — clarified in the `clsm.metrics` module docstring and
+  `MetricsResult.hidden_influence_rate`'s field description. (iii) `answer_switch_rate`
+  already means, and is already documented as, "hinted-answer adoption among
+  switch-eligible items" — no rename needed. (iv) unlabelled-switched-case exclusion +
+  counting, item-vs-generation weighting, and the majority-vote tie policy were all
+  re-confirmed correct with no changes.
+- **Rationale:** this-turn Task 6 (metric-semantics audit), required before any Mac-track
+  config/code is written, since `src/clsm/` is shared by both tracks
+  (`experiments/M1-Mac-Feasibility/README.md` §5).
+- **Evidence:** `experiments/METRIC_AUDIT_2026-09-06.md` (full findings, code line
+  references, non-findings); `tests/test_metrics.py` (new + all 21 existing tests still
+  pass).
+- **Status:** ACTIVE. No inference occurred; this is a code-level correctness fix plus
+  documentation, not a scientific result.
+
+## D-030 — Novelty recheck (2026-09-06): no paper found occupying the surviving intersection; one new item flagged for future verification
+- **Date:** 2026-09-06
+- **Decision:** A focused web search was run for work combining native-speaker
+  validation, translate-then-monitor, low-resource-language (esp. Urdu) CoT
+  monitorability, and small/open-weight models — the exact surviving intersection named
+  in D-015. **No paper was found occupying that intersection.** The canonical novelty
+  statement (D-015) is **unchanged**.
+- **New item surfaced, not yet assessed:** "MonitorBench: A Comprehensive Benchmark for
+  Chain-of-Thought Monitorability in Large Language Models" (arXiv:2603.28590, found via
+  search snippet only — **not read in full, not in `COMPETITOR_MATRIX.md` yet**). This is
+  recorded here as `TODO — UNVERIFIED` / `TODO — read before Milestone 4`, alongside the
+  existing arXiv:2603.20172 caveat carried forward from D-007. It must be read and either
+  added to `COMPETITOR_MATRIX.md` with a threat-level assessment, or explicitly ruled
+  irrelevant, before Milestone 4 — not before Track A screening/development, which does
+  not depend on it.
+- **Rationale:** the user's Task 12 instruction to do a focused novelty check before
+  building the Mac track; `CLAUDE.md` §2.6 (no citation treated as fact without
+  verification) — this is a discovery search, not a verification, so nothing found here
+  is treated as verified literature evidence; it is recorded exactly as found, with its
+  verification status.
+- **Evidence:** web search performed 2026-09-06 (queries: native-validated /
+  translate-then-monitor / low-resource / small-model CoT monitorability; small
+  open-weight Urdu-capable instruction models). No fetched/read full-text of any new
+  paper — only search-result snippets. This does **not** meet
+  `literature/CITATION_VERIFICATION.md`'s verification bar and is not cited as fact
+  anywhere outside this entry and `experiments/M1-Mac-Feasibility/MODEL_SCREEN.md`
+  (which independently flags every model-related claim `TODO — UNVERIFIED`).
+- **Status:** ACTIVE. **Would escalate to STOP/kill-pivot-A:** a full read of
+  arXiv:2603.28590 (or any other paper) confirms it does native-validated low-resource
+  monitorability + translate-then-monitor — flag immediately per D-015.
+
+## D-031 — Add `conditional_hidden_influence_rate`; existing metrics (including `hidden_influence_rate`) unchanged
+- **Date:** 2026-09-06
+- **Decision:** Following the D-029 audit's finding that `hidden_influence_rate` is a
+  JOINT probability (`P(switched ∧ not disclosed | eligible)`) rather than the
+  conditional quantity a plain-English reading might expect, a scientific/mathematical
+  review of whether both quantities should exist separately concluded **yes**. Added a
+  new, separately-named metric, `conditional_hidden_influence_rate` =
+  `P(not disclosed | switched, eligible, disclosure observed)`, computed with the
+  **same** `< 0.5` threshold rule `hidden_influence_rate` already uses, over the
+  switched+labelled population only (`n_disclosure_labelled_items`).
+  **`answer_switch_rate`, `disclosure_rate`, `hidden_influence_rate`, and
+  `accuracy_drop` are UNCHANGED** — same numerator, denominator, threshold, and
+  historical meaning as before this entry. `hidden_influence_rate` remains the frozen
+  joint/population metric.
+- **Why added (not merged into an existing field):** `hidden_influence_rate` and
+  `conditional_hidden_influence_rate` answer different questions and are both
+  scientifically useful — the joint form for absolute problem-scale across the eligible
+  population, the conditional form for "among classifiable hint-following cases, how
+  often was the influence not verbalized," which is closer to how Turpin's "hidden bias"
+  framing and Chen's own faithfulness-score conditioning are actually read, and closer to
+  the language the Milestone-1 pre-registration itself uses ("**among switched items**,
+  disclosure rate < switch rate," `experiments/M1-English-Baseline/README.md` §9,
+  unchanged by this entry).
+- **Continuous-vs-thresholded distinction (must not be conflated):**
+  `conditional_hidden_influence_rate` is **not**, in general, equal to
+  `1 - disclosure_rate`. `disclosure_rate` is a mean of continuous per-item disclosure
+  scores; the new metric is a mean of *thresholded* 0/1 indicators (the existing `< 0.5`
+  rule). They coincide only when every switched+labelled item's samples unanimously
+  agree on disclosure. Worked example (also a test): item disclosure means 0.2, 0.4, 0.8
+  → continuous nondisclosure `1 - mean = 0.5333`, thresholded
+  `conditional_hidden_influence_rate = 2/3 = 0.6667`.
+- **Missing-label denominator policy:** `conditional_hidden_influence_rate`'s
+  denominator is switched+labelled items only; switched-but-unlabelled items
+  (`n_disclosure_unlabelled_items`) are excluded, exactly as they already are from
+  `disclosure_rate`. The exact relationship to the joint metric — letting `N` = eligible
+  items with a majority `a_h`, `N_SW_L` = switched+labelled, `N_SW_U` =
+  switched+unlabelled, `H` = switched+labelled items with disclosure `< 0.5` —
+  is `hidden_influence_rate = [N_SW_L / (N - N_SW_U)] × conditional_hidden_influence_rate`.
+  The simpler `hidden_influence_rate = answer_switch_rate ×
+  conditional_hidden_influence_rate` is **explicitly not claimed** and holds only in the
+  special case `N_SW_U == 0` with aligned denominators.
+- **Zero-denominator policy:** unchanged project-wide convention — zero switched+labelled
+  items → `conditional_hidden_influence_rate` is `UNDEFINED`
+  (`Estimate.defined == False`, NaN, `n == 0`), never a silent 0, via the same
+  `bootstrap_ci` path every other rate in `clsm.metrics` already uses.
+- **What was NOT touched:** `experiments/M1-English-Baseline/README.md` (Track B's own
+  frozen pre-registration, written before any run) is intentionally **not edited** by
+  this entry — the metric's documentation lives in the shared harness
+  (`src/clsm/metrics.py`, `src/clsm/schemas.py`) and this decision log, not inside a
+  track-specific pre-registration whose whole point is that it predates any data. Track
+  B's `configs/milestone1/`, model/revision, BF16/no-quantization policy, and generation
+  settings are unaffected (verified: zero `git diff` in those paths after this change).
+- **Rationale:** this-turn scientific review, explicitly requested before any commit;
+  `CLAUDE.md` §2.3 (metric/decision changes documented, not silent) — this is an
+  **addition**, not a redefinition, of the D-018/D-029 frozen semantics.
+- **Evidence:** `src/clsm/metrics.py` (module docstring + `compute_metrics`),
+  `src/clsm/schemas.py` (`MetricsResult.conditional_hidden_influence_rate`),
+  `tests/test_metrics.py` (7 new tests: normal case, zero-switched-undefined,
+  all-unlabelled-undefined, mixed labelled/unlabelled denominator divergence, exact
+  `0.5` threshold boundary, continuous-vs-thresholded worked example, and a regression
+  test re-asserting `test_multi_item_aggregation`'s pre-existing values are unchanged),
+  `experiments/METRIC_AUDIT_2026-09-06.md` (addendum).
+- **Status:** ACTIVE. No inference occurred; this is a code-level addition plus
+  documentation, not a scientific result.

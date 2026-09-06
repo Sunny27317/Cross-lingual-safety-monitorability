@@ -10,6 +10,14 @@
 > milestone gates (Run-2 integration, 2026-09-01). Values the Run-2 blueprint did not
 > settle are marked `TODO — DECISION REQUIRED` or `TODO — IMPORT/VERIFY`. **Nothing here
 > is an experimental result. No experiment has been run.**
+>
+> **Execution tracks (added 2026-09-06, `literature/DECISION_LOG.md` D-028):** the RQs,
+> hypotheses, and definitions below are frozen and apply identically to **both** a
+> Resource-Constrained Mac Study (Track A, `experiments/M1-Mac-Feasibility/`) and the
+> original Larger-Model GPU Replication (Track B, `experiments/M1-English-Baseline/`).
+> Only model scale and execution environment differ between tracks; the science this
+> document describes is unchanged. Track A results are never assumed to generalize to
+> frontier reasoning models.
 
 ---
 
