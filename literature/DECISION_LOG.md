@@ -926,3 +926,82 @@ are reversed by a **new** entry, not by deleting an old one.
   occurred, no scientific metric computed, no quantization selected, no model selected.
   **Next required authorization: Gate B** (a specific model weight, from
   `MODEL_SCREEN.md`, to download).
+
+## D-034 — Gate B complete: Qwen3-1.7B (Q8_0 GGUF) selected and downloaded as the sole Track-A smoke-test model
+- **Date:** 2026-09-06
+- **Decision:** Following explicit Gate-B authorization (exactly ONE model download;
+  Gate C inference explicitly NOT authorized), `Qwen/Qwen3-1.7B` was selected and its
+  official GGUF artifact downloaded as Track-A's first smoke-test model.
+- **Selected:** generator `Qwen/Qwen3-1.7B`; artifact `Qwen/Qwen3-1.7B-GGUF` @ commit
+  `90862c4b9d2787eaed51d12237eafdfe7c5f6077`, file `Qwen3-1.7B-Q8_0.gguf`
+  (1,834,426,016 bytes; sha256
+  `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`, confirmed
+  post-download against the pre-download HF API git-LFS oid — bit-for-bit match).
+- **Neutral selection rationale (pre-registered, not outcome-dependent):** "smallest
+  verified candidate with explicit reasoning-trace support, permissive license, and
+  direct llama.cpp/GGUF compatibility." All twelve neutral criteria in
+  `EXPERIMENT_SPEC.md` §3 and this task's own checklist were independently re-verified
+  against primary sources (the `Qwen/Qwen3-1.7B` and `Qwen/Qwen3-1.7B-GGUF` model
+  cards + the HF API) *before* the lock: exact repo identity, Apache-2.0 license,
+  1.7B-class size (smallest of the five screened candidates by a wide margin: 1.7B vs.
+  3.2B/4B/3.8B/8B), instruction/chat-tuned, an explicit architectural thinking mode
+  (`enable_thinking`, `<think>...</think>` blocks), an OFFICIAL first-party GGUF repo
+  (author = "Qwen", not a third-party quantizer), llama.cpp compatibility (confirmed by
+  actually parsing the downloaded file with the pinned llama.cpp v0.4.0 build's own
+  `llama-gguf` tool — architecture `qwen3`, 28 metadata keys, 310 tensors, no error),
+  no gated-license requirement (`"gated": false`), trivial feasibility on 32 GB RAM
+  (1.83 GB file), and exact, independently-reproducible provenance (HF repo commit sha
+  + git-LFS content sha256, both recorded *before* downloading). Every criterion
+  passed; no STOP-and-report branch was triggered.
+- **Explicit non-influence statement:** no inference of any kind had occurred on any
+  candidate — this model, any other screened candidate, or any other model at all —
+  before this selection was made. The selection therefore could not have been, and was
+  not, influenced by hidden-influence magnitude, hint-following behavior, cross-lingual
+  gap, Urdu-specific failure, monitor failure, disclosure rate, accuracy, "interesting"
+  scientific behavior, or publication attractiveness — none of these quantities existed
+  yet for any candidate.
+- **Quantization: Q8_0** — selected because it is the ONLY quantization Qwen's own
+  official GGUF repo publishes for this model (no first-party Q6_K/Q5_K_M/Q4_K_M
+  existed to choose from instead), the file comfortably fits 32 GB RAM (1.83 GB), and
+  Q8_0 is a long-standing, universally-supported GGUF format with no known
+  compatibility issue against llama.cpp v0.4.0. No scientific behavior was compared
+  across quantization levels to make this choice.
+- **Metadata-only inspection performed, no inference:** `llama-gguf <file> r` (a pure
+  GGUF-container reader/validator shipped with the pinned llama.cpp build) was run to
+  confirm the downloaded file parses cleanly — no prompt was submitted, no completion
+  was generated, no token was sampled, no perplexity/benchmark evaluation ran, no
+  embedding was computed. A secondary Python metadata dumper
+  (`gguf-py/gguf/scripts/gguf_dump.py`) was attempted but failed on a missing `yaml`
+  dependency; that dependency was deliberately NOT installed (out of this Gate's
+  authorized scope: model download only), and the `llama-gguf` output was judged
+  sufficient.
+- **Download location:** `~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf` — outside this
+  git repository. `.gitignore` additionally hardened with `*.gguf`/`*.safetensors`/
+  `*.pt`/`*.pth` (defense-in-depth; confirmed zero pre-existing tracked files use these
+  extensions before adding the patterns).
+- **Portability cleanup (same branch, prior to this entry):**
+  `experiments/M1-Mac-Feasibility/runtime.local.example.yaml`'s `runtime.binary` field
+  was changed from the example absolute path `"~/tools/llama.cpp/build/bin/llama-cli"`
+  to `null` — the real observed path remains only in
+  `environment_checks/2026-09-06-llamacpp-gate-a.txt`, a local-machine provenance
+  record, not a portable template field.
+- **What is still UNSELECTED / NOT AUTHORIZED:** no other candidate model was
+  downloaded (Llama-3.2-3B-Instruct, Gemma-3-4b-it, Phi-4-mini-instruct,
+  Alif-1.0-8B-Instruct remain unselected and undownloaded); no dataset (MMLU, GPQA, or
+  otherwise) was downloaded; **Gate C (single-model smoke inference run) remains NOT
+  AUTHORIZED** — no control prompt, no treatment prompt, no reasoning trace, no
+  scientific metric of any kind exists from this model.
+- **Rationale:** this-turn Gate-B authorization (exactly one model download,
+  pre-scientific selection criteria only); `CLAUDE.md` §2.5 (no cherry-picking — the
+  selection rule was fixed and verified against neutral criteria before any outcome
+  could exist) and §2.7 (full provenance: exact repo, exact revision, exact file,
+  exact hash, recorded before and re-confirmed after download).
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/
+  2026-09-06-gate-b-model-download.txt` (full record: selection-criteria table,
+  pre-download HF API metadata, download command, post-download byte-size + SHA-256
+  verification, metadata-inspection transcript); `.gitignore` (weight-file guards
+  added); `experiments/M1-Mac-Feasibility/runtime.local.example.yaml` (updated, §7
+  below and this entry).
+- **Status:** ACTIVE. No dataset downloaded, no inference occurred, no scientific
+  metric computed, no results file created. **Next required authorization: Gate C**
+  (a single-model tiny smoke run on this exact, now-locked Qwen3-1.7B Q8_0 GGUF).

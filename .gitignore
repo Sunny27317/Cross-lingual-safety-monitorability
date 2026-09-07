@@ -234,3 +234,11 @@ __marimo__/
 /.hf_cache/
 /models_cache/
 
+# model weight files -- never committed, regardless of where they end up. Track-A model
+# downloads (Gate B onward) live outside this repo entirely (e.g. ~/models/clsm/); these
+# patterns are defense-in-depth only, confirmed (2026-09-06) to match zero tracked files.
+*.gguf
+*.safetensors
+*.pt
+*.pth
+

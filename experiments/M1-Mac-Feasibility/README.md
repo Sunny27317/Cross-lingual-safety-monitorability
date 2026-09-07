@@ -72,16 +72,27 @@ distinction are unchanged and apply identically to both tracks.
 
 ## 3. What is (and is NOT) decided as of this writing
 
-**Decided:** the Mac runtime is llama.cpp, built from pinned commit
-`5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`), CPU-only
-(`-DGGML_METAL=OFF`), locally installed and verified — Gate A, complete 2026-09-06
-(`READINESS.md` §0, §1.6; `literature/DECISION_LOG.md` D-033).
+**Decided:**
+- the Mac runtime is llama.cpp, built from pinned commit
+  `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`), CPU-only
+  (`-DGGML_METAL=OFF`), locally installed and verified — Gate A, complete 2026-09-06
+  (`READINESS.md` §0, §1.6; `literature/DECISION_LOG.md` D-033).
+- exactly one Gate-B/C **smoke-test** model has been downloaded and verified:
+  `Qwen/Qwen3-1.7B`, GGUF `Qwen3-1.7B-Q8_0.gguf`, selected on neutral
+  hardware/methodology/provenance criteria only, with no inference having occurred on
+  any candidate before selection — Gate B, complete 2026-09-06 (`READINESS.md` §0,
+  §1.7; `literature/DECISION_LOG.md` D-034). **This is not the Gate-D scientific
+  winner** — see `MODEL_SCREEN.md`'s 2026-09-06 update.
 
 **Still NOT decided:**
-- No model is chosen (`MODEL_SCREEN.md` — screening only, criteria in `EXPERIMENT_SPEC.md` §4).
-- No quantization level is chosen (`EXPERIMENT_SPEC.md` §6; `READINESS.md` §3).
-- No inference has occurred, no model weights or datasets have been downloaded
-  (Gate B, `READINESS.md` §0 — NOT AUTHORIZED).
+- No candidate is locked as the Gate-D scientific winner (`MODEL_SCREEN.md` — the
+  full 5-candidate screen, criteria A–E scored with real numbers, in
+  `EXPERIMENT_SPEC.md` §4, still requires Gate C/D).
+- No general Track-A quantization policy is chosen for the other four candidates
+  (`EXPERIMENT_SPEC.md` §6; `READINESS.md` §3) — Q8_0 is locked only for the Qwen3-1.7B
+  smoke test.
+- No inference has occurred, no dataset has been downloaded, and no other model weights
+  have been downloaded (Gate C, `READINESS.md` §0 — NOT AUTHORIZED).
 
 ## 4. Contents of this directory
 
