@@ -210,7 +210,15 @@ choice:
   quantization changed the measured effect — this is a **future work** item, not
   scheduled.
 
-No quantization level is chosen in this document.
+No quantization level is chosen in this document for the general Track-A policy above.
+
+**Update (2026-09-06, Gate B):** for the specific Gate-B/C smoke-test model,
+`Qwen/Qwen3-1.7B`, the quantization question above **has** been resolved: `Q8_0`,
+because it is the only quantization the official GGUF repo publishes for it (see
+`READINESS.md` §1.7, §3; `literature/DECISION_LOG.md` D-034). This resolves the
+question for that one candidate only — the general policy for the other four screened
+candidates, and the quantization-change triggers (pre-scientific/infrastructure
+reasons only — `READINESS.md` §3), are unchanged by this update.
 
 ## 7. The future Mac experiment pipeline (Task 9 — design only)
 

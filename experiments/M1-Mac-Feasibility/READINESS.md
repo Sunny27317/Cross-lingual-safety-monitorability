@@ -1,10 +1,14 @@
 # READINESS.md — Track A Mac runtime architecture
 
-**Status:** Runtime research and design, PLUS the completed Gate-A runtime installation
-(§1.6 — llama.cpp built and locally verified, 2026-09-06). No model has been
-downloaded, no dataset has been downloaded, and no inference has occurred anywhere in
-this document's history. It documents runtime *options* for the machine actually
-available:
+**Status (current, as of 2026-09-06):** Gate A — runtime installation — is **complete**
+(§1.6: llama.cpp built from a pinned commit and locally verified). Gate B — model
+download — is also **complete** (§1.7): exactly one model, `Qwen/Qwen3-1.7B`, GGUF
+`Qwen3-1.7B-Q8_0.gguf`, has been downloaded and verified. **No dataset has been
+downloaded. No real-model inference has occurred. No scientific metric of any kind has
+been computed.** Gate C (single-model smoke inference run) and Gate D (multi-candidate
+feasibility screen) are both **NOT AUTHORIZED**. This document also documents runtime
+*options* for the machine actually available, including the historical record of what
+each gate looked like before it was authorized (§1.6, §1.7):
 
 | Property | Value |
 |---|---|
@@ -272,13 +276,37 @@ behavior):**
   that happens to run fastest.
 
 **No quantization level is selected for the other four candidates in this document** —
-only Qwen3-1.7B's is locked (Q8_0, §1.7), and only for the Gate-B/C smoke test. A
-controlled quantization-level comparison (e.g. running the same tiny fixture at two
-adjacent levels) is planned **only if** the feasibility benchmark shows meaningfully
-different behavior across levels for a given model — not run pre-emptively. Whatever
-level is chosen for a given model must be held fixed across every condition in a given
-Track-A comparison (`EXPERIMENT_SPEC.md` §6) — no mixing quantization levels within one
-experiment's primary result.
+only Qwen3-1.7B's is locked (Q8_0, §1.7), and only for the Gate-B/C smoke test.
+
+**Quantization-change policy (corrected 2026-09-06 — pre-scientific triggers only):**
+Q8_0 stays locked for Qwen3-1.7B smoke testing. Reconsidering it, or selecting a level
+for any other candidate, may be triggered **only** by pre-scientific, infrastructure
+reasons, checked in this order:
+  - runtime incompatibility (the runtime cannot load or execute the file at all);
+  - a RAM / resource-budget failure (the process cannot be allocated the memory it
+    needs on this machine);
+  - a predefined latency-budget failure (fixed *before* any run, per §5.4 G2 — not a
+    budget invented after seeing how slow or fast a level happens to be);
+  - instability or a crash across repeated calls (§5.4 G1);
+  - artifact corruption or unavailability (a download fails an integrity check, or a
+    file silently disappears from its source);
+  - a reproducibility / tooling failure (the exact level or file cannot be pinned or
+    hashed, e.g. because no fixed release exists to point to).
+
+**Quantization selection must NEVER be triggered by observed scientific behavior** —
+explicitly excluded as a trigger: answer switching, hidden influence, disclosure rate,
+task accuracy, Urdu-specific performance, cross-lingual gap, monitor
+failure/detectability, or a level's outputs being judged "interesting" or
+"uninteresting." None of these is a legitimate reason to pick a different quantization
+level, for Qwen3-1.7B or any other candidate, at any stage of Track A.
+
+If a controlled quantization-level comparison is ever run (e.g. the same tiny fixture
+at two adjacent levels), it is triggered only by one of the infrastructure reasons
+above, and its own results are then reported as an infrastructure finding, not folded
+into a scientific comparison. Whatever level is chosen for a given model must be held
+fixed across every condition in a given Track-A scientific comparison
+(`EXPERIMENT_SPEC.md` §6) — no mixing quantization levels within one experiment's
+primary result.
 
 ## 4. Overall Track-A GO / NO-GO checklist (design only)
 

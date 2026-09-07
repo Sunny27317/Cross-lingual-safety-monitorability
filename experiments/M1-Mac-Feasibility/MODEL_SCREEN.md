@@ -1,10 +1,15 @@
 # MODEL_SCREEN.md — Track A candidate models (paper screen only)
 
-**Status:** SCREENING ONLY. No model has been downloaded. No model has been run. No
-winner is selected. Every "feasibility status" below is **UNVERIFIED** by construction —
+**Status:** SCREENING ONLY, for the purposes of this document. No *scientific* winner
+among these 5 candidates has been selected, and no candidate has been run. **Exactly
+one exception exists, tracked separately below:** `Qwen/Qwen3-1.7B` was downloaded as a
+Gate-B/C *smoke-test* artifact on neutral, pre-scientific grounds (see the 2026-09-06
+update near the end of this file) — that is an infrastructure decision, not a Gate-D
+scientific selection, and does not change any of the screening content below. Every
+"feasibility status" in the tables below is still **UNVERIFIED** by construction —
 runtime/latency/memory/quality feasibility becomes verified only after the tiny
-feasibility benchmark (`EXPERIMENT_SPEC.md` §5) actually runs on this Mac (not
-authorized yet — see this run's report, Gate A/B/C/D).
+feasibility benchmark (`EXPERIMENT_SPEC.md` §5) actually runs on this Mac (Gate C — not
+authorized yet).
 
 **Sourcing note (updated 2026-09-06):** the original screen (2026-09-06, earlier same
 day) was built from web-search snippets only. This revision re-checks each candidate
