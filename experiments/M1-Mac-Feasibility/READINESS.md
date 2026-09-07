@@ -33,15 +33,17 @@ Each gate below is a distinct, separately-authorized step:
 | Gate | What it authorizes | Status |
 |---|---|---|
 | **Gate A** | Runtime installation (build/verify llama.cpp locally) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — see §1.6 below and `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
-| **Gate B** | Model-weight download (any candidate in `MODEL_SCREEN.md`) | **NOT AUTHORIZED** |
+| **Gate B** | Model-weight download (exactly ONE model, selected on neutral criteria) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — `Qwen/Qwen3-1.7B-GGUF` (Q8_0), see `environment_checks/2026-09-06-gate-b-model-download.txt` |
 | **Gate C** | A single-model tiny smoke run (infrastructure plumbing check on ONE real candidate, analogous to Track B's Stage-A smoke, `M1-English-Baseline/PRE_RUN_READINESS.md` §3.0) | **NOT AUTHORIZED** |
 | **Gate D** | The multi-candidate tiny feasibility screen (`EXPERIMENT_SPEC.md` §5, G1–G5) across all screened candidates | **NOT AUTHORIZED** |
 
-**Gate A is complete; Gates B, C, D remain unauthorized and unreached.** A runtime
-**implementation** now exists (built and locally verified — §1.6), which is a step
-beyond the earlier *recommendation*-only state, but this does **not** mean the
-scientific study is "ready": no model is selected, no quantization level is selected,
-and no inference of any kind has occurred. The feasibility *runner*
+**Gates A and B are complete; Gates C and D remain unauthorized and unreached.** A
+runtime **implementation** exists (built and locally verified — §1.6), and exactly ONE
+model has been downloaded and verified (Qwen3-1.7B, Q8_0 GGUF — selected on neutral,
+pre-scientific hardware/methodology/provenance criteria, with no inference having
+occurred on any candidate before selection). This does **not** mean the scientific
+study is "ready": no quantization *comparison* has occurred, and — critically — no
+inference of any kind has occurred with this or any model. The feasibility *runner*
 (`experiments/M1-Mac-Feasibility/run_feasibility.py`, `src/clsm/feasibility.py`) has
 been written and self-tested end-to-end against `MockFeasibilityBackend` only — a
 deterministic, TEST-ONLY canned responder — so that the plumbing (prompt rendering,
@@ -102,10 +104,30 @@ testing), the build forces genuine CPU-only execution
 is made about whether Metal-via-AMD would have worked — it was not attempted, and
 remains out of scope.
 
-**What Gate A does NOT mean:** no model is selected (`MODEL_SCREEN.md`, still
-UNSELECTED); no quantization level is selected (§3, still UNSELECTED); no inference of
-any kind has occurred; the scientific study is not "ready" merely because a runtime
-compiles and reports its version. Gate B (model download) remains **NOT AUTHORIZED**.
+**What Gate A does NOT mean:** no inference of any kind has occurred; the scientific
+study is not "ready" merely because a runtime compiles and reports its version. (Gate B
+— exactly one model, Qwen3-1.7B Q8_0 — has since been authorized and completed; see
+§0 and §1.7 below. Gate C inference remains **NOT AUTHORIZED**.)
+
+### 1.7 Gate B — COMPLETE: Qwen3-1.7B (Q8_0 GGUF) downloaded and verified (2026-09-06)
+
+Full record: `environment_checks/2026-09-06-gate-b-model-download.txt`. Summary:
+
+| Field | Value |
+|---|---|
+| Selected model | `Qwen/Qwen3-1.7B` (generator); `Qwen/Qwen3-1.7B-GGUF` (official first-party GGUF artifact, author = "Qwen") |
+| Selection rationale (neutral, pre-registered) | "smallest verified candidate with explicit reasoning-trace support, permissive license, and direct llama.cpp/GGUF compatibility" — re-verified against primary sources before locking; not influenced by any scientific output (none existed for any candidate at selection time) |
+| Repo revision (pinned) | `90862c4b9d2787eaed51d12237eafdfe7c5f6077` |
+| GGUF file | `Qwen3-1.7B-Q8_0.gguf` |
+| Quantization | **Q8_0** — the only quantization the official repo publishes; comfortably fits 32 GB RAM; no scientific comparison across quant levels performed |
+| File size | 1,834,426,016 bytes |
+| SHA-256 | `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a` — confirmed post-download, bit-for-bit match to the pre-download HF API git-LFS oid |
+| Local storage | `~/models/clsm/Qwen3-1.7B/` — **outside** this git repository; `*.gguf` also added to `.gitignore` as defense-in-depth |
+| Metadata-only inspection | `llama-gguf <file> r` (pinned llama.cpp v0.4.0's own tool) confirmed the file parses cleanly: architecture `qwen3`, 28 metadata keys, 310 tensors. **No prompt was submitted, no token was generated, no inference occurred.** |
+
+**What Gate B does NOT mean:** no inference has occurred; no control or treatment
+prompt has been evaluated; no reasoning trace has been generated; the scientific study
+is not "ready." **Gate C (single-model smoke inference run) remains NOT AUTHORIZED.**
 
 ### 1.2 MLX
 
@@ -193,14 +215,31 @@ NOT installed. This was the basis for the recommendation above.
 `cmake` 4.4.3 was installed via Homebrew, and llama.cpp was built from pinned commit
 `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`) and locally verified — see
 §1.6 for the full record. **The runtime is now installed and locked; it is no longer
-merely a recommendation.** What remains unselected is the **model** and the
-**quantization level** (§3) — Gate B (model download) is still **NOT AUTHORIZED**.
+merely a recommendation.**
 
-## 3. Track-A quantization levels — candidates named, none selected (Step 7)
+**UPDATE — Gate B complete (§1.7):** exactly one model (`Qwen/Qwen3-1.7B`, GGUF
+`Qwen3-1.7B-Q8_0.gguf`) has since been selected on neutral criteria, downloaded, and
+verified — see §1.7 for the full record. **Gate C (inference) remains NOT
+AUTHORIZED.**
 
-Per `EXPERIMENT_SPEC.md` §6, the exact Track-A quantization format/level remains
-`TODO — DECISION REQUIRED`. If llama.cpp/GGUF is the runtime (recommended above), the
-standard candidate quantization levels are:
+## 3. Track-A quantization — Q8_0 selected for the Gate-B/C smoke test (Step 7)
+
+**For the locked Gate-B smoke-test model (Qwen3-1.7B):** quantization is **Q8_0**,
+selected because it is the only quantization the official `Qwen/Qwen3-1.7B-GGUF` repo
+publishes, comfortably fits this machine's 32 GB RAM (1.83 GB file), and is a
+long-standing, universally-supported GGUF format. See §1.7 and
+`environment_checks/2026-09-06-gate-b-model-download.txt` §4 for the full neutral
+rationale. **This selection applies only to the Gate-B/C smoke test** — it is not a
+locked policy for whichever model(s) Gate D eventually screens; those, if different
+from Qwen3-1.7B, would need their own quantization decision under the same neutral
+criteria below.
+
+Per `EXPERIMENT_SPEC.md` §6, the *general* Track-A quantization policy (for any
+candidate other than the now-locked Gate-B smoke-test model, §1.7) remains
+`TODO — DECISION REQUIRED` — Gate B locked Q8_0 for Qwen3-1.7B specifically, on the
+neutral grounds that it was the official repo's only offering; it did not resolve a
+general policy for the other four screened candidates. The standard candidate
+quantization levels considered (llama.cpp/GGUF, the recommended runtime, §2) are:
 
 | Level | Typical bits/weight | Typical quality/size tradeoff (general llama.cpp convention, not measured here) |
 |---|---|---|
@@ -232,12 +271,13 @@ behavior):**
   quantization level that still meets the latency/RAM budget, not the most aggressive one
   that happens to run fastest.
 
-**No quantization level is selected in this document.** A controlled
-quantization-level comparison (e.g. running the same tiny fixture at two adjacent
-levels) is planned **only if** the feasibility benchmark shows meaningfully different
-behavior across levels for the selected model — not run pre-emptively. Whatever level is
-eventually chosen must be held fixed across every condition in a given Track-A
-comparison (`EXPERIMENT_SPEC.md` §6) — no mixing quantization levels within one
+**No quantization level is selected for the other four candidates in this document** —
+only Qwen3-1.7B's is locked (Q8_0, §1.7), and only for the Gate-B/C smoke test. A
+controlled quantization-level comparison (e.g. running the same tiny fixture at two
+adjacent levels) is planned **only if** the feasibility benchmark shows meaningfully
+different behavior across levels for a given model — not run pre-emptively. Whatever
+level is chosen for a given model must be held fixed across every condition in a given
+Track-A comparison (`EXPERIMENT_SPEC.md` §6) — no mixing quantization levels within one
 experiment's primary result.
 
 ## 4. Overall Track-A GO / NO-GO checklist (design only)
@@ -250,14 +290,14 @@ benchmark:
 |---|---|---|
 | Model screen | ≥1 candidate in `MODEL_SCREEN.md` clears the license + candidate-class checks on a primary-source re-read | **done** (2026-09-06 revision) — all 5 candidates checked directly against their HF model cards; none removed; Candidate 5's identity corrected from a tentative guess to a verified repo |
 | Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE (2026-09-06)** — §1.6; `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
-| Model selection | a specific candidate locked from `MODEL_SCREEN.md`, criteria A–E scored with real numbers | **UNSELECTED — not done** |
-| Quantization level | candidates named (§3); none selected | **UNSELECTED — not done** |
-| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **NOT AUTHORIZED** |
+| Smoke-test model selection | one candidate locked on neutral hardware/methodology/provenance criteria (not the full Gate-D criteria A–E scoring, which is a multi-candidate exercise) | **✅ DONE (2026-09-06)** — Qwen3-1.7B; §1.7 |
+| Smoke-test quantization | a level selected for the locked smoke-test model | **✅ DONE (2026-09-06)** — Q8_0; §1.7, §3 |
+| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — `environment_checks/2026-09-06-gate-b-model-download.txt` |
 | Single-model smoke run (Gate C) | one real candidate exercised through the runner, infra-only | **NOT AUTHORIZED** |
-| Multi-candidate feasibility benchmark (Gate D) | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers | **NOT AUTHORIZED** |
+| Multi-candidate feasibility benchmark (Gate D) | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers, criteria A–E scored for all 5 candidates | **NOT AUTHORIZED** |
 
-**Gate A is done; Gates B, C, D are unreached.** Building and verifying llama.cpp is an
-infrastructure milestone, not a scientific-readiness milestone — no model is selected,
-no quantization is selected, and no inference of any kind has occurred. This document,
-`MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`, and `runtime.local.example.yaml` are the
-complete state of Track A as of this writing.
+**Gates A and B are done; Gates C and D are unreached.** Downloading and verifying one
+model's GGUF file is an infrastructure milestone, not a scientific-readiness milestone
+— no inference of any kind has occurred, and the other four screened candidates remain
+undownloaded. This document, `MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`, and
+`runtime.local.example.yaml` are the complete state of Track A as of this writing.

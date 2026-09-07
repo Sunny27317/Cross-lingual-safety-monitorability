@@ -11,10 +11,14 @@
 # committed run config would either use a relative/documented path convention or keep
 # genuinely local paths in a git-ignored file, not this tracked example).
 #
-# STATUS AFTER GATE A (2026-09-06): runtime IMPLEMENTATION is installed, built, and
-# locally verified (see environment_checks/2026-09-06-llamacpp-gate-a.txt). Model and
-# quantization remain UNSELECTED. Gate B (model download) is NOT authorized. No
-# inference has occurred. Building llama.cpp does not make the scientific study "ready."
+# STATUS AFTER GATE B (2026-09-06): runtime IMPLEMENTATION is installed, built, and
+# locally verified (Gate A, environment_checks/2026-09-06-llamacpp-gate-a.txt). Exactly
+# ONE model (Qwen3-1.7B, Q8_0 GGUF) is now SELECTED_FOR_SMOKE_TEST and downloaded
+# (Gate B, environment_checks/2026-09-06-gate-b-model-download.txt) -- selection was
+# made on neutral, pre-scientific (hardware/methodology/provenance) criteria only, with
+# no inference having occurred on any candidate. Gate C (single-model smoke inference
+# run) remains NOT AUTHORIZED. No inference has occurred. Downloading a model does not
+# make the scientific study "ready."
 
 runtime:
   name: llama.cpp
@@ -25,40 +29,48 @@ runtime:
   build_flags:
     - "-DGGML_METAL=OFF"        # forced CPU-only; see environment_checks/2026-09-06-llamacpp-gate-a.txt §4
     - "-DCMAKE_BUILD_TYPE=Release"
-  binary: "~/tools/llama.cpp/build/bin/llama-cli"  # EXAMPLE local path; not committed as a real path assumption
+  binary: null  # portability: the real observed local path is NOT committed here (was
+                # previously "~/tools/llama.cpp/build/bin/llama-cli" as an example value;
+                # removed per review). The actual observed path lives only in
+                # environment_checks/2026-09-06-llamacpp-gate-a.txt, a local-machine
+                # provenance record, not a portable/canonical config field.
   architecture: x86_64
   gpu_backend: none               # verified via `otool -L`: no Metal/OpenCL/CUDA/Vulkan linked
   cpu_backend: ggml-cpu (Accelerate/BLAS)  # Apple Accelerate framework, CPU-only math acceleration
 
 model:
-  status: UNSELECTED              # MODEL_SCREEN.md: 5 candidates screened, none locked
+  status: SELECTED_FOR_SMOKE_TEST  # MODEL_SCREEN.md: 5 candidates screened; this ONE
+                                    # locked for Gate B/C only — not a Gate-D winner
   candidate_shortlist:
-    - Qwen/Qwen3-1.7B
+    - Qwen/Qwen3-1.7B                          # <- selected for smoke test
     - meta-llama/Llama-3.2-3B-Instruct
     - google/gemma-3-4b-it
     - microsoft/Phi-4-mini-instruct
     - large-traversaal/Alif-1.0-8B-Instruct
-  hf_repo_id: null
-  revision: null
-  gguf_file: null
-  gguf_sha256: null
-  download_status: NOT_AUTHORIZED  # Gate B
+  hf_repo_id: Qwen/Qwen3-1.7B-GGUF   # official first-party GGUF repo (author: Qwen)
+  revision: "90862c4b9d2787eaed51d12237eafdfe7c5f6077"   # pinned commit, NOT floating main
+  gguf_file: Qwen3-1.7B-Q8_0.gguf
+  gguf_sha256: "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a"  # confirmed post-download
+  gguf_size_bytes: 1834426016
+  local_path: null  # portability: real local path lives ONLY in
+                     # environment_checks/2026-09-06-gate-b-model-download.txt
+  download_status: DOWNLOADED_AND_VERIFIED  # Gate B complete — byte size + sha256 both confirmed
 
 quantization:
-  status: UNSELECTED              # EXPERIMENT_SPEC.md §6 / READINESS.md §3: TODO — DECISION REQUIRED
+  status: SELECTED_FOR_SMOKE_TEST  # EXPERIMENT_SPEC.md §6 / READINESS.md §3
   candidates_considered:
-    - Q8_0
+    - Q8_0    # <- selected: only quantization the official repo publishes
     - Q6_K
     - Q5_K_M
     - Q4_K_M
-  type: null
-  selection_will_be: "neutral (fits RAM, latency, stability, reproducibility) — never scientific-behavior-driven"
+  type: Q8_0
+  selection_rationale: "official-only-option + comfortably fits 32GB RAM + minimizes quantization distortion — neutral, not scientific-behavior-driven"
 
 execution:
   mode: feasibility              # clsm.feasibility.MODE — never "scientific"/"confirmatory"
   scientific_metrics_enabled: false  # clsm.metrics.compute_metrics is never called from this track's scaffold
   gate_status:
     gate_a_runtime_installation: AUTHORIZED_AND_COMPLETE
-    gate_b_model_download: NOT_AUTHORIZED
+    gate_b_model_download: AUTHORIZED_AND_COMPLETE
     gate_c_single_model_smoke_run: NOT_AUTHORIZED
     gate_d_multi_candidate_feasibility_screen: NOT_AUTHORIZED

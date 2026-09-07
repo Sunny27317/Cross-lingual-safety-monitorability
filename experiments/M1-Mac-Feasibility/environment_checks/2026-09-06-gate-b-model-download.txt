@@ -1,0 +1,205 @@
+Track A — Gate B: single smoke-test model selection and download
+Date (UTC): 2026-09-06T23:47:26Z (download start) - 2026-09-06T23:51:00Z (verified)
+Branch: research/mac-gate-b-model-lock
+Authorization: Gate B explicitly authorized for exactly ONE model download only.
+Gate C (inference) remains NOT AUTHORIZED.
+
+Purpose: INFRASTRUCTURE PROVENANCE. This is NOT a scientific result. Selection was made
+on hardware/methodology/provenance grounds only, before any inference existed to be
+influenced by. No inference occurred anywhere in this file.
+
+================================================================================
+1. Selected model and neutral selection rationale
+================================================================================
+
+Selected: Qwen/Qwen3-1.7B (generator model); Qwen/Qwen3-1.7B-GGUF (GGUF artifact)
+
+Rationale (verbatim, as pre-registered before verification):
+  "smallest verified candidate with explicit reasoning-trace support, permissive
+  license, and direct llama.cpp/GGUF compatibility."
+
+This was NOT selected because of, and no scientific output influenced this choice via:
+  - hidden influence, hint-following magnitude, cross-lingual gap, Urdu-specific
+    failure, monitor failure, disclosure rate, accuracy result, "interesting"
+    scientific behavior, or publication attractiveness.
+  No inference of any kind had occurred on any candidate before this selection was
+  made, so none of the above could have influenced it even in principle.
+
+Shortlist evaluated (`MODEL_SCREEN.md`, all 5 candidates from the completed screen):
+  1. Qwen/Qwen3-1.7B                        <- SELECTED
+  2. meta-llama/Llama-3.2-3B-Instruct
+  3. google/gemma-3-4b-it
+  4. microsoft/Phi-4-mini-instruct
+  5. large-traversaal/Alif-1.0-8B-Instruct
+
+================================================================================
+2. Neutral criteria verification (primary-source re-check, 2026-09-06)
+================================================================================
+
+| Criterion | Verified? | Evidence |
+|---|---|---|
+| Exact repo identity | YES | `Qwen/Qwen3-1.7B` (base model card fetched directly) |
+| License | YES -- Apache-2.0 | model card `license: apache-2.0` |
+| Size class | YES -- 1.7B total / 1.4B non-embedding | model card |
+| Instruction/chat model | YES | "post-trained conversational model supporting chat templates" |
+| Explicit thinking mode | YES | `enable_thinking` parameter in `tokenizer.apply_chat_template()`; `/think` `/no_think` soft switches; generates `<think>...</think>` blocks |
+| GGUF available | YES -- OFFICIAL, first-party | `Qwen/Qwen3-1.7B-GGUF`, author = "Qwen" (verified via HF API `author` field, not merely the repo namespace) |
+| llama.cpp compatibility | YES | model card explicitly lists llama.cpp (also Ollama, vLLM, LMStudio) as supported deployment targets; architecture `qwen3` confirmed present and parsed without error by the pinned llama.cpp v0.4.0 build's own `llama-gguf` tool (see §5) |
+| No gated-license requirement | YES -- confirmed via HF API | `"gated": false` on both `Qwen/Qwen3-1.7B` and `Qwen/Qwen3-1.7B-GGUF` |
+| Substantially smaller than other candidates | YES | 1.7B vs 3.2B (Llama) / 4B (Gemma) / 3.8B (Phi) / 8B (Alif) -- smallest of the five by a wide margin |
+| Feasible on 32 GB Intel Mac | YES, trivially | GGUF file is 1.83 GB; comfortably fits with orders of magnitude of headroom |
+| Model provenance pinnable exactly | YES | HF API `sha` (repo commit) + git-LFS `oid` (file content sha256) both obtained BEFORE download (§3) and independently reproducible |
+
+ALL neutral criteria confirmed. Qwen3-1.7B locked as the Gate-B smoke-test model per
+the pre-registered rationale above. No criterion failed, so no STOP-and-report branch
+was triggered.
+
+================================================================================
+3. Exact GGUF source (recorded BEFORE download)
+================================================================================
+
+Source: OFFICIAL first-party Qwen-published GGUF repository (verified via the HF API
+`author` field = "Qwen", not a third-party quantizer).
+
+  HF repo id:            Qwen/Qwen3-1.7B-GGUF
+  Repo revision (commit sha, `main` HEAD at fetch time): 90862c4b9d2787eaed51d12237eafdfe7c5f6077
+  Exact GGUF filename:   Qwen3-1.7B-Q8_0.gguf
+  License:               apache-2.0 (repo's own LICENSE file, linked from cardData)
+  Gated:                 false
+  File size (from HF API `tree` endpoint, BEFORE download): 1,834,426,016 bytes
+  Git-LFS oid (sha256, BEFORE download):
+    061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a
+
+Embedded GGUF metadata (from the HF API's `gguf` field, i.e. read server-side from the
+file's own header WITHOUT downloading it):
+  architecture:       qwen3
+  context_length:     40960   (NOTE: the Qwen3-1.7B base model CARD states 32,768 --
+                                this GGUF's own embedded metadata reports 40960; recorded
+                                as an observed discrepancy between the two primary
+                                sources, not resolved or explained here -- both numbers
+                                are reported as found, neither is asserted as "the" ctx
+                                length without further check at Gate C)
+  chat_template:      present, embedded (ChatML-style, `<|im_start|>`/`<|im_end|>`
+                       tokens; a full Jinja2 template was returned by the API)
+  bos_token:           <|endoftext|>
+  eos_token:           <|im_end|>
+  total tensor size:   1,834,426,016 bytes (matches file size exactly)
+
+This entire section was populated from Hugging Face API metadata endpoints
+(`api/models/Qwen/Qwen3-1.7B-GGUF` and `.../tree/main`) -- read-only metadata queries,
+not a file download.
+
+================================================================================
+4. Quantization selection (recorded BEFORE download)
+================================================================================
+
+Selected: Q8_0
+
+Neutral priority order (as instructed): Q8_0 > Q6_K > Q5_K_M > Q4_K_M.
+
+Q8_0 was selected because:
+  - it IS officially available (the official `Qwen/Qwen3-1.7B-GGUF` repo's ONLY
+    published quantization is Q8_0 -- there is no Q6_K/Q5_K_M/Q4_K_M variant from Qwen
+    itself in that repo; a third-party quantizer would have been needed for a lower
+    precision, which was explicitly de-prioritized per instruction)
+  - the file size (1.83 GB) comfortably fits this machine's 32 GB RAM with wide margin
+  - Q8_0 is a long-standing, universally-supported GGUF quantization type; no known
+    llama.cpp v0.4.0 compatibility issue
+  - Reason (as instructed): Q8_0 minimizes quantization distortion relative to the
+    full-precision weights while still being very small relative to available RAM.
+
+No scientific behavior was compared across quantization levels to make this choice --
+only file availability, size, and compatibility were consulted, before any download.
+
+================================================================================
+5. Download and verification
+================================================================================
+
+Download command:
+  curl -L -o Qwen3-1.7B-Q8_0.gguf \
+    "https://huggingface.co/Qwen/Qwen3-1.7B-GGUF/resolve/90862c4b9d2787eaed51d12237eafdfe7c5f6077/Qwen3-1.7B-Q8_0.gguf"
+
+  (the URL pins the exact commit sha recorded in §3, not a floating `main` reference)
+
+Local storage location (OUTSIDE the git repository): ~/models/clsm/Qwen3-1.7B/
+  (i.e. /Users/mac3/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf on this machine --
+  this absolute path is recorded HERE, in a local provenance file, and nowhere in the
+  committed `runtime.local.example.yaml` template)
+
+Download result: SUCCESS (100%, curl reported "1749M" transferred, no errors).
+
+Post-download verification:
+  $ stat -f%z Qwen3-1.7B-Q8_0.gguf
+  1834426016
+  -> EXACT MATCH to the pre-download HF API file size (§3).
+
+  $ shasum -a 256 Qwen3-1.7B-Q8_0.gguf
+  061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a
+  -> EXACT MATCH to the pre-download HF API git-LFS oid (§3).
+
+Both independent checks (byte size and full SHA-256 content hash) confirm the
+downloaded file is bit-for-bit identical to what the official Qwen repository serves at
+the pinned commit. No corruption, no substitution, no wrong file.
+
+Exactly ONE model file was downloaded. No other model (Llama, Gemma, Phi, Alif,
+alternate Qwen quantization) was downloaded. No dataset (MMLU, GPQA, or otherwise) was
+downloaded. No tokenizer bundle was downloaded separately -- the GGUF file's own
+embedded metadata already contains the tokenizer vocabulary and chat template (§3),
+which is sufficient for llama.cpp; no additional file was technically required.
+
+================================================================================
+6. Metadata-only inspection (NO inference, NO generation)
+================================================================================
+
+Tool used: `llama-gguf` (built as part of the pinned llama.cpp v0.4.0 checkout,
+`~/tools/llama.cpp/build/bin/llama-gguf`) -- a pure GGUF-container reader/validator.
+It parses the file's header, key-value metadata, and tensor descriptor table; it does
+NOT construct an inference context, does NOT run a forward pass, and does NOT generate
+any token.
+
+Command: `llama-gguf ~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf r`
+
+Observed output (structure only, confirms the file parses cleanly under the pinned
+llama.cpp version):
+  - GGUF version: 3
+  - alignment: 32
+  - n_kv (metadata key count): 28 -- keys include `general.architecture`,
+    `general.name`, `qwen3.block_count`, `qwen3.context_length`,
+    `qwen3.embedding_length`, `qwen3.attention.head_count`,
+    `tokenizer.ggml.model`, `tokenizer.ggml.tokens`, `tokenizer.chat_template`,
+    `general.quantization_version`, `general.file_type`, etc. -- exactly the key set
+    expected for a qwen3-architecture GGUF, consistent with §3's HF-API-reported
+    metadata.
+  - n_tensors: 310 (consistent with a 1.7B-parameter, 28-layer dense transformer)
+
+A second tool, `gguf-py/gguf/scripts/gguf_dump.py` (a Python metadata dumper shipped
+in the llama.cpp checkout), was attempted for a fuller key/value dump but failed with
+`ModuleNotFoundError: No module named 'yaml'` -- this dependency was NOT installed,
+since installing a new Python package is outside this Gate-B session's authorized
+scope (model download only). The `llama-gguf` binary's output above was judged
+sufficient provenance and no further tooling was installed.
+
+NO PROMPT WAS SUBMITTED. NO COMPLETION WAS GENERATED. NO TOKEN WAS SAMPLED. NO
+PERPLEXITY OR BENCHMARK EVALUATION WAS RUN. NO EMBEDDING WAS COMPUTED.
+
+================================================================================
+7. Confirmations
+================================================================================
+
+- Exactly one model file was downloaded: Qwen3-1.7B-Q8_0.gguf (1,834,426,016 bytes).
+- No other model weights (Llama, Gemma, Phi, Alif, or any alternate Qwen quantization)
+  were downloaded.
+- No dataset (MMLU, GPQA, or any other) was downloaded.
+- The downloaded file lives OUTSIDE this git repository (~/models/clsm/Qwen3-1.7B/)
+  and is additionally covered by a defense-in-depth `*.gguf` entry added to
+  `.gitignore` in this same branch.
+- `run_feasibility.py` was NOT run against this (or any) real model.
+- `llama-cli` was NOT invoked with `-m`/`--model` at any point in this file.
+- No control prompt was evaluated. No misleading-hint treatment was evaluated.
+- No reasoning trace was generated by this model.
+- No scientific metric (`answer_switch_rate`, `disclosure_rate`,
+  `hidden_influence_rate`, `conditional_hidden_influence_rate`, or any other) was
+  computed.
+- No results file was created.
+- No Urdu evaluation of any kind occurred.
+- Gate C (single-model smoke inference run) remains NOT AUTHORIZED.

@@ -171,10 +171,18 @@ and should be added then, verified the same way).
 | 4 | Phi-4-mini-instruct | 3.8B | MIT | **confirmed absent** (22 languages listed, no Urdu) | no (separate reasoning variants exist, unscreened) | yes (commonly available, exact repo unconfirmed) | primary-source checked |
 | 5 | Alif-1.0-8B-Instruct (corrected identity) | **8B (over ceiling)** | Apache 2.0 | **strongest — dedicated Urdu instruction-tuning + benchmark** | untested Urdu reasoning trace elicitability | yes (official, on-repo, Q2_K–F16) | primary-source checked |
 
-**No candidate is locked.** The next step, per `EXPERIMENT_SPEC.md` §4, is running the
-tiny feasibility benchmark (design in `EXPERIMENT_SPEC.md` §5; **not yet authorized —
-Gate C**) across these candidates and scoring them against criteria A–E with real (not
-assumed) numbers.
+**No candidate is locked as the Gate-D scientific winner** — that requires running the
+tiny feasibility benchmark (`EXPERIMENT_SPEC.md` §5; **Gate C, single-model smoke run,
+still NOT authorized**) across these candidates and scoring them against criteria A–E
+with real numbers, per `EXPERIMENT_SPEC.md` §4.
+
+**Update (2026-09-06, Gate B):** Qwen3-1.7B has since been downloaded as the sole
+Gate-B/C *smoke-test* model, selected on neutral hardware/methodology/provenance
+grounds only (`READINESS.md` §1.7,
+`environment_checks/2026-09-06-gate-b-model-download.txt`). This is a distinct,
+narrower decision from the Gate-D winner selection above — it authorizes exactly one
+model download for infrastructure testing, not a scientific conclusion that Qwen3-1.7B
+is "the" model for the eventual pilot. No inference has occurred.
 
 ## What this screen deliberately does not do
 
