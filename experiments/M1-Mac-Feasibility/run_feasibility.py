@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 """Track-A feasibility-screen entrypoint.
 
-STATUS: SCAFFOLD ONLY. Gate A (runtime installation) is complete -- llama.cpp is built
-and locally verified (`experiments/M1-Mac-Feasibility/environment_checks/
-2026-09-06-llamacpp-gate-a.txt`) -- but there is still no real GENERATION backend wired
-in: Gate B (model download), Gate C (single-model smoke run), and Gate D (multi-candidate
-feasibility screen) have not been authorized
+STATUS: SCAFFOLD ONLY. Gate A (runtime installation) and Gate B (model download) are
+both complete -- llama.cpp is built and locally verified
+(`experiments/M1-Mac-Feasibility/environment_checks/2026-09-06-llamacpp-gate-a.txt`),
+and exactly one model (`Qwen/Qwen3-1.7B`, GGUF `Qwen3-1.7B-Q8_0.gguf`) has been
+downloaded and verified
+(`experiments/M1-Mac-Feasibility/environment_checks/2026-09-06-gate-b-model-download.txt`)
+-- but there is still no real GENERATION backend wired in: Gate C (single-model smoke
+run) and Gate D (multi-candidate feasibility screen) have not been authorized
 (`experiments/M1-Mac-Feasibility/READINESS.md` §0). Running this script with no flags
 (or with ``--dry-run``) exercises the harness plumbing end-to-end using
 ``clsm.feasibility.MockFeasibilityBackend`` -- a deterministic, TEST-ONLY canned
 responder -- against the synthetic fixture in
 ``experiments/M1-Mac-Feasibility/fixtures/smoke_questions.jsonl``. This proves the
 control/treatment pipeline, prompt rendering, answer extraction, and JSONL output work,
-WITHOUT downloading, installing, or running any real model.
+WITHOUT running any real model.
 
 Passing ``--real`` does NOT run a real model either -- it exits immediately with an
 explanation, because no real backend is implemented yet. This is a deliberate guard, not
-an oversight: implementing the real backend is Gate B/C work, done only after explicit
+an oversight: implementing the real backend is Gate C work, done only after explicit
 authorization.
 
 Output never lands in ``results/`` -- see ``clsm.feasibility.write_feasibility_records``.
@@ -94,10 +97,10 @@ def real_run() -> int:
         "No real Track-A generation backend is implemented yet.\n"
         "Gate sequence (READINESS.md §0):\n"
         "  Gate A -- runtime installation authorization      [DONE 2026-09-06 -- llama.cpp built + verified]\n"
-        "  Gate B -- model-download authorization             [NOT AUTHORIZED]\n"
+        "  Gate B -- model-download authorization             [DONE 2026-09-06 -- Qwen3-1.7B Q8_0 downloaded + verified]\n"
         "  Gate C -- a single-model tiny smoke run             [NOT AUTHORIZED]\n"
         "  Gate D -- the multi-candidate feasibility screen (this script's real mode)  [NOT AUTHORIZED]\n"
-        "Gates B-D have not been passed. Refusing to proceed.",
+        "Gates C-D have not been passed. Refusing to proceed.",
         file=sys.stderr,
     )
     return 1

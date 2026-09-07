@@ -1005,3 +1005,76 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Status:** ACTIVE. No dataset downloaded, no inference occurred, no scientific
   metric computed, no results file created. **Next required authorization: Gate C**
   (a single-model tiny smoke run on this exact, now-locked Qwen3-1.7B Q8_0 GGUF).
+
+## D-035 — Pre-Gate-C documentation-consistency cleanup: stale post-Gate-B headers corrected; quantization-change policy tightened to pre-scientific triggers only
+- **Date:** 2026-09-06
+- **Decision:** Before authorizing Gate C, a documentation-consistency audit was run
+  across `experiments/M1-Mac-Feasibility/` (plus `literature/DECISION_LOG.md` and
+  `RESEARCH_PLAN.md`) for current-state statements left over from before Gate B
+  completed. This is a documentation correction, not a new scientific decision — no
+  locked provenance (model, revision, GGUF file, hash, quantization, llama.cpp pin)
+  changed.
+- **Stale headers corrected (Class B — current-state and now inaccurate):**
+  1. `READINESS.md`'s top-of-file status line said "No model has been downloaded... "
+     — written when only Gate A was complete. Rewritten to state plainly: Gate A
+     complete, Gate B complete (exactly one model, `Qwen/Qwen3-1.7B`, GGUF
+     `Qwen3-1.7B-Q8_0.gguf`, downloaded and verified), no dataset downloaded, no
+     real-model inference has occurred, no scientific metric has been computed, and
+     Gate C / Gate D remain NOT AUTHORIZED.
+  2. `MODEL_SCREEN.md`'s top-of-file status line said "No model has been downloaded"
+     unconditionally — now false at the repo level (Qwen3-1.7B was downloaded, for
+     Gate B/C smoke-testing, a narrower purpose than the Gate-D scientific screen this
+     file is about). Rewritten to distinguish the two: no *scientific* Gate-D winner
+     among the 5 candidates has been selected or run (still true, preserved), while
+     explicitly cross-referencing that one candidate has since been downloaded as an
+     infrastructure artifact for a different, narrower purpose.
+  3. `run_feasibility.py`'s module docstring and its `--real` refusal message both
+     still said Gate B was unauthorized/not done. Corrected to reflect Gate B complete
+     (Qwen3-1.7B Q8_0 downloaded and verified); Gate C remains the refusal reason.
+- **Historical statements explicitly preserved, NOT edited (Class A):** `DECISION_LOG.md`
+  D-033's own "Status:" line ("no model selected... Next required authorization: Gate
+  B") is accurate for the state at the time D-033 was written (before D-034 existed) —
+  per this project's append-only decision-log convention (`CLAUDE.md` §2.3,
+  `DECISION_LOG.md`'s own header), it is left untouched; D-034 (the very next entry)
+  already supersedes it correctly. `READINESS.md`'s statement that quantization remains
+  unselected *for the other four screened candidates* (Llama-3.2-3B-Instruct,
+  Gemma-3-4b-it, Phi-4-mini-instruct, Alif-1.0-8B-Instruct) is still true today and was
+  left as-is. `RESEARCH_PLAN.md` contains no gate-specific Track-A claims and needed no
+  change.
+- **Quantization-change policy corrected (`READINESS.md` §3) — the substantive fix:**
+  the prior wording said a controlled quantization-level comparison "is planned only if
+  the feasibility benchmark shows meaningfully different behavior across levels for a
+  given model." This was ambiguous enough to be misreadable as inviting a
+  scientific-behavior-triggered quantization change (e.g. re-quantizing because a level
+  produced a more or less interesting hint effect), which would violate `CLAUDE.md`
+  §2.5 (no cherry-picking of decoding/model configuration to reach a desired outcome).
+  Rewritten to enumerate the **only** legitimate triggers, all pre-scientific /
+  infrastructure: runtime incompatibility, a RAM/resource-budget failure, a
+  *predefined* (not post-hoc) latency-budget failure, instability/crashes,
+  artifact corruption or unavailability, or a reproducibility/tooling failure. The
+  policy now explicitly states that quantization selection must **never** be triggered
+  by answer switching, hidden influence, disclosure rate, accuracy, Urdu-specific
+  performance, cross-lingual gap, monitor failure/detectability, or subjectively
+  "interesting"/"uninteresting" outputs, for any candidate at any Track-A stage.
+  `EXPERIMENT_SPEC.md` §6 was given a short pointer noting Q8_0 is now resolved for
+  Qwen3-1.7B specifically, without altering the general policy or its triggers.
+- **No decision-log entry required a superseding clarification** — the ambiguous
+  "meaningfully different behavior" wording existed only in `READINESS.md` (a living
+  design document, corrected in place); no prior `DECISION_LOG.md` entry (D-028
+  through D-034) contained that phrasing or an equivalent outcome-dependent trigger.
+- **Locked provenance unchanged by this entry (re-confirmed, not re-decided):** model
+  `Qwen/Qwen3-1.7B` via `Qwen/Qwen3-1.7B-GGUF` @ `90862c4b9d2787eaed51d12237eafdfe7c5f6077`,
+  file `Qwen3-1.7B-Q8_0.gguf` (1,834,426,016 bytes, sha256
+  `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`), quantization
+  Q8_0, llama.cpp @ `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`). Gate C
+  remains NOT AUTHORIZED.
+- **Rationale:** this-turn instruction — documentation must never lag the actual gate
+  state, and a policy statement ambiguous enough to be read as licensing
+  outcome-dependent methodological changes must be tightened before Gate C, not after.
+- **Evidence:** `experiments/M1-Mac-Feasibility/READINESS.md` (header + §3 rewritten),
+  `experiments/M1-Mac-Feasibility/MODEL_SCREEN.md` (header rewritten),
+  `experiments/M1-Mac-Feasibility/EXPERIMENT_SPEC.md` (§6 pointer added),
+  `experiments/M1-Mac-Feasibility/run_feasibility.py` (docstring + refusal message
+  corrected).
+- **Status:** ACTIVE. No inference, no model/dataset download, no scientific metric
+  computed. Documentation-only correction pass. **Gate C remains NOT AUTHORIZED.**
