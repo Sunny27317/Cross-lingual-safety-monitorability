@@ -1078,3 +1078,62 @@ are reversed by a **new** entry, not by deleting an old one.
   corrected).
 - **Status:** ACTIVE. No inference, no model/dataset download, no scientific metric
   computed. Documentation-only correction pass. **Gate C remains NOT AUTHORIZED.**
+
+## D-036 — Apple-Silicon runtime reconstruction: locked llama.cpp rebuilt natively for arm64 on a new Apple M5 machine (new-machine Gate A)
+- **Date:** 2026-09-08
+- **Decision:** Development moved from the previous Intel Mac (2019 MacBook Pro,
+  x86_64, 32 GB, AMD Radeon Pro 5300M) to an **Apple M5 MacBook Air** (`Mac17,3`,
+  arm64, 10 cores, 16 GB, macOS 26.6 build 25G72). Following explicit new-machine
+  Gate-A authorization (infrastructure only), the **already-locked** llama.cpp
+  revision `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`) was cloned to
+  `~/tools/llama.cpp` (outside this repo) and **rebuilt natively for arm64**.
+  - **Build:** `cmake -B build -DCMAKE_BUILD_TYPE=Release` then
+    `cmake --build build --config Release -j 10`. Build succeeded (exit 0), no source
+    patched, pin unchanged.
+  - **Metal policy change (hardware adaptation, not a scientific decision):** the
+    pinned source defaults `GGML_METAL=ON` on Apple platforms
+    (`ggml/CMakeLists.txt:95-98, 236`). The Intel Gate A's machine-specific
+    `-DGGML_METAL=OFF` override (D-033 — justified there by that host's *discrete
+    AMD* GPU) was **not carried forward**. The M5's unified-memory GPU is exactly the
+    architecture llama.cpp's Metal backend targets, so the native default was used.
+  - **Verified build contents:** native arm64 `llama-cli`
+    (`0.4.0-dev`, build 10809, commit `5266f24da`, "for Darwin arm64") plus native
+    arm64 `libggml-metal` (links `Metal.framework` + `MetalKit.framework`),
+    `libggml-blas` and `libggml-cpu` (link `Accelerate.framework`), and
+    `libggml-base`. CMake cache: `GGML_METAL=ON`, `GGML_BLAS=ON` (vendor Apple),
+    `GGML_ACCELERATE=ON`, `GGML_NATIVE=ON`, `GGML_CUDA/VULKAN/OPENCL=OFF`. The Metal
+    shader library is *embedded as source* (`GGML_METAL_EMBED_LIBRARY=ON`,
+    40 `_ggml_metallib_*` symbols) — the machine has Command Line Tools only and
+    `xcrun metal` is unavailable, but the default embed path does not need it at
+    build time.
+- **Scope:** Infrastructure adaptation only. **Metal BUILD availability is verified;
+  Metal INFERENCE is NOT** — the embedded shaders are compiled by the Metal runtime
+  at first use, which has not been exercised and will not be until a separately
+  authorized inference gate.
+- **Explicitly unchanged by this entry:** generator-model lock (`Qwen/Qwen3-1.7B`),
+  GGUF artifact identity (`Qwen/Qwen3-1.7B-GGUF` @
+  `90862c4b9d2787eaed51d12237eafdfe7c5f6077`, `Qwen3-1.7B-Q8_0.gguf`,
+  1,834,426,016 bytes, sha256 `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`),
+  quantization Q8_0, llama.cpp pin `5266f24da…` / `v0.4.0`, prompts, decoding policy,
+  seeds, hypotheses, operational definitions (hint-effect, disclosure,
+  hidden-influence), datasets, metrics, and all of Track B. The D-034-era model
+  weights were **not** re-downloaded on this machine (Gate B restoration is a
+  separate, separately-authorized step).
+- **Historical record preserved:** the Intel Gate-A evidence
+  (`environment_checks/2026-09-06-llamacpp-gate-a.txt`) and D-033 are unchanged. The
+  Intel→M5 machine transition is itself recorded as provenance, not erased.
+- **Rationale:** this-turn new-machine Gate-A authorization; `CLAUDE.md` §2.7 (record
+  exact, independently-reproducible runtime provenance — repo URL, pinned commit,
+  build command, verified build output — before treating a runtime as usable).
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`
+  (full transcript: machine, toolchain, source pin, pinned-source Metal inspection,
+  configure + build output, `file` / `otool -L` / `nm` verification, non-fatal
+  warnings, integrity statement); `experiments/M1-Mac-Feasibility/READINESS.md`
+  (machine + §1.6 updated to distinguish the historical Intel and current
+  Apple-Silicon environments).
+- **Status:** ACTIVE. **New-machine Gate A: PASS.** No model weights downloaded, no
+  GGUF downloaded, no inference performed, no dataset downloaded, no scientific
+  metric computed, no commit pushed. **Next:** new-machine Gate B — restore and
+  byte-level-verify the already-locked Qwen GGUF artifact against its recorded size
+  and SHA-256; requires separate explicit authorization. Gate C and Gate D remain
+  NOT AUTHORIZED.

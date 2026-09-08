@@ -1,14 +1,19 @@
 # READINESS.md — Track A Mac runtime architecture
 
-**Status (current, as of 2026-09-06):** Gate A — runtime installation — is **complete**
-(§1.6: llama.cpp built from a pinned commit and locally verified). Gate B — model
-download — is also **complete** (§1.7): exactly one model, `Qwen/Qwen3-1.7B`, GGUF
-`Qwen3-1.7B-Q8_0.gguf`, has been downloaded and verified. **No dataset has been
-downloaded. No real-model inference has occurred. No scientific metric of any kind has
+**Status (current, as of 2026-09-08):** Gate A — runtime installation — is **complete**.
+It was originally performed on the historical Intel machine (§1.6, 2026-09-06) and has
+since been **redone natively for arm64 on a new Apple M5 machine** (§1.6.2, 2026-09-08;
+`DECISION_LOG.md` D-036). Gate B — model download — was **completed on the Intel machine**
+(§1.7): exactly one model, `Qwen/Qwen3-1.7B`, GGUF `Qwen3-1.7B-Q8_0.gguf`, downloaded and
+verified there; the weights have **not** yet been restored on the M5 machine (new-machine
+Gate B is a separate, separately-authorized step). **No dataset has been downloaded. No
+real-model inference has occurred on either machine. No scientific metric of any kind has
 been computed.** Gate C (single-model smoke inference run) and Gate D (multi-candidate
 feasibility screen) are both **NOT AUTHORIZED**. This document also documents runtime
-*options* for the machine actually available, including the historical record of what
-each gate looked like before it was authorized (§1.6, §1.7):
+*options*, including the historical record of what each gate looked like before it was
+authorized (§1.6, §1.7).
+
+### Historical Intel environment (Gate A originally performed here, 2026-09-06)
 
 | Property | Value |
 |---|---|
@@ -17,17 +22,35 @@ each gate looked like before it was authorized (§1.6, §1.7):
 | RAM | 32 GB |
 | GPU | AMD Radeon Pro 5300M, 4 GB VRAM |
 | Architecture | **x86_64 (Intel), not Apple Silicon (ARM64)** |
-| OS | macOS (Darwin) |
+| OS | macOS (Darwin) 26.3.1 |
 | CUDA | none |
+| llama.cpp build | pinned `5266f24da…` / `v0.4.0`, **`-DGGML_METAL=OFF`** (forced CPU-only; discrete AMD GPU), Accelerate/CPU only |
 
-**This is an Intel Mac. Every recommendation below is qualified by that fact — nothing
-here assumes Apple Silicon.** This distinction matters because several popular
-"run LLMs on your Mac" toolchains (most notably Apple's own MLX) are Apple-Silicon-only
-and do not run at all on this machine.
+On that machine every "run LLMs on your Mac" recommendation was qualified by the Intel
+fact — most notably Apple's own MLX is Apple-Silicon-only and does not run on it at all.
+Observed-machine facts are archived in
+`environment_checks/2026-09-06-intel-mac-runtime-preflight.txt` (read-only preflight) and
+`environment_checks/2026-09-06-llamacpp-gate-a.txt` (Gate A transcript).
 
-Observed-machine facts (confirmed, not assumed) are archived in
-`environment_checks/2026-09-06-intel-mac-runtime-preflight.txt` — a non-destructive,
-read-only preflight (no install, no download).
+### Current Apple-Silicon environment (active as of 2026-09-08)
+
+| Property | Value |
+|---|---|
+| Model | MacBook Air (`Mac17,3`) |
+| Chip | Apple M5 |
+| CPU | 10 cores (4 performance + 6 efficiency) |
+| RAM | 16 GB |
+| GPU | Apple M5 integrated (unified memory) — Metal's target architecture |
+| Architecture | **arm64 (Apple Silicon)** |
+| OS | macOS 26.6 (build 25G72) |
+| CUDA | none |
+| llama.cpp build | pinned `5266f24da…` / `v0.4.0`, **Metal ON** (pinned source default on Apple), **Accelerate/BLAS ON**, **CPU ON**, native arm64 |
+
+Metal **build** availability has been verified on this machine (native `libggml-metal`
+linked against `Metal.framework`/`MetalKit.framework`). Metal **inference** has **not**
+been verified — that requires a separately authorized inference gate. Do not collapse
+those two claims. Observed-machine facts and the full build transcript are archived in
+`environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`.
 
 ## 0. Authorization gates (sequential — do not skip ahead)
 
@@ -76,7 +99,11 @@ pass.
 | Seeded generation supported? | Yes — llama.cpp exposes an explicit `--seed` and standard sampling parameters (temperature, top-p, top-k), comparable in spirit to the vLLM decoding config already used for Track B. |
 | Expected tradeoffs | Best-documented, most widely used pure-CPU-inference path for this exact hardware class; quantization is close to mandatory for larger candidates to run at acceptable speed; ecosystem moves fast, so version pinning needs active attention. |
 
-### 1.6 Gate A — COMPLETE: llama.cpp installed, built, and locally verified (2026-09-06)
+### 1.6 Gate A (HISTORICAL — Intel machine) — llama.cpp installed, built, and locally verified (2026-09-06)
+
+> **This subsection is the historical record of Gate A as performed on the 2019 Intel
+> MacBook Pro.** It is preserved unchanged as provenance. The runtime in active use is
+> now the Apple M5 arm64 rebuild — see **§1.6.2** below and `DECISION_LOG.md` D-036.
 
 **BEFORE (candidate, this document's earlier state):** llama.cpp was a *recommended*
 runtime option, nothing installed.
@@ -113,7 +140,41 @@ study is not "ready" merely because a runtime compiles and reports its version. 
 — exactly one model, Qwen3-1.7B Q8_0 — has since been authorized and completed; see
 §0 and §1.7 below. Gate C inference remains **NOT AUTHORIZED**.)
 
-### 1.7 Gate B — COMPLETE: Qwen3-1.7B (Q8_0 GGUF) downloaded and verified (2026-09-06)
+### 1.6.2 Gate A (CURRENT — Apple M5 machine) — locked llama.cpp rebuilt natively for arm64 (2026-09-08)
+
+Development moved to an Apple M5 MacBook Air (`Mac17,3`, arm64, 16 GB, macOS 26.6). The
+**same locked revision** was rebuilt natively — the Intel x86_64 build cannot and must
+not be reused. Full raw transcript: `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`.
+Decision record: `DECISION_LOG.md` D-036. Summary:
+
+| Field | Value |
+|---|---|
+| Repository | `https://github.com/ggml-org/llama.cpp.git` (official; unchanged) |
+| Pinned commit | `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` — **unchanged**, not re-pinned for the migration |
+| Tag | `v0.4.0` |
+| Clone location | `~/tools/llama.cpp` (outside this repo; not vendored) |
+| Build prerequisites | `cmake` 4.4.3, `git` 2.50.1, Apple clang 21.0.0 — all via Homebrew 6.0.22 / Command Line Tools (no full Xcode; `xcrun metal` unavailable) |
+| Build command | `cmake -B build -DCMAKE_BUILD_TYPE=Release` then `cmake --build build --config Release -j 10` — **`-DGGML_METAL=OFF` NOT carried forward** |
+| Build result | **SUCCESS** — all targets built, incl. `llama-cli`; exit 0; no source patched |
+| Backends built | **Metal ON** (pinned source's Apple default), **Accelerate/BLAS ON** (vendor Apple), **CPU ON** (`-mcpu=native+dotprod+i8mm+nosve+sme`). `GGML_CUDA/VULKAN/OPENCL=OFF`. `GGML_SYSTEM_ARCH: ARM`. |
+| Metal evidence | native arm64 `libggml-metal.0.23.0.dylib` links `Metal.framework` + `MetalKit.framework` + `Foundation`; embedded shader library (`GGML_METAL_EMBED_LIBRARY=ON`, 40 `_ggml_metallib_*` symbols) — no build-time `metal` compiler needed |
+| Accelerate evidence | `libggml-blas` and `libggml-cpu` link `Accelerate.framework` (current version 4.0.0) |
+| Binary verified | `~/tools/llama.cpp/build/bin/llama-cli` — `file`: **Mach-O 64-bit executable arm64**; `--version` → `0.4.0-dev (build 10809, commit 5266f24da) … for Darwin arm64`; `--help` exit 0; **no model path ever passed** |
+| Model/dataset downloads | **None.** `~/models` does not exist; no HF cache. The 19 `ggml-vocab-*.gguf` under `~/tools/llama.cpp/models/` are the upstream repo's git-tracked tokenizer-vocab test fixtures, not weights. |
+
+**Why the Intel `-DGGML_METAL=OFF` was not carried forward:** that override was
+justified *specifically* by the Intel host's discrete AMD Radeon GPU (§1.6, D-033). The
+M5's unified-memory GPU is exactly the architecture llama.cpp's Metal backend is built
+and tested for, and the pinned source defaults `GGML_METAL=ON` on Apple platforms
+(`ggml/CMakeLists.txt:95-98, 236`). This is a hardware adaptation only; it changes no
+model, quantization, prompt, seed, hypothesis, dataset, metric, or Track-B artifact.
+
+**What §1.6.2 does NOT mean:** Metal **build** availability is verified; **Metal
+inference is not** — the embedded shaders are compiled by the Metal runtime at first
+use, which has not been exercised. No inference of any kind has occurred on this
+machine. Gate B weights have not been restored here. **Gate C remains NOT AUTHORIZED.**
+
+### 1.7 Gate B — COMPLETE (on the Intel machine): Qwen3-1.7B (Q8_0 GGUF) downloaded and verified (2026-09-06)
 
 Full record: `environment_checks/2026-09-06-gate-b-model-download.txt`. Summary:
 
@@ -226,6 +287,17 @@ merely a recommendation.**
 verified — see §1.7 for the full record. **Gate C (inference) remains NOT
 AUTHORIZED.**
 
+**UPDATE — Apple M5 machine migration (§1.6.2, 2026-09-08, `DECISION_LOG.md` D-036):**
+development moved off the Intel host. The tables in §2 above discuss "Intel Mac
+compatibility" and "this 6-core 2019 laptop" — those columns are the *historical*
+selection context and are left intact as provenance. On the current arm64 machine:
+`transformers`-CPU and Ollama remain available; **MLX is now Apple-Silicon-compatible**
+(it was excluded only as Intel-incompatible in §1.2, not on reproducibility grounds) but
+is **not** adopted — the reproducibility case for driving llama.cpp directly is
+unchanged. llama.cpp (direct, GGUF) remains the locked runtime. The locked llama.cpp
+revision was rebuilt natively for arm64 with Metal enabled (§1.6.2); the pin itself did
+not change.
+
 ## 3. Track-A quantization — Q8_0 selected for the Gate-B/C smoke test (Step 7)
 
 **For the locked Gate-B smoke-test model (Qwen3-1.7B):** quantization is **Q8_0**,
@@ -317,10 +389,10 @@ benchmark:
 | Step | Gate | Status |
 |---|---|---|
 | Model screen | ≥1 candidate in `MODEL_SCREEN.md` clears the license + candidate-class checks on a primary-source re-read | **done** (2026-09-06 revision) — all 5 candidates checked directly against their HF model cards; none removed; Candidate 5's identity corrected from a tentative guess to a verified repo |
-| Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE (2026-09-06)** — §1.6; `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
+| Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE** — Intel: 2026-09-06, §1.6, `environment_checks/2026-09-06-llamacpp-gate-a.txt`. **Apple M5 (arm64) rebuild: 2026-09-08, §1.6.2, `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`, D-036** |
 | Smoke-test model selection | one candidate locked on neutral hardware/methodology/provenance criteria (not the full Gate-D criteria A–E scoring, which is a multi-candidate exercise) | **✅ DONE (2026-09-06)** — Qwen3-1.7B; §1.7 |
 | Smoke-test quantization | a level selected for the locked smoke-test model | **✅ DONE (2026-09-06)** — Q8_0; §1.7, §3 |
-| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — `environment_checks/2026-09-06-gate-b-model-download.txt` |
+| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ DONE on the Intel machine (2026-09-06)** — `environment_checks/2026-09-06-gate-b-model-download.txt`. **Not yet restored on the Apple M5 machine** — new-machine Gate B (byte-level re-verification of the same locked artifact) needs separate authorization |
 | Single-model smoke run (Gate C) | one real candidate exercised through the runner, infra-only | **NOT AUTHORIZED** |
 | Multi-candidate feasibility benchmark (Gate D) | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers, criteria A–E scored for all 5 candidates | **NOT AUTHORIZED** |
 
