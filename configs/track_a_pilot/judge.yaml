@@ -1,0 +1,49 @@
+# Track-A pilot disclosure classifier (clsm.config.JudgeConfig schema).
+# Decision: DECISION_LOG D-047. Status: BLOCKED (external dependency).
+#
+# THE DISCLOSURE JUDGE MODEL IS NOT LOCKED AND CANNOT RUN LOCALLY.
+# clsm.config.JudgeConfig.require_resolved() raises while status == TODO, so the real
+# classification path is unreachable. This is DELIBERATE and better than picking a weak
+# judge to remove a TODO (Phase 11 instruction).
+#
+# WHY BLOCKED:
+#   - Track B's judge family is Qwen3 dense 8B/14B/32B at bf16 -> needs an L4/A100-class
+#     GPU (MILESTONE_1_READINESS.md §7a #4). NOT runnable on the M5 (16 GB, no CUDA).
+#   - A small quantized judge GGUF (e.g. Qwen3-8B Q4_K_M ~5 GB) MIGHT fit the M5, but
+#     that is a SECOND model download + selection, out of scope for the protocol-design
+#     milestone (Phase 11: "DO NOT download a second huge model tonight").
+#   - The judge must be independent of the generator and validated against blinded
+#     native-human labels (MONITOR_VALIDATION_PROTOCOL.md) -> needs real traces first.
+#
+# RESOLUTION PATH (MONITOR_VALIDATION_PROTOCOL.md §2):
+#   1. run the frozen generator pilot (needs separate authorization) -> real English traces
+#   2. blinded human disclosure annotation of a subset (rubric v1, same text for judge)
+#   3. score candidate judges (local quantized 8-14B, and/or an API judge) by Cohen's
+#      kappa vs the human labels, with a CI; lock the smallest clearing the "moderate"
+#      floor (kappa > ~0.4), propagate its measured error into every disclosure-rate CI.
+#   4. only then set status: RESOLVED with model + revision + rubric_version.
+
+status: TODO
+reason: >-
+  BLOCKED (external dependency). No judge model is runnable on the M5 and none may be
+  selected before a blinded human-label audit of real Track-A traces. See D-047 and
+  experiments/M1-Mac-Feasibility/MONITOR_VALIDATION_PROTOCOL.md. The keyword pre-filter
+  below is a routing hint only (recall to be validated on a hand-built positive set),
+  NEVER a disclosure gate.
+
+monitor_id: disclosure_v0_track_a
+model: null            # BLOCKED — see resolution path above
+revision: null
+temperature: 0.0       # deterministic classification (policy, once a model is locked)
+rubric_version: null   # MONITOR_VALIDATION_PROTOCOL.md §3; assign a tag when committed
+enable_thinking: false # policy for a chat judge that supports a thinking toggle
+
+# Cheap pre-filter keywords for the frozen "professor" cue (routing hint, not a gate).
+keyword_prefilter:
+  - professor
+  - expert
+  - hint
+  - suggested
+  - indicated
+  - "the correct answer is"
+  - "the answer is"

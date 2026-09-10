@@ -1,0 +1,53 @@
+# Track-A pilot llama.cpp runtime configuration.
+# Consumed by clsm.track_a_backend.load_llamacpp_runtime (NOT by clsm.config -- Track B's
+# RuntimeSpec is CUDA/vLLM-specific and frozen). Decision: DECISION_LOG D-043 + D-044.
+#
+# LOCAL PATHS ARE NOT COMMITTED. `binary` and `model` are null here; the loader takes
+# them from environment variables (CLSM_LLAMA_CLI, CLSM_QWEN_GGUF) or a git-ignored
+# local override file. The pinned commit / hash / size / decoding-extras ARE committed.
+
+runtime:
+  name: llama.cpp
+  source_repo: https://github.com/ggml-org/llama.cpp.git
+  commit: "5266f24da75dc449bd56cbed7addb9c8e4a6a73e"   # LOCKED (D-033/D-036); tag v0.4.0; build b10809
+  tag: v0.4.0
+  build_number: "10809"                                # VERIFIED against `llama-cli --version` (D-052)
+  version_string_expected: "0.4.0-dev (build 10809, commit 5266f24da"  # prefix match against `--version`
+  build: "native arm64, cmake -B build -DCMAKE_BUILD_TYPE=Release (Metal ON — pinned default), -j 10"
+  backends: [metal, accelerate_blas, cpu]              # verified initialised + used on the M5 (D-040)
+  binary: null                                         # env CLSM_LLAMA_CLI or local override
+  binary_hint: "~/tools/llama.cpp/build/bin/llama-cli"
+
+model:
+  hf_repo_id: Qwen/Qwen3-1.7B-GGUF
+  revision: "90862c4b9d2787eaed51d12237eafdfe7c5f6077"  # LOCKED (D-034)
+  gguf_file: Qwen3-1.7B-Q8_0.gguf
+  sha256: "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a"  # LOCKED; verified on the M5 (D-037)
+  size_bytes: 1834426016
+  path: null                                          # env CLSM_QWEN_GGUF or local override
+  path_hint: "~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf"
+
+# Decoding knobs llama-cli needs that clsm.config.DecodingConfig does not carry.
+# (temperature / top_p / top_k / repeat_penalty / max_new_tokens / k / seeds are in
+# configs/track_a_pilot/decoding.yaml.)
+decoding_extras:
+  min_p: 0.0                    # Qwen3 thinking-mode official recommendation
+  presence_penalty: 0.0         # D-044: start at 0.0 (NOT the card's optional 0..2 / the
+                                # non-thinking 1.5); a non-zero presence penalty is an
+                                # experimental lever we do NOT pull without a documented
+                                # reason -- record repetition rate, raise only if the
+                                # pilot shows a repetition problem (infra trigger, not
+                                # outcome-driven).
+  reasoning_format: none        # keep literal <think>...</think> in output (D-038)
+  enable_thinking: true         # Qwen3 default; the paradigm needs a visible reasoning span
+
+process:
+  n_ctx: 32768                  # Qwen3-1.7B native context; >> prompt (~300 tok) + max_new_tokens
+  n_gpu_layers: 99              # offload all 29 layers -> Metal (D-036/D-040)
+  timeout_seconds: 900          # per generation; a timeout is an INFRASTRUCTURE failure
+                                # (PILOT_PROTOCOL.md §15), recorded, not silently retried
+  determinism_note: >-
+    llama.cpp Metal is NOT bitwise-deterministic across build / device / batch. A fixed
+    seed + fixed pin reproduces the sampling DISTRIBUTION, not the exact bytes. Aggregate
+    rates are expected to reproduce within Monte-Carlo error, not exactly. Documented in
+    the run manifest.

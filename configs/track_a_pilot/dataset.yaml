@@ -1,0 +1,75 @@
+# Track-A pilot dataset (clsm.config.DatasetConfig schema).
+# Decision: DECISION_LOG D-041. Frozen BEFORE any Track-A scientific outcome was seen.
+# Item selection is deterministic (sha256_sorted_first_n); NO generator run informed it.
+#
+# WHY MMLU (not GPQA-Diamond) for Track A:
+#   - maximal comparability: Chen et al. (arXiv:2505.05410) and Young et al. 2026 use
+#     MMLU for exactly this hidden-influence / thinking-vs-answer paradigm; Track B
+#     (configs/milestone1/dataset.yaml) pins this same dataset+revision (D-011/D-019).
+#   - eligibility feasibility on the LOCKED small model: switch-eligibility requires
+#     a_u == correct, so the generator must get a workable fraction of items right
+#     UNHINTED. A 4-way MMLU MCQ is a substantially easier task than GPQA-Diamond
+#     (graduate-level, deliberately Google-proof), so MMLU is expected to yield a
+#     larger, less noisy eligible set for a small instruction-tuned reasoning model.
+#     The pilot MEASURES the realized eligibility yield descriptively (PILOT_PROTOCOL.md
+#     §11); it does not assume a number. Dataset chosen for measurability of the research
+#     question on the locked model, NOT to shop for an effect.
+#     NOTE (D-057, PRE-OUTCOME REVIEW AMENDMENT): earlier wording here cited
+#     "MMLU-Redux 73.9 / GPQA-Diamond 40.1" as Qwen3-1.7B thinking-mode scores from the
+#     Qwen3 Technical Report. Independent review flags those figures as belonging to a
+#     LARGER Qwen3 variant, not the 1.7B. Published benchmark results for larger Qwen3
+#     variants must not be used as evidence for this generator. No verified Urdu-specific
+#     or MMLU-specific capability estimate from the official release is relied upon by
+#     this protocol; the eligibility argument above is qualitative only.
+#   - MIT license, no access gating, loadable as metadata.
+# GPQA-Diamond stays as a DEFERRED robustness secondary (PILOT_PROTOCOL.md §17), same as
+# Track B. Its Urdu translation + native correction is a Milestone-3+ dependency.
+
+# Dataset library + content pin (D-056 / Part 9): BEFORE any real inference a pre-run
+# step MUST record, into experiments/M1-Mac-Feasibility/DATASET_CONTENT_PIN.json:
+#   - the `datasets` library version actually used
+#   - the resolved data/parquet revision actually read
+#   - the exact selected item identifiers (the 50)
+#   - a sha256 over the selected item CONTENT
+#   - verified question/choice schema, choice ordering, and label->letter mapping
+# Nothing is downloaded during protocol design (source: hf_datasets, below, only fetches
+# on first use AFTER run authorization). The run manifest field `dataset_content_pin`
+# stays BLOCKED until that file exists and is cross-checked.
+
+id: cais/mmlu
+config_name: all
+split: test
+# Track B's HF-refs-API-verified pin (D-019), inherited on the evidence above. Same
+# revision => Track A and Track B consume byte-identical items.
+revision: "c30699e8356da336a370243923dbaf21066bb9fe"
+license: MIT   # github.com/hendrycks/test LICENSE; cite Hendrycks et al. 2021
+
+# 10 subjects x 5 items = 50. IDENTICAL stratified list to Track B (STEM / humanities /
+# social science) so the math-leaning model is not tested only where weak, and so the
+# two tracks' pilots are directly comparable. Frozen before data; cannot bias the gap.
+subjects:
+  - high_school_mathematics
+  - college_computer_science
+  - college_physics
+  - high_school_chemistry
+  - high_school_biology
+  - formal_logic
+  - philosophy
+  - moral_scenarios
+  - us_foreign_policy
+  - econometrics
+items_per_subject: 5
+max_chars: 1500
+selection_rule: sha256_sorted_first_n
+
+# 'hf_datasets' downloads MMLU on first use -- only after run authorization. NOT
+# downloaded during protocol design. Tests use tests/fixtures/mmlu_mini.jsonl instead.
+source: hf_datasets
+local_path: null
+
+provenance_tag: >-
+  DECISION_LOG D-041 (+ D-056/D-057 amendments) ; MMLU pin inherited from Track B
+  D-011/D-019 (HF refs API verified 2026-09-01) ; eligibility argument is QUALITATIVE
+  (MMLU 4-way MCQ easier than GPQA-Diamond) -- no benchmark number for Qwen3-1.7B is
+  relied upon (D-057) ; realized eligibility yield is measured descriptively ;
+  contamination is a documented threat (PILOT_PROTOCOL.md §3, §17)

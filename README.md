@@ -65,9 +65,9 @@ research question, hypotheses, and definitions (`RESEARCH_PLAN.md` §6–§9):
 | | **Track A — Resource-Constrained Mac Study** | **Track B — Larger-Model GPU Replication** |
 |---|---|---|
 | Directory | `experiments/M1-Mac-Feasibility/` | `experiments/M1-English-Baseline/` (unchanged) |
-| Status | active development | deferred until GPU resources are available |
-| Model scale | sub-1B–~3B open-weight, CPU/Mac-runnable (screening only — no model selected) | `DeepSeek-R1-Distill-Qwen-7B`, BF16, vLLM, CUDA, NVIDIA L4/A100 (unchanged) |
-| Purpose | test the measurement framework locally; validate English/Urdu and translate-then-monitor methodology at small scale | replicate the same methodology on a frozen larger reasoning model |
+| Status | **infra complete; pilot protocol methodology FROZEN, execution BLOCKED** (no data) | deferred until GPU resources are available |
+| Model | **`Qwen/Qwen3-1.7B` Q8_0, LOCKED** (D-034/D-037); llama.cpp `v0.4.0` pin, arm64 (D-036) | `DeepSeek-R1-Distill-Qwen-7B`, BF16, vLLM, CUDA, NVIDIA L4/A100 (unchanged) |
+| Purpose | validate the English hidden-influence measurement instrument locally; design the Urdu / translate-then-monitor / native-human arms | replicate the same methodology on a frozen larger reasoning model |
 
 Track A is **not** a replacement for Track B and does not invalidate it; Track B remains
 the stronger replication target for any claim about frontier reasoning models. Results

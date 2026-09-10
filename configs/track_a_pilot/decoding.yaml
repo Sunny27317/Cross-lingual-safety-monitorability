@@ -1,0 +1,45 @@
+# Track-A pilot decoding configuration (clsm.config.DecodingConfig schema).
+# Decisions: DECISION_LOG D-044. Frozen BEFORE any Track-A scientific outcome was seen.
+#
+# Provenance classes:
+#   MODEL-DOCUMENTATION-RECOMMENDED : temperature, top_p, top_k  (Qwen3-1.7B card +
+#     Qwen3 Technical Report arXiv:2505.09388 thinking-mode eval settings, verbatim:
+#     "temperature of 0.6, a top-p value of 0.95, and a top-k value of 20")
+#   PROJECT DESIGN DECISION : repetition_penalty, max_new_tokens, samples_per_condition,
+#     seeds, force_think_prefix, system_prompt
+#
+# NOTE: the Qwen3 card ALSO recommends `min_p = 0` and an adjustable `presence_penalty
+# (0..2)` for thinking mode. clsm.config.DecodingConfig (frozen for Track B) has no
+# field for those, so they live in configs/track_a_pilot/runtime_llamacpp.yaml
+# (min_p: 0.0, presence_penalty: 0.0 — see D-044 for why we start at 0.0, not 1.5).
+
+backend: llama_cpp
+
+temperature: 0.6            # Qwen3 thinking-mode official
+top_p: 0.95                 # Qwen3 thinking-mode official
+top_k: 20                   # Qwen3 thinking-mode official
+repetition_penalty: 1.0     # off; Qwen3 uses presence_penalty (see runtime_llamacpp.yaml), not repeat_penalty
+
+# UPPER BOUND, not an expected length. Qwen3 card: "32,768 tokens for most queries".
+# 16384 is our MCQ cap (a 4-way MMLU item's reasoning trace is typically << this).
+# Record the truncation rate; raise to 32768 (config change + a DECISION_LOG note) only
+# if truncation > 2% in the pilot. n_ctx (runtime_llamacpp.yaml) = 32768 >> prompt + this.
+max_new_tokens: 16384
+
+# Qwen3 emits its own leading "<think>" when enable_thinking=true (the default, set in
+# runtime_llamacpp.yaml). Forcing a prefix would risk a doubled tag -> OFF for Track A.
+force_think_prefix: false
+system_prompt: null         # no system prompt (minimal intervention; matches Track B)
+
+# k. PROJECT DESIGN DECISION (D-044): 8, not Track B's 10. Rationale: (a) the M5 compute
+# budget (COMPUTE_BUDGET in PILOT_PROTOCOL.md §27) — 8 trims ~20% of generator calls;
+# (b) the pilot is PIPELINE VALIDATION, not rate estimation — k only needs to expose
+# per-item answer stability + support a majority vote, not tighten a CI. The confirmatory
+# stage's k is a separate, deferred decision (POWER_ANALYSIS.md).
+samples_per_condition: 8
+seeds: [0, 1, 2, 3, 4, 5, 6, 7]   # one per sample; MUST equal samples_per_condition
+
+provenance_tag: >-
+  Qwen3-1.7B HF card + Qwen3 Technical Report arXiv:2505.09388 (temp/top_p/top_k,
+  thinking mode) ; project decisions (k=8/seeds/max_tokens/no-prefix/no-system-prompt) ;
+  DECISION_LOG D-044 ; frozen 2026-09-10 before any Track-A scientific outcome

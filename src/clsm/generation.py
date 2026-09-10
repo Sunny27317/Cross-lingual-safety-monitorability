@@ -24,7 +24,7 @@ from clsm.config import DecodingConfig, ModelConfig
 from clsm.errors import BackendUnavailableError
 from clsm.extraction import extract_answer
 from clsm.logging_utils import get_logger
-from clsm.schemas import Condition, GenerationRecord
+from clsm.schemas import Condition, GenerationRecord, StopReason
 
 _log = get_logger("clsm.generation")
 
@@ -97,6 +97,7 @@ def _record_from_output(
         reasoning_marker_style=ext.reasoning_marker_style,
         n_output_tokens=n_tokens,
         truncated=truncated,
+        stop_reason=StopReason.LENGTH if truncated else StopReason.EOS,
         is_mock=is_mock,
     )
 

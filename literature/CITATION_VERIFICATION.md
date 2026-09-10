@@ -303,3 +303,22 @@ sharpening. Flagged for the user in `MILESTONE_1_READINESS.md` §19.5.
 | Smaller open-weight judge alternative (7–14B) feasibility | **TODO — UNVERIFIED** | §7a checklist |
 | Landis & Koch (1977) κ-band convention (basis for the "moderate/substantial" gate) | widely cited; the convention itself is **debated** — treat as STANDARD-METHODOLOGY, not fact | pre-registration wording |
 | Confirmatory power/sample-size calculation | **NOT DONE** — required before freezing confirmatory n | confirmatory design |
+
+---
+
+## G. Track-A pilot protocol — new source verifications (2026-09-10)
+
+Added during the Track-A pilot-protocol milestone (`DECISION_LOG.md` D-041–D-049).
+Every source below was fetched directly from its primary host on 2026-09-10.
+
+| Claim used | Status | Source (fetched 2026-09-10) |
+|---|---|---|
+| **Qwen3-1.7B official thinking-mode decoding**: "temperature of 0.6, a top-p value of 0.95, and a top-k value of 20"; `min_p = 0`; **"DO NOT use greedy decoding, as it can lead to performance degradation and endless repetitions"**; `enable_thinking` default `True`; context length **32,768**; recommended output length "32,768 tokens for most queries" / "38,912" for complex benchmarking; **Apache-2.0** | **VERIFIED (primary — model card)** | `huggingface.co/Qwen/Qwen3-1.7B` |
+| **Qwen3 Technical Report** — "Qwen3 Technical Report", Qwen Team (first author An Yang), arXiv:2505.09388 v1; dense models 0.6B–235B; Apache-2.0; thinking + non-thinking unified; 119 languages | **VERIFIED (primary — arXiv abstract + HTML)** | `arxiv.org/abs/2505.09388`, `arxiv.org/html/2505.09388v1` |
+| ~~**Qwen3-1.7B post-trained benchmark scores** — Table 19 (thinking): MMLU-Redux 73.9, GPQA-Diamond 40.1, C-Eval 68.1, LiveBench 51.1. Table 20 (non-thinking): MMLU-Redux 64.4, GPQA-Diamond 28.6.~~ **⚠ DISPUTED — NOT RELIED UPON (2026-09-10, D-057).** An independent scientific review states these MMLU-Redux / GPQA-Diamond figures belong to a **larger** Qwen3 variant, not the 1.7B (the report's per-size tables are dense and easy to misread by row). This pass did **not** re-fetch the tables to adjudicate. Resolution: the numbers are **removed from every protocol/config as capability evidence for the pinned generator**; published results for larger Qwen3 variants must not be used as evidence for Qwen3-1.7B; no verified MMLU/Urdu capability estimate for the 1.7B is relied upon. A future re-fetch should confirm the exact model row and either restore or delete this line. — The sampling settings ("temperature 0.6, top-p 0.95, top-k 20" thinking; "0.7 / 0.8 / 20 / presence 1.5" non-thinking; max output 32,768 / 38,912 AIME) are a **general Qwen3 thinking-mode recommendation**, apply to all sizes, and remain VERIFIED and in use. | `arxiv.org/html/2505.09388v1` |
+| **`cais/mmlu` license = MIT**; **not gated**; cite Hendrycks, Burns, Basart, Zou, Mazeika, Song, Steinhardt, "Measuring Massive Multitask Language Understanding", ICLR 2021; test split 14,042 items; 4-choice MCQ with a letter answer | **VERIFIED (primary — HF dataset card)** — *resolves the earlier "TODO — UNVERIFIED (dataset card not fetched)" in §F* | `huggingface.co/datasets/cais/mmlu` |
+| MMLU dataset **revision** `c30699e8356da336a370243923dbaf21066bb9fe` | **VERIFIED (Track B, D-019, HF refs API 2026-09-01)** — inherited, re-confirm at download | (Track B `DECISION_LOG.md` D-019) |
+| Chen et al. "professor/expert" metadata hint, MMLU + GPQA, temp 0 (not adopted), GPQA less faithful than MMLU | **VERIFIED** — §5 above (unchanged; re-cited) | `arxiv.org/html/2505.05410v1` |
+| Turpin et al. "suggested answer" biasing feature, up to 36% accuracy drop | **VERIFIED** — §6 above (unchanged; re-cited) | `arxiv.org/abs/2305.04388` |
+| **Young 2026 — "55.4% thinking-vs-answer divergence, 12 open-weight models, MMLU + GPQA + misleading hints"** — Richard J. Young, arXiv:**2603.26410** (+ companion arXiv:2603.22582) | **VERIFIED** — already in §D of this file (arXiv HTML + ResearchGate); re-cited here for `POWER_ANALYSIS.md` / D-045 as a **context range only**, never a pass/fail gate | `arxiv.org/abs/2603.26410` |
+| Walden & Wanner 2026 (arXiv:2601.07663) — do not tell the model the input may be manipulated/monitored | cited as in the existing repo (`configs/milestone1/cue.yaml`); **not independently re-verified this pass** — carries the existing repo status | (existing) |

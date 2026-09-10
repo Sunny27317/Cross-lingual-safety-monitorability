@@ -1,0 +1,74 @@
+====================================================================================================
+TRACK-A SAMPLE-SIZE SENSITIVITY / DESIGN EXPLORATION  (D-045/D-058/D-063)
+SYNTHETIC ASSUMPTIONS ONLY -- NO OBSERVED TRACK-A OUTCOME. seed=20260910
+NOT a confirmatory power calc. Does NOT recommend an N or a SESOI (D-058).
+'power' = simulated P(CI lower bound > 0) under a synthetic effect = 1 - beta.
+K=8 samples/condition, eligibility=0.55, parse_fail=0.03, central ICC=0.1 (ASSUMPTION, see ICC sensitivity), N_SIM=2000, BOOT=1000 (design knob != config.bootstrap_n)
+====================================================================================================
+
+### PRIMARY: adoption_increase  (== switch rate on eligible items, neutral hint)
+    n | s=0.05 hw / power | s=0.10 hw / power | s=0.20 hw / power | s=0.35 hw / power
+   50 | 0.019 / 0.00 | 0.032 / 0.00 | 0.073 / 0.05 | 0.144 / 0.67
+  100 | 0.020 / 0.00 | 0.029 / 0.00 | 0.059 / 0.19 | 0.104 / 0.95
+  200 | 0.017 / 0.00 | 0.025 / 0.02 | 0.044 / 0.46 | 0.075 / 1.00
+  400 | 0.014 / 0.00 | 0.019 / 0.04 | 0.032 / 0.76 | 0.053 / 1.00
+  600 | 0.012 / 0.00 | 0.016 / 0.05 | 0.026 / 0.91 | 0.043 / 1.00
+
+### PRIMARY: hidden_influence_rate  = switch * (1 - disclosure)
+
+  disclosure among switched = 0.20
+      n | s=0.05 (h=0.040) hw / power | s=0.10 (h=0.080) hw / power | s=0.20 (h=0.160) hw / power | s=0.35 (h=0.280) hw / power
+     50 | 0.005 / 0.00 | 0.015 / 0.00 | 0.054 / 0.04 | 0.127 / 0.62
+    100 | 0.004 / 0.00 | 0.014 / 0.00 | 0.046 / 0.20 | 0.093 / 0.97
+    200 | 0.004 / 0.00 | 0.013 / 0.02 | 0.036 / 0.69 | 0.066 / 1.00
+    400 | 0.004 / 0.00 | 0.011 / 0.17 | 0.026 / 0.98 | 0.047 / 1.00
+    600 | 0.004 / 0.01 | 0.010 / 0.40 | 0.021 / 1.00 | 0.039 / 1.00
+
+  disclosure among switched = 0.40
+      n | s=0.05 (h=0.030) hw / power | s=0.10 (h=0.060) hw / power | s=0.20 (h=0.120) hw / power | s=0.35 (h=0.210) hw / power
+     50 | 0.003 / 0.00 | 0.010 / 0.00 | 0.043 / 0.01 | 0.108 / 0.40
+    100 | 0.003 / 0.00 | 0.011 / 0.00 | 0.037 / 0.11 | 0.080 / 0.87
+    200 | 0.003 / 0.00 | 0.010 / 0.01 | 0.030 / 0.47 | 0.058 / 1.00
+    400 | 0.003 / 0.00 | 0.009 / 0.08 | 0.022 / 0.91 | 0.042 / 1.00
+    600 | 0.003 / 0.01 | 0.008 / 0.22 | 0.018 / 0.99 | 0.034 / 1.00
+
+  disclosure among switched = 0.60
+      n | s=0.05 (h=0.020) hw / power | s=0.10 (h=0.040) hw / power | s=0.20 (h=0.080) hw / power | s=0.35 (h=0.140) hw / power
+     50 | 0.002 / 0.00 | 0.008 / 0.00 | 0.029 / 0.00 | 0.084 / 0.17
+    100 | 0.002 / 0.00 | 0.007 / 0.00 | 0.027 / 0.03 | 0.066 / 0.63
+    200 | 0.002 / 0.00 | 0.007 / 0.00 | 0.023 / 0.20 | 0.048 / 0.97
+    400 | 0.002 / 0.00 | 0.006 / 0.02 | 0.018 / 0.67 | 0.035 / 1.00
+    600 | 0.002 / 0.00 | 0.006 / 0.09 | 0.015 / 0.92 | 0.028 / 1.00
+
+### SENSITIVITY to eligibility rate (hidden_influence, s=0.20, d=0.40)
+      n | elig=0.40 hw / power | elig=0.55 hw / power | elig=0.70 hw / power
+     50 | 0.044 / 0.00 | 0.042 / 0.01 | 0.041 / 0.03
+    100 | 0.039 / 0.04 | 0.037 / 0.10 | 0.035 / 0.18
+    200 | 0.033 / 0.24 | 0.030 / 0.47 | 0.027 / 0.64
+    400 | 0.026 / 0.75 | 0.022 / 0.93 | 0.020 / 0.98
+    600 | 0.022 / 0.95 | 0.018 / 0.99 | 0.016 / 1.00
+
+### SENSITIVITY to parse-failure rate (hidden_influence, s=0.20, d=0.40)
+      n | pf=0.00 hw / power | pf=0.03 hw / power | pf=0.10 hw / power
+     50 | 0.038 / 0.01 | 0.043 / 0.01 | 0.048 / 0.02
+    100 | 0.034 / 0.07 | 0.038 / 0.10 | 0.041 / 0.16
+    200 | 0.028 / 0.36 | 0.030 / 0.48 | 0.033 / 0.57
+    400 | 0.021 / 0.86 | 0.022 / 0.91 | 0.024 / 0.96
+    600 | 0.017 / 0.98 | 0.018 / 0.99 | 0.020 / 0.99
+
+### SENSITIVITY to intra-item correlation ICC (hidden_influence, s=0.20, d=0.40)
+    ICC is an ASSUMPTION, not a measured fact (audit M8).
+      n | ICC=0.00 hw / power | ICC=0.05 hw / power | ICC=0.10 hw / power | ICC=0.20 hw / power
+     50 | 0.014 / 0.00 | 0.028 / 0.00 | 0.044 / 0.01 | 0.065 / 0.07
+    100 | 0.013 / 0.00 | 0.026 / 0.03 | 0.038 / 0.10 | 0.053 / 0.33
+    200 | 0.012 / 0.02 | 0.022 / 0.18 | 0.030 / 0.46 | 0.040 / 0.83
+    400 | 0.010 / 0.12 | 0.017 / 0.66 | 0.022 / 0.91 | 0.029 / 1.00
+    600 | 0.009 / 0.34 | 0.015 / 0.90 | 0.018 / 0.99 | 0.024 / 1.00
+
+====================================================================================================
+READING: 'hw' = mean 95% bootstrap CI half-width; 'power' = P(CI lower bound > 0)
+         under a SYNTHETIC effect (= 1 - beta for that synthetic scenario).
+The PILOT (n=50) is not powered to exclude 0 for small effects -- BY DESIGN.
+This grid is a SENSITIVITY ILLUSTRATION. It does NOT recommend a confirmatory n
+and does NOT set a SESOI -- both REQUIRE A HUMAN SCIENTIFIC DECISION (D-058).
+====================================================================================================

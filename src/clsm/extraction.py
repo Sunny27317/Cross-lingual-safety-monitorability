@@ -38,6 +38,15 @@ call, made on the reasoning text, not inferred from a parse failure).
 
 The chain-of-thought is split off and returned separately so the disclosure monitor
 sees the reasoning span, and answer parsing runs on the final span only.
+
+**Multiple reasoning spans (D-038 / Track-A correction Part 20).** If a raw output
+contains more than one well-formed ``<think>...</think>`` (or bracket) pair, EVERY
+span's content is preserved: they are joined, in document order, into one deterministic
+combined monitor input using the fixed non-model separator
+``\\n\\n[--- reasoning span boundary (D-038) ---]\\n\\n``. ``answer_text`` is the text
+after the LAST close marker. ``ExtractionResult.n_reasoning_spans`` records the count
+so the multi-span fact is never silently lost. The first span alone is never used as a
+proxy for "the" reasoning.
 """
 
 from __future__ import annotations
@@ -60,6 +69,14 @@ _MARKER_STYLES: tuple[tuple[str, re.Pattern[str], re.Pattern[str]], ...] = (
     ("bracket_thinking", _BRACKET_PAIR, _BRACKET_OPEN),
 )
 
+# Multiple well-formed reasoning spans of the same style (DECISION_LOG D-038 / Track-A
+# correction Part 20). Rather than silently keeping only the first span, EVERY span's
+# content is preserved and joined into one deterministic combined monitor input using
+# this exact, non-model separator. ``answer_text`` is the text after the LAST close
+# marker. ``SplitOutput.n_spans`` records how many spans were combined so the fact is
+# never lost. This is a documented, deterministic transform — not a silent concatenation.
+_MULTI_SPAN_JOIN = "\n\n[--- reasoning span boundary (D-038) ---]\n\n"
+
 # --- answer patterns ----------------------------------------------------------------
 _BOXED_RE = re.compile(r"\\boxed\{\s*([A-Da-d])\s*\}")
 # Fallback: require an explicit separator (is / : / =) after "answer" and a following
@@ -76,6 +93,7 @@ class SplitOutput:
     answer_text: str | None  # text after the reasoning span; None if unrecoverable
     reasoning_status: ReasoningSpanStatus = ReasoningSpanStatus.ABSENT
     marker_style: str | None = None  # 'xml_think' | 'bracket_thinking' | None
+    n_spans: int = 0  # count of well-formed reasoning spans combined (D-038 / Part 20)
 
 
 @dataclass(frozen=True)
@@ -87,13 +105,16 @@ class ExtractionResult:
     answer_text: str | None
     reasoning_status: ReasoningSpanStatus = ReasoningSpanStatus.ABSENT
     reasoning_marker_style: str | None = None
+    n_reasoning_spans: int = 0  # well-formed spans combined into cot_text (D-038 / Part 20)
 
 
 def _split_for_style(raw: str, pair_re: re.Pattern[str], open_re: re.Pattern[str]) -> SplitOutput | None:
     """Attempt a split for one marker style. Return None if this style is not present."""
     pairs = list(pair_re.finditer(raw))
     if pairs:
-        cot = pairs[0].group(1).strip()
+        span_texts = [p.group(1).strip() for p in pairs]
+        # D-038 / Part 20: preserve EVERY span, deterministically combined (never just the first).
+        cot = _MULTI_SPAN_JOIN.join(t for t in span_texts if t)
         after = raw[pairs[-1].end():].strip()
         status = ReasoningSpanStatus.PRESENT if cot else ReasoningSpanStatus.EMPTY
         return SplitOutput(
@@ -101,6 +122,7 @@ def _split_for_style(raw: str, pair_re: re.Pattern[str], open_re: re.Pattern[str
             answer_text=after or None,
             reasoning_status=status,
             marker_style=None,  # filled in by caller
+            n_spans=len(pairs),
         )
     # No well-formed pair. Is there a lone opening marker (truncated / malformed)?
     open_match = open_re.search(raw)
@@ -111,6 +133,7 @@ def _split_for_style(raw: str, pair_re: re.Pattern[str], open_re: re.Pattern[str
             answer_text=None,  # boundary is unreliable; do not hand a search space downstream
             reasoning_status=ReasoningSpanStatus.MALFORMED,
             marker_style=None,
+            n_spans=0,
         )
     return None
 
@@ -131,6 +154,7 @@ def split_think(raw: str) -> SplitOutput:
                 answer_text=out.answer_text,
                 reasoning_status=out.reasoning_status,
                 marker_style=style_name,
+                n_spans=out.n_spans,
             )
     # No reasoning markers of any recognised style.
     return SplitOutput(
@@ -174,7 +198,7 @@ def extract_answer(raw: object) -> ExtractionResult:
     def _result(status: ParseStatus, answer: str | None, method: str | None) -> ExtractionResult:
         return ExtractionResult(
             status, answer, method, split.cot_text, split.answer_text,
-            split.reasoning_status, split.marker_style,
+            split.reasoning_status, split.marker_style, split.n_spans,
         )
 
     if split.reasoning_status is ReasoningSpanStatus.MALFORMED:
