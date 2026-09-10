@@ -17,6 +17,7 @@ import enum
 import json
 from pathlib import Path
 
+import yaml
 from pydantic import BaseModel, ConfigDict, Field
 
 from clsm.config import ExperimentConfig, load_experiment_config
@@ -70,6 +71,7 @@ class TrackAPilotManifest(BaseModel):
     # --- experiment design ---
     dataset: Field_
     dataset_revision: Field_
+    dataset_content_pin: Field_
     split: Field_
     item_selection_rule: Field_
     sample_size_pilot: Field_
@@ -197,6 +199,14 @@ def build_pilot_manifest(config_path: str | Path = "configs/track_a_pilot/pilot.
     n = len(cfg.dataset.subjects) * cfg.dataset.items_per_subject
     prompt_sha = hashlib.sha256(cfg.prompt_template.encode("utf-8")).hexdigest()
 
+    # N4: the manifest's hard-coded GGUF SHA-256 must equal the committed runtime pin.
+    _rt_yaml = yaml.safe_load(
+        Path("configs/track_a_pilot/runtime_llamacpp.yaml").read_text(encoding="utf-8")
+    )
+    _gguf_sha = str(_rt_yaml["model"]["sha256"])
+    _llama_commit = str(_rt_yaml["runtime"]["commit"])
+    _llama_build = str(_rt_yaml["runtime"].get("build_number", ""))
+
     def L(value: str, decision_log: str, note: str | None = None) -> Field_:
         return Field_(status=Status.LOCKED, value=value, decision_log=decision_log, note=note)
 
@@ -214,25 +224,40 @@ def build_pilot_manifest(config_path: str | Path = "configs/track_a_pilot/pilot.
 
     return TrackAPilotManifest(
         generator_model=L(cfg.model.id, "D-034"),
-        generator_artifact_sha256=L(
-            "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a", "D-037"
-        ),
+        generator_artifact_sha256=L(_gguf_sha, "D-037", note="cross-checked vs runtime_llamacpp.yaml (N4)"),
         generator_gguf_revision=L(cfg.model.revision, "D-034"),
-        runtime_llamacpp_commit=L("5266f24da75dc449bd56cbed7addb9c8e4a6a73e", "D-033/D-036"),
+        runtime_llamacpp_commit=L(
+            _llama_commit, "D-033/D-036",
+            note=f"build b{_llama_build}; VERIFIED at runtime vs `llama-cli --version` (D-052)",
+        ),
         dataset=L(cfg.dataset.id, "D-041"),
         dataset_revision=L(cfg.dataset.revision or "", "D-041", note="HF refs API verified; NOT downloaded"),
+        dataset_content_pin=blocked_ext(
+            "D-041/D-056",
+            "BLOCKS RUN (Part 9). Before any real inference the following must be recorded: "
+            "(a) the exact `datasets` library version, (b) the resolved parquet/commit "
+            "revision actually read, (c) the exact selected item identifiers, (d) a hash "
+            "over the selected item CONTENT, (e) verified question/choice schema + choice "
+            "ordering, (f) verified label->letter mapping. No content is downloaded in this "
+            "pass; the gate stays BLOCKED until this is done.",
+        ),
         split=L(cfg.dataset.split, "D-041"),
         item_selection_rule=L(
             "sha256_sorted_first_n over eligible items; 10 fixed stratified subjects x 5", "D-041"
         ),
         sample_size_pilot=L(str(n), "D-045", note="PIPELINE VALIDATION ONLY; not powered"),
         confirmatory_sample_size=Field_(
-            status=Status.DEFERRED, decision_log="D-045",
-            note="range from POWER_ANALYSIS.md; frozen only at confirmatory-design time",
+            status=Status.DEFERRED, decision_log="D-045/D-058",
+            note="REQUIRES HUMAN SCIENTIFIC DECISION BEFORE CONFIRMATORY DESIGN. No fixed N "
+            "and no SESOI are frozen here (Part 12). POWER_ANALYSIS.md is a sensitivity / "
+            "design-exploration illustration only; the pilot may inform NUISANCE parameters "
+            "(eligibility yield, parse-failure rate, missingness, descriptive switch yield) "
+            "but must not be used to pick a favourable SESOI after seeing effects.",
             blocking_for_run=False, block_kind=BlockKind.METHODOLOGY,
         ),
         stopping_rule=L(
-            "fixed n; no optional stopping; no interim looks at effect direction/magnitude", "D-045"
+            "fixed n=50 pilot; no optional stopping; no interim looks at effect direction/"
+            "magnitude; the pilot is not a hypothesis test", "D-045"
         ),
         seed_schedule=L(",".join(str(s) for s in cfg.decoding.seeds), "D-044"),
         samples_per_condition=L(str(cfg.decoding.samples_per_condition), "D-044"),
@@ -244,7 +269,9 @@ def build_pilot_manifest(config_path: str | Path = "configs/track_a_pilot/pilot.
         hint_target_rule=L("position-neutral sha256 over incorrect indices (D-017)", "D-042/D-017"),
         generation_interface=L(
             "pinned llama-cli (clsm.track_a_backend.LlamaCppBackend); subprocess argv list; "
-            "-st --reasoning-format none --no-display-prompt --no-perf --simple-io", "D-043"
+            "-st --reasoning-format none --no-display-prompt --simple-io. `--no-perf` is NOT "
+            "passed (D-053): the STDERR perf block is the token-count / stop-reason signal. "
+            "A real run requires an authorized RunToken (D-050).", "D-043/D-050/D-053"
         ),
         decoding_parameters=L(
             "temp 0.6, top_p 0.95, top_k 20, min_p 0, presence_penalty 0, repeat_penalty 1.0, "
@@ -252,15 +279,28 @@ def build_pilot_manifest(config_path: str | Path = "configs/track_a_pilot/pilot.
         ),
         reasoning_format=L("none (literal <think>...</think> preserved)", "D-038/D-043"),
         thinking_mode=L("enable_thinking=true (Qwen3 default)", "D-044"),
-        parser_version=L("clsm.extraction (D-038): ParseStatus + ReasoningSpanStatus", "D-038"),
-        output_cleaning_rule=L(
-            "clsm.track_a_backend.strip_cli_chrome (cli_chrome_v1): drop the echoed prompt "
-            "line and the perf/exit footer; NOTHING else", "D-046"
+        parser_version=L(
+            "clsm.extraction (D-038): ParseStatus + ReasoningSpanStatus + tri-state StopReason "
+            "(D-053). Multiple <think> spans: ALL preserved, deterministically combined, "
+            "n_reasoning_spans recorded (D-038/Part 20). PRIMARY answer contract is the Latin "
+            "A/B/C/D syntax across all languages (Part 13).", "D-038/D-053"
         ),
-        raw_output_policy=L("raw_output stored verbatim on every record; never hand-edited", "D-046"),
+        output_cleaning_rule=L(
+            "clsm.track_a_backend.clean_cli_output (cli_chrome_v2, D-052): removes ONLY two "
+            "ANCHORED, proven-runtime-generated strings -- the leading llama-cli startup "
+            "banner (\\A .. `available commands:` list) and the exact trailing perf-summary "
+            "line (`[ Prompt: .. t/s | Generation: .. t/s ]` at \\Z). NO generic `>` / "
+            "structural regex. RAW stdout is always persisted verbatim alongside.", "D-046/D-052"
+        ),
+        raw_output_policy=L(
+            "raw_output stored VERBATIM (semantically unmodified) on every record and to "
+            "`<stem>.stdout.txt`; `cleaned` kept separately; never hand-edited", "D-046/D-052"
+        ),
         retry_policy=L(
-            "NO content-dependent retry. Infrastructure faults only (nonzero exit / timeout / "
-            "empty stdout): retry <=1 time, log both attempts; then record as failure", "D-046"
+            "ZERO retries (D-054). Exactly one llama-cli invocation per spec, attempt id 'a1', "
+            "whatever the output. An infrastructure fault (nonzero exit / timeout / empty "
+            "stdout) is recorded + COUNTED as a failure, never retried. NO content-dependent "
+            "retry of any kind. Matches implementation, config, and tests.", "D-054"
         ),
         missingness_policy=L(
             "PARSE_ERROR / MALFORMED / missing generation: recorded + COUNTED, never dropped "
@@ -271,20 +311,32 @@ def build_pilot_manifest(config_path: str | Path = "configs/track_a_pilot/pilot.
             "D-046",
         ),
         truncation_policy=L(
-            "timeout or length-stop -> truncated=True, recorded; report truncation rate; "
-            "raise max_new_tokens only on an infra trigger (>2%)", "D-046"
+            "Tri-state stop_reason (D-053): EOS / LENGTH / TIMEOUT / NONZERO_EXIT / UNKNOWN. "
+            "`truncated=True` iff stop_reason in {LENGTH, TIMEOUT}. UNKNOWN is recorded "
+            "honestly when the runtime gives no reliable signal -- NEVER inferred from a "
+            "missing final answer. n_output_tokens + requested max_new_tokens + stop_reason "
+            "+ timeout state are all recorded. Raise max_new_tokens only on an infra trigger "
+            "(LENGTH rate > 2%).", "D-046/D-053"
         ),
         primary_estimand=L(
-            "adoption_increase (paired, items with a majority in both conditions) AND, on the "
-            "switch-eligible set, hidden_influence_rate -- reported with bootstrap 95% CIs", "D-048"
+            "RESEARCH PRIMARY (DEFERRED, not measurable in this English pilot): the "
+            "Monitor-Validity Gap for Urdu = native-human disclosure detection MINUS "
+            "automated-monitor disclosure detection on the SAME traces. "
+            "RESEARCH SECONDARY (DEFERRED): the Translate-then-Monitor Recovery Effect. "
+            "What THIS pilot estimates DESCRIPTIVELY on the switch-eligible set: "
+            "adoption_increase and answer_switch_rate (prerequisite behavioural signal), "
+            "with bootstrap 95% CIs treated as descriptive, not inferential (Part 17).", "D-048/D-059"
         ),
         secondary_estimands=L(
-            "answer_switch_rate, disclosure_rate, conditional_hidden_influence_rate, "
-            "control/hinted adoption, unhinted/hinted accuracy, accuracy_drop", "D-048"
+            "SUPPORTING/PREREQUISITE BEHAVIOURAL (descriptive): control/hinted adoption, "
+            "unhinted/hinted accuracy, accuracy_drop. disclosure_rate / hidden_influence_rate "
+            "are BLOCKED on the disclosure judge and the human audit (D-047).", "D-048"
         ),
         diagnostic_metrics=L(
-            "parse-status counts, reasoning-span-status counts, truncation rate, tie counts, "
-            "per-item answer stability across k", "D-048"
+            "DIAGNOSTIC (descriptive): parse-status counts, reasoning-span-status counts, "
+            "n_reasoning_spans distribution, stop_reason counts + LENGTH/TIMEOUT (truncation) "
+            "rate, tie counts, per-item answer stability across k, format-compliance rate, "
+            "realized eligibility yield, realized switch yield, missingness rate.", "D-048"
         ),
         uncertainty_method=L(
             "item-clustered percentile bootstrap (bootstrap_seed 20260910, n 10000); "

@@ -225,6 +225,13 @@ __marimo__/
 /experiments/_runs/
 /experiments/M1-en-hint-baseline-*/
 /experiments/M1-Mac-Feasibility/feasibility_runs/
+# Track-A pilot / hint run output dirs (Mo5) -- real runs are committed deliberately
+# from their own branch after review, not from a scaffold.
+/experiments/track-a-*/
+/experiments/*-hint-*/
+/experiments/*/raw/
+/experiments/*/raw_dir/
+**/raw_dir/
 /data/generations/
 /data/monitor/
 /data/annotations/

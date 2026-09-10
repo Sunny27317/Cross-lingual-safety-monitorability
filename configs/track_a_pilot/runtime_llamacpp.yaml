@@ -11,6 +11,8 @@ runtime:
   source_repo: https://github.com/ggml-org/llama.cpp.git
   commit: "5266f24da75dc449bd56cbed7addb9c8e4a6a73e"   # LOCKED (D-033/D-036); tag v0.4.0; build b10809
   tag: v0.4.0
+  build_number: "10809"                                # VERIFIED against `llama-cli --version` (D-052)
+  version_string_expected: "0.4.0-dev (build 10809, commit 5266f24da"  # prefix match against `--version`
   build: "native arm64, cmake -B build -DCMAKE_BUILD_TYPE=Release (Metal ON — pinned default), -j 10"
   backends: [metal, accelerate_blas, cpu]              # verified initialised + used on the M5 (D-040)
   binary: null                                         # env CLSM_LLAMA_CLI or local override

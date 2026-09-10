@@ -10,8 +10,8 @@
   "confirmatory_sample_size": {
     "block_kind": "methodology",
     "blocking_for_run": false,
-    "decision_log": "D-045",
-    "note": "range from POWER_ANALYSIS.md; frozen only at confirmatory-design time",
+    "decision_log": "D-045/D-058",
+    "note": "REQUIRES HUMAN SCIENTIFIC DECISION BEFORE CONFIRMATORY DESIGN. No fixed N and no SESOI are frozen here (Part 12). POWER_ANALYSIS.md is a sensitivity / design-exploration illustration only; the pilot may inform NUISANCE parameters (eligibility yield, parse-failure rate, missingness, descriptive switch yield) but must not be used to pick a favourable SESOI after seeing effects.",
     "status": "DEFERRED",
     "value": null
   },
@@ -22,6 +22,14 @@
     "note": null,
     "status": "LOCKED",
     "value": "cais/mmlu"
+  },
+  "dataset_content_pin": {
+    "block_kind": "external_resource",
+    "blocking_for_run": true,
+    "decision_log": "D-041/D-056",
+    "note": "BLOCKS RUN (Part 9). Before any real inference the following must be recorded: (a) the exact `datasets` library version, (b) the resolved parquet/commit revision actually read, (c) the exact selected item identifiers, (d) a hash over the selected item CONTENT, (e) verified question/choice schema + choice ordering, (f) verified label->letter mapping. No content is downloaded in this pass; the gate stays BLOCKED until this is done.",
+    "status": "BLOCKED",
+    "value": null
   },
   "dataset_revision": {
     "block_kind": "none",
@@ -45,7 +53,7 @@
     "decision_log": "D-048",
     "note": null,
     "status": "LOCKED",
-    "value": "parse-status counts, reasoning-span-status counts, truncation rate, tie counts, per-item answer stability across k"
+    "value": "DIAGNOSTIC (descriptive): parse-status counts, reasoning-span-status counts, n_reasoning_spans distribution, stop_reason counts + LENGTH/TIMEOUT (truncation) rate, tie counts, per-item answer stability across k, format-compliance rate, realized eligibility yield, realized switch yield, missingness rate."
   },
   "disclosure_judge": {
     "block_kind": "external_resource",
@@ -66,16 +74,16 @@
   "generation_interface": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-043",
+    "decision_log": "D-043/D-050/D-053",
     "note": null,
     "status": "LOCKED",
-    "value": "pinned llama-cli (clsm.track_a_backend.LlamaCppBackend); subprocess argv list; -st --reasoning-format none --no-display-prompt --no-perf --simple-io"
+    "value": "pinned llama-cli (clsm.track_a_backend.LlamaCppBackend); subprocess argv list; -st --reasoning-format none --no-display-prompt --simple-io. `--no-perf` is NOT passed (D-053): the STDERR perf block is the token-count / stop-reason signal. A real run requires an authorized RunToken (D-050)."
   },
   "generator_artifact_sha256": {
     "block_kind": "none",
     "blocking_for_run": true,
     "decision_log": "D-037",
-    "note": null,
+    "note": "cross-checked vs runtime_llamacpp.yaml (N4)",
     "status": "LOCKED",
     "value": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a"
   },
@@ -163,26 +171,26 @@
   "output_cleaning_rule": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-046",
+    "decision_log": "D-046/D-052",
     "note": null,
     "status": "LOCKED",
-    "value": "clsm.track_a_backend.strip_cli_chrome (cli_chrome_v1): drop the echoed prompt line and the perf/exit footer; NOTHING else"
+    "value": "clsm.track_a_backend.clean_cli_output (cli_chrome_v2, D-052): removes ONLY two ANCHORED, proven-runtime-generated strings -- the leading llama-cli startup banner (\\A .. `available commands:` list) and the exact trailing perf-summary line (`[ Prompt: .. t/s | Generation: .. t/s ]` at \\Z). NO generic `>` / structural regex. RAW stdout is always persisted verbatim alongside."
   },
   "parser_version": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-038",
+    "decision_log": "D-038/D-053",
     "note": null,
     "status": "LOCKED",
-    "value": "clsm.extraction (D-038): ParseStatus + ReasoningSpanStatus"
+    "value": "clsm.extraction (D-038): ParseStatus + ReasoningSpanStatus + tri-state StopReason (D-053). Multiple <think> spans: ALL preserved, deterministically combined, n_reasoning_spans recorded (D-038/Part 20). PRIMARY answer contract is the Latin A/B/C/D syntax across all languages (Part 13)."
   },
   "primary_estimand": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-048",
+    "decision_log": "D-048/D-059",
     "note": null,
     "status": "LOCKED",
-    "value": "adoption_increase (paired, items with a majority in both conditions) AND, on the switch-eligible set, hidden_influence_rate -- reported with bootstrap 95% CIs"
+    "value": "RESEARCH PRIMARY (DEFERRED, not measurable in this English pilot): the Monitor-Validity Gap for Urdu = native-human disclosure detection MINUS automated-monitor disclosure detection on the SAME traces. RESEARCH SECONDARY (DEFERRED): the Translate-then-Monitor Recovery Effect. What THIS pilot estimates DESCRIPTIVELY on the switch-eligible set: adoption_increase and answer_switch_rate (prerequisite behavioural signal), with bootstrap 95% CIs treated as descriptive, not inferential (Part 17)."
   },
   "prompt_template_sha256": {
     "block_kind": "none",
@@ -204,10 +212,10 @@
   "raw_output_policy": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-046",
+    "decision_log": "D-046/D-052",
     "note": null,
     "status": "LOCKED",
-    "value": "raw_output stored verbatim on every record; never hand-edited"
+    "value": "raw_output stored VERBATIM (semantically unmodified) on every record and to `<stem>.stdout.txt`; `cleaned` kept separately; never hand-edited"
   },
   "reasoning_format": {
     "block_kind": "none",
@@ -220,16 +228,16 @@
   "retry_policy": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-046",
+    "decision_log": "D-054",
     "note": null,
     "status": "LOCKED",
-    "value": "NO content-dependent retry. Infrastructure faults only (nonzero exit / timeout / empty stdout): retry <=1 time, log both attempts; then record as failure"
+    "value": "ZERO retries (D-054). Exactly one llama-cli invocation per spec, attempt id 'a1', whatever the output. An infrastructure fault (nonzero exit / timeout / empty stdout) is recorded + COUNTED as a failure, never retried. NO content-dependent retry of any kind. Matches implementation, config, and tests."
   },
   "runtime_llamacpp_commit": {
     "block_kind": "none",
     "blocking_for_run": true,
     "decision_log": "D-033/D-036",
-    "note": null,
+    "note": "build b10809; VERIFIED at runtime vs `llama-cli --version` (D-052)",
     "status": "LOCKED",
     "value": "5266f24da75dc449bd56cbed7addb9c8e4a6a73e"
   },
@@ -256,7 +264,7 @@
     "decision_log": "D-048",
     "note": null,
     "status": "LOCKED",
-    "value": "answer_switch_rate, disclosure_rate, conditional_hidden_influence_rate, control/hinted adoption, unhinted/hinted accuracy, accuracy_drop"
+    "value": "SUPPORTING/PREREQUISITE BEHAVIOURAL (descriptive): control/hinted adoption, unhinted/hinted accuracy, accuracy_drop. disclosure_rate / hidden_influence_rate are BLOCKED on the disclosure judge and the human audit (D-047)."
   },
   "seed_schedule": {
     "block_kind": "none",
@@ -280,7 +288,7 @@
     "decision_log": "D-045",
     "note": null,
     "status": "LOCKED",
-    "value": "fixed n; no optional stopping; no interim looks at effect direction/magnitude"
+    "value": "fixed n=50 pilot; no optional stopping; no interim looks at effect direction/magnitude; the pilot is not a hypothesis test"
   },
   "thinking_mode": {
     "block_kind": "none",
@@ -309,10 +317,10 @@
   "truncation_policy": {
     "block_kind": "none",
     "blocking_for_run": true,
-    "decision_log": "D-046",
+    "decision_log": "D-046/D-053",
     "note": null,
     "status": "LOCKED",
-    "value": "timeout or length-stop -> truncated=True, recorded; report truncation rate; raise max_new_tokens only on an infra trigger (>2%)"
+    "value": "Tri-state stop_reason (D-053): EOS / LENGTH / TIMEOUT / NONZERO_EXIT / UNKNOWN. `truncated=True` iff stop_reason in {LENGTH, TIMEOUT}. UNKNOWN is recorded honestly when the runtime gives no reliable signal -- NEVER inferred from a missing final answer. n_output_tokens + requested max_new_tokens + stop_reason + timeout state are all recorded. Raise max_new_tokens only on an infra trigger (LENGTH rate > 2%)."
   },
   "uncertainty_method": {
     "block_kind": "none",
