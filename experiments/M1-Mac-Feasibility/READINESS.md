@@ -140,10 +140,11 @@ testing), the build forces genuine CPU-only execution
 is made about whether Metal-via-AMD would have worked — it was not attempted, and
 remains out of scope.
 
-**What Gate A does NOT mean:** no inference of any kind has occurred; the scientific
-study is not "ready" merely because a runtime compiles and reports its version. (Gate B
-— exactly one model, Qwen3-1.7B Q8_0 — has since been authorized and completed; see
-§0 and §1.7 below. Gate C inference remains **NOT AUTHORIZED**.)
+**What Gate A does NOT mean (as it stood on 2026-09-06):** no inference of any kind had
+occurred; the scientific study is not "ready" merely because a runtime compiles and
+reports its version. (Since then, on the M5: Gate B completed — §1.7.1 — and a synthetic
+infrastructure Gate-C smoke passed — §1.8, D-040. **No *scientific* inference has
+occurred on either machine.**)
 
 ### 1.6.2 Gate A (CURRENT — Apple M5 machine) — locked llama.cpp rebuilt natively for arm64 (2026-09-08)
 
@@ -174,10 +175,13 @@ and tested for, and the pinned source defaults `GGML_METAL=ON` on Apple platform
 (`ggml/CMakeLists.txt:95-98, 236`). This is a hardware adaptation only; it changes no
 model, quantization, prompt, seed, hypothesis, dataset, metric, or Track-B artifact.
 
-**What §1.6.2 does NOT mean:** Metal **build** availability is verified; **Metal
-inference is not** — the embedded shaders are compiled by the Metal runtime at first
-use, which has not been exercised. No inference of any kind has occurred on this
-machine. Gate B weights have not been restored here. **Gate C remains NOT AUTHORIZED.**
+**What §1.6.2 established (as of 2026-09-08):** Metal **build** availability verified;
+Metal **inference** not yet exercised; Gate B weights not yet restored on the M5; Gate C
+not yet run. **Update (2026-09-10):** the M5 Gate-C synthetic smoke (§1.8, D-040) has
+since exercised the Metal runtime — `ggml_metal_init` on Apple M5, 29/29 layers
+offloaded to the GPU — so Metal **inference** on this machine is now verified for an
+infrastructure-only synthetic prompt. Gate B was restored (§1.7.1). **No *scientific*
+inference has occurred.**
 
 ### 1.7 Gate B — COMPLETE (on the Intel machine): Qwen3-1.7B (Q8_0 GGUF) downloaded and verified (2026-09-06)
 
@@ -219,23 +223,25 @@ Decision record: `DECISION_LOG.md` D-037.
 **What §1.7.1 does NOT mean:** no *scientific* inference has occurred on the M5; no
 scientific dataset item has been evaluated; no scientific metric has been computed.
 
-### 1.8 Gate C (CURRENT — Apple M5) — one synthetic infrastructure smoke — PASS (2026-09-10)
+### 1.8 Gate C (CURRENT — Apple M5) — synthetic infrastructure smoke — PASS (2026-09-10)
 
-A single **synthetic, infrastructure-only** generation. **Not scientific data.** Full
-record: `environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`. Decision:
+The **formal Gate-C trial** is one **synthetic, infrastructure-only** generation. **Not
+scientific data.** Full record incl. the complete model-invocation accounting:
+`environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`. Decision:
 `DECISION_LOG.md` D-040.
 
 | Field | Value |
 |---|---|
 | Item | `smoke-001` (SYNTHETIC — "capital of France"), **control** condition (no hint) |
 | Command | `llama-cli -m <locked gguf> -p '<one synthetic item>' -st --reasoning-format none -n 512 -s 42 --temp 0 -ngl 99 --no-warmup --simple-io` |
-| Model / runtime | locked `Qwen3-1.7B-Q8_0.gguf` (sha `061b54da…`) · pinned llama.cpp `5266f24da…` build `b10809` |
+| Model / runtime | locked `Qwen3-1.7B-Q8_0.gguf` (full sha `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`) · pinned llama.cpp `5266f24da…` build `b10809` |
 | Exit / wall | 0 / 6.07 s |
 | Generation | non-empty, 1663 chars |
 | `parse_status` | `VALID` (answer "A", fallback regex) — *answer correctness is not a Gate-C criterion* |
 | `reasoning_span_status` | `PRESENT`, marker `xml_think` (literal `<think>…</think>` — preserved by `--reasoning-format none`, D-038) |
-| Retries | one — a CLI-argument fix (`-no-cnv` invalid at this pin), **not** an output re-roll |
-| Metal (Phase 9) | runtime shows `ggml_metal_init: found device: Apple M5`, `offloaded 29/29 layers to GPU`, `MTL0_Mapped model buffer 1743.77 MiB`; `--list-devices` → `MTL0: Apple M5` + `BLAS: Accelerate`. **Metal initialised and used.** ~66 tok/s (one run, not a benchmark). |
+| Formal Gate-C output re-rolls | **ZERO** — the verdict rests on this ONE generation |
+| Model-invocation accounting | 1 formal Gate-C generation (n=512) + **3 infrastructure-only Metal-diagnostic generations** (n=8, n=8, n=4; throwaway prompt "Q: 2+2? A:") + 2 failed pre-load attempts (`-no-cnv`; a broken output-redirect) + 1 `--list-devices`. The diagnostics used no scientific data, were **not** Gate-C re-rolls, did **not** alter the verdict, and were **not** model-selection/scientific evidence. Full table in the env-check file. |
+| Metal (Phase 9) | from diagnostic gen #6 + `--list-devices`: `ggml_metal_init: found device: Apple M5`, `offloaded 29/29 layers to GPU`, `MTL0_Mapped model buffer 1743.77 MiB`; `MTL0: Apple M5` + `BLAS: Accelerate`. **Metal initialised and used.** ~66 tok/s on the formal trial (not a benchmark). |
 
 **What §1.8 does NOT establish:** anything scientific. No accuracy, hint effect, switch
 rate, disclosure, hidden influence, Urdu, or cross-lingual quantity — none computed,
@@ -332,8 +338,9 @@ merely a recommendation.**
 
 **UPDATE — Gate B complete (§1.7):** exactly one model (`Qwen/Qwen3-1.7B`, GGUF
 `Qwen3-1.7B-Q8_0.gguf`) has since been selected on neutral criteria, downloaded, and
-verified — see §1.7 for the full record. **Gate C (inference) remains NOT
-AUTHORIZED.**
+verified — see §1.7 (Intel) and §1.7.1 (M5). **A synthetic infrastructure Gate-C smoke
+has since passed on the M5 (§1.8, D-040). No *scientific* inference has been run;
+Gate D is not a model-selection exercise (D-039).**
 
 **UPDATE — Apple M5 machine migration (§1.6.2, 2026-09-08, `DECISION_LOG.md` D-036):**
 development moved off the Intel host. The tables in §2 above discuss "Intel Mac

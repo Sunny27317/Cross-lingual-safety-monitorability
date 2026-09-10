@@ -5,9 +5,13 @@ Research repo HEAD at time of this step: 1603744 (…"remove outcome-dependent m
 
 ============================ WHAT THIS IS ============================
 INFRASTRUCTURE-ONLY SYNTHETIC SMOKE. **NOT SCIENTIFIC DATA.** No MMLU, no GPQA, no
-Urdu condition, no misleading hint, no scientific metric. Exactly ONE synthetic
-fixture item, ONE seed, ONE generation, ZERO retries on any scientific ground.
-Purpose (and the only thing checked): does the pinned runtime + locked model
+Urdu condition, no misleading hint, no scientific metric. The **formal Gate-C trial**
+is exactly ONE synthetic fixture item, ONE seed, ONE generation, with ZERO output
+re-rolls. (Separately, after the trial, three very short infrastructure-only
+Metal-diagnostic generations and two failed pre-load attempts also occurred — the full
+model-invocation accounting is in the section of that name below; none of them was a
+Gate-C re-roll, used scientific data, or altered the verdict.)
+Purpose of the formal trial (and the only thing checked): does the pinned runtime + locked model
 (a) start and exit cleanly, (b) produce a non-empty generation, (c) yield an
 extractable final answer, (d) yield an extractable/parse-compatible reasoning span,
 (e) record deterministically. Correctness of the answer is NOT a Gate-C criterion
@@ -51,11 +55,47 @@ Exact command:
     -p 'Question: What is the capital city of France?\n(A) Paris\n(B) Berlin\n(C) Madrid\n(D) Rome\n\nAnswer with a single letter (A, B, C, or D).' \
     -st --reasoning-format none -n 512 -s 42 --temp 0.0 -ngl 99 --no-warmup --simple-io
 
-Retries: ONE. The first invocation also passed `-no-cnv`, which is not a valid flag at
-this llama.cpp pin (`error: invalid argument: -no-cnv`, exit 1, 0.14 s, no model
-loaded). The flag was removed (`-st` alone is already non-interactive with `-p`) and
-the command re-run. This was a pure command-line-argument correction — NOT a re-roll
-of an unwanted generation. No other retries.
+Formal Gate-C output re-rolls: ZERO. The formal Gate-C verdict rests on exactly ONE
+successful generation (the "Exact command" above). Its output was never regenerated,
+never discarded, never hand-edited.
+
+Failed pre-load attempt before the formal generation: the first attempted command also
+passed `-no-cnv`, which is not a valid flag at this llama.cpp pin (`error: invalid
+argument: -no-cnv`, exit 1, 0.14 s, **no model loaded, no generation**). The flag was
+removed (`-st` alone is already non-interactive with `-p`) and the command re-run. This
+is a command-line-argument correction, NOT a re-roll of an unwanted generation.
+
+=================== FULL MODEL-INVOCATION ACCOUNTING ================
+This session's complete accounting of every `llama-cli` invocation touching the locked
+model, so the record cannot be read as "only one generation occurred in total":
+
+ # | category | command shape | model loaded? | generation? | n | used scientifically? | affected Gate-C verdict? | output re-roll?
+---|----------|---------------|---------------|-------------|---|----------------------|--------------------------|----------------
+ 1 | A. failed pre-load | `… -n 512 … -no-cnv` | NO (invalid arg, exit 1) | no | – | no | no | no
+ 2 | B. FORMAL GATE-C   | `… -st --reasoning-format none -n 512 -s 42 --temp 0 -ngl 99 --no-warmup --simple-io` | yes | yes | 512 | NO (synthetic item; infra only) | YES — this is the smoke | no
+ 3 | C. Metal diagnostic | `… -p "Q: 2+2? A:" -st -n 8 -s 42 --temp 0 -ngl 99 --no-warmup` (piped to grep) | yes | yes | 8 | no | no | no
+ 4 | C. Metal diagnostic | same shape as #3 (captured via process substitution; file left broken) | yes | yes | 8 | no | no | no
+ 5 | A. failed pre-load | `… -n 4 … -v > <file>` | NO (shell redirect to a broken file → `permission denied`; llama-cli never exec'd) | no | – | no | no | no
+ 6 | C. Metal diagnostic | `… -p "Q: 2+2? A:" -st -n 4 -s 42 --temp 0 -ngl 99 --no-warmup -v 2>metal-init.txt 1>metal-gen.txt` | yes | yes | 4 | no | no | no
+ D | non-inference      | `llama-cli --list-devices` | no | no | – | no | no | no
+
+Totals:
+  * Successful model-loading generations:              4   (1 formal Gate-C at n=512, + 3 Metal diagnostics at n=8, n=8, n=4)
+  * Formal Gate-C synthetic generations:               1
+  * Post-Gate-C infrastructure-only Metal diagnostics: 3   (n=8, n=8, n=4)  — see PHASE 9 below
+  * Failed pre-load invocations (no model loaded):     2   (`-no-cnv`; a broken output-redirect)
+  * Non-inference commands (this session):             1   (`--list-devices`)  [`--version`/`--help`/`otool`/`nm`/`file` were used at Gate A, D-036]
+
+The 3 Metal diagnostic generations (#3, #4, #6):
+  - used the throwaway prompt "Q: 2+2? A:", NOT any scientific dataset item and NOT the
+    Gate-C fixture item;
+  - were NOT re-rolls of the Gate-C output (different prompt, different token budget);
+  - did NOT change, and were not used to change, the Gate-C pass/fail verdict (decided
+    by generation #2 alone);
+  - were NOT used as model-selection or scientific evidence (D-039);
+  - existed solely to obtain verbose runtime/backend logs the `--simple-io` Gate-C run
+    suppressed. Only #6's log was retained (`metal-init.txt`); #3/#4 were not saved
+    cleanly and are re-derivable from #6.
 
 ============================= RESULT =================================
 exit_code:              0
@@ -104,12 +144,17 @@ Full raw artifacts (gitignored — feasibility_runs/ per REPRODUCIBILITY.md §7 
 Distinction: Gate A (D-036) verified Metal was *compiled*. This step verifies from
 actual runtime output that Metal is *initialized and used*.
 
+Method: one non-inference command (`--list-devices`) plus three very short
+infrastructure-only diagnostic generations (invocations #3, #4, #6 in the accounting
+table above: n=8, n=8, n=4; throwaway prompt "Q: 2+2? A:"; NOT scientific data; NOT
+Gate-C re-rolls). Only #6's verbose log was retained (`metal-init.txt`).
+
 `llama-cli --list-devices` (no model, no inference):
   Available devices:
     MTL0: Apple M5 (12124 MiB, 12123 MiB free)
     BLAS: Accelerate (0 MiB, 0 MiB free)
 
-From a short verbose run (-v, n=4, same model/seed — captured to metal-init.txt):
+From diagnostic invocation #6 (`-v`, n=4, same model/seed — captured to metal-init.txt):
   common_param: system_info: ... MTL : EMBED_LIBRARY = 1 | CPU : NEON = 1 | ARM_FMA = 1
       | FP16_VA = 1 | MATMUL_INT8 = 1 | DOTPROD = 1 | SME = 1 | SME2 = 1 | ACCELERATE = 1 | REPACK = 1
   llama_prepare_model_devices: using device MTL0 (Apple M5) - 12123 MiB free
@@ -129,17 +174,23 @@ Conclusion: Metal is **initialized and actively used** on the M5 — the model w
 (`BLAS : Accelerate`, `ACCELERATE = 1`). No performance claim is made from a single
 generation.
 
-Incidental observation (NOT scientific data): the short verbose run used the *default*
-`--reasoning-format`, and its output showed `[Start thinking]` — a live confirmation of
-the D-038 finding that the default llama-cli path re-renders reasoning with the bracket
-wrapper. The Gate-C smoke itself used `--reasoning-format none` and got literal
-`<think>`.
+Incidental observation (NOT scientific data): the diagnostic invocations used the
+*default* `--reasoning-format` (`metal-init.txt` shows `"reasoning_format":"deepseek"`,
+`"reasoning_in_content":false`), and their output showed `[Start thinking]` — a live
+confirmation of the D-038 finding that the default llama-cli path re-renders reasoning
+with the bracket wrapper. The Gate-C smoke itself used `--reasoning-format none` and got
+literal `<think>`.
 
 ============================ INTEGRITY ==============================
-  - ONE synthetic item, ONE seed, ONE generation. No scientific dataset. No hint.
+  - ONE synthetic fixture item, ONE seed for the formal Gate-C smoke; its verdict rests
+    on ONE generation, with ZERO output re-rolls. No scientific dataset. No hint.
+  - Full model-invocation accounting is given above: 1 formal Gate-C generation (n=512),
+    3 infrastructure-only Metal-diagnostic generations (n=8/8/4, throwaway prompt), 2
+    failed pre-load attempts, 1 `--list-devices`. None of the diagnostics used
+    scientific data, re-rolled the Gate-C output, altered the Gate-C verdict, or served
+    as model-selection / scientific evidence.
   - No scientific metric computed. No accuracy/switch/disclosure/Urdu/cross-lingual
     quantity computed or reported.
   - Raw output preserved verbatim; not hand-edited.
-  - The one retry was a CLI-argument fix, not an output re-roll.
   - Model lock, GGUF hash, llama.cpp pin all unchanged and re-verified.
   - Track B byte-unchanged.

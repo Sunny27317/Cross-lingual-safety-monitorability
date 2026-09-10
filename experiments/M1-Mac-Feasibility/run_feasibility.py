@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 """Track-A feasibility-screen entrypoint.
 
-STATUS: SCAFFOLD ONLY. Gate A (runtime installation) and Gate B (model download) are
-both complete -- llama.cpp is built and locally verified
-(`experiments/M1-Mac-Feasibility/environment_checks/2026-09-06-llamacpp-gate-a.txt`),
-and exactly one model (`Qwen/Qwen3-1.7B`, GGUF `Qwen3-1.7B-Q8_0.gguf`) has been
-downloaded and verified
-(`experiments/M1-Mac-Feasibility/environment_checks/2026-09-06-gate-b-model-download.txt`)
--- but there is still no real GENERATION backend wired in: Gate C (single-model smoke
-run) and Gate D (multi-candidate feasibility screen) have not been authorized
-(`experiments/M1-Mac-Feasibility/READINESS.md` §0). Running this script with no flags
-(or with ``--dry-run``) exercises the harness plumbing end-to-end using
+STATUS: SCAFFOLD ONLY. Gate A (runtime build) and Gate B (model download) are complete
+on both machines (`environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`,
+`environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`), and a synthetic
+infrastructure Gate-C smoke has PASSED on the M5
+(`environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`, D-040) -- but that smoke
+was run DIRECTLY via the pinned llama-cli, not through this runner, and THIS runner
+still has no real GENERATION backend wired in. Running this script with no flags (or with
+``--dry-run``) exercises the harness plumbing end-to-end using
 ``clsm.feasibility.MockFeasibilityBackend`` -- a deterministic, TEST-ONLY canned
 responder -- against the synthetic fixture in
 ``experiments/M1-Mac-Feasibility/fixtures/smoke_questions.jsonl``. This proves the
 control/treatment pipeline, prompt rendering, answer extraction, and JSONL output work,
 WITHOUT running any real model.
 
-Passing ``--real`` does NOT run a real model either -- it exits immediately with an
-explanation, because no real backend is implemented yet. This is a deliberate guard, not
-an oversight: implementing the real backend is Gate C work, done only after explicit
-authorization.
+Passing ``--real`` does NOT run a real model -- it exits immediately with an
+explanation, because no real backend is implemented in this runner. No *scientific*
+Track-A run is authorized (a frozen pilot pre-registration is required first --
+`PILOT_PREREGISTRATION.md`).
 
 NOTE (DECISION_LOG D-039): the generator is locked (Qwen/Qwen3-1.7B, D-034). This
 screen NEVER chooses, rejects, or replaces a model based on a behavioural/scientific
@@ -92,20 +90,22 @@ def dry_run() -> int:
     print(f"parsed OK: {n_parsed}/{len(records)}  reasoning span present: {n_reasoning}/{len(records)}  errors: {n_errors}")
     print(f"wrote: {out_path}")
     print()
-    print("This is a dry run of the harness plumbing only -- no candidate model from")
-    print("MODEL_SCREEN.md has been downloaded, installed, or run.")
+    print("This is a dry run of the harness plumbing only (MockFeasibilityBackend). No")
+    print("real model was run through this runner; no scientific data was produced.")
     return 0
 
 
 def real_run() -> int:
     print(
-        "No real Track-A generation backend is implemented yet.\n"
+        "No real Track-A generation backend is implemented in THIS runner yet.\n"
         "Gate sequence (READINESS.md §0):\n"
-        "  Gate A -- runtime installation authorization      [DONE 2026-09-06 -- llama.cpp built + verified]\n"
-        "  Gate B -- model-download authorization             [DONE 2026-09-06 -- Qwen3-1.7B Q8_0 downloaded + verified]\n"
-        "  Gate C -- a single-model tiny smoke run             [NOT AUTHORIZED]\n"
-        "  Gate D -- the multi-candidate feasibility screen (this script's real mode)  [NOT AUTHORIZED]\n"
-        "Gates C-D have not been passed. Refusing to proceed.",
+        "  Gate A -- runtime install/build          [DONE -- Intel 2026-09-06; M5 arm64 rebuild 2026-09-08 (D-036)]\n"
+        "  Gate B -- model-weight download          [DONE -- Intel 2026-09-06; M5 byte-verified 2026-09-10 (D-037)]\n"
+        "  Gate C -- synthetic infrastructure smoke [PASS on the M5, 2026-09-10 (D-040) -- run directly via\n"
+        "                                            the pinned llama-cli, NOT through this runner; this\n"
+        "                                            runner still has no real generation backend]\n"
+        "  Gate D -- NOT a model-selection exercise (D-039); the generator is locked (D-034)\n"
+        "This runner's --real mode has no backend and no scientific run is authorized. Refusing to proceed.",
         file=sys.stderr,
     )
     return 1
@@ -116,7 +116,7 @@ def main() -> int:
     parser.add_argument(
         "--real",
         action="store_true",
-        help="Attempt a real run (currently always refuses -- no backend implemented, no gate passed).",
+        help="Attempt a real run (always refuses -- this runner has no backend; no scientific run authorized).",
     )
     args = parser.parse_args()
     if args.real:

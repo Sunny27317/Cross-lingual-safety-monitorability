@@ -1291,29 +1291,40 @@ are reversed by a **new** entry, not by deleting an old one.
 ## D-040 — New-machine Gate C: ONE synthetic infrastructure smoke on the M5 — PASS; Metal runtime use verified
 - **Date:** 2026-09-10
 - **Decision:** Following explicit Gate-C authorization (autonomous overnight session),
-  a single **synthetic, infrastructure-only** generation was run and recorded.
-  **This is not scientific data.** Full record:
+  a **synthetic, infrastructure-only** Gate-C smoke was run and recorded, and Metal
+  runtime use was verified. **None of this is scientific data.** Full record incl. the
+  complete model-invocation accounting:
   `experiments/M1-Mac-Feasibility/environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`.
-- **Run:** one synthetic fixture item (`smoke-001`, "capital of France"), **control**
-  condition (no misleading hint), seed 42, temp 0, `-n 512`, `-ngl 99`,
-  `--reasoning-format none`. Model = locked `Qwen3-1.7B-Q8_0.gguf` (sha256
-  `061b54da…6590cb1a`); runtime = pinned llama.cpp `5266f24da…` build `b10809`.
+- **Formal Gate-C trial:** one synthetic fixture item (`smoke-001`, "capital of
+  France"), **control** condition (no misleading hint), seed 42, temp 0, `-n 512`,
+  `-ngl 99`, `--reasoning-format none`. Model = locked `Qwen3-1.7B-Q8_0.gguf` (full
+  sha256 `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`); runtime =
+  pinned llama.cpp `5266f24da…` build `b10809`. **The verdict rests on this ONE
+  generation, with ZERO output re-rolls.**
 - **Result — PASS (infrastructure criteria only):** exit 0; 6.07 s wall; non-empty
   1663-char generation; `ParseStatus.VALID` (answer "A" via the fallback regex);
   `ReasoningSpanStatus.PRESENT`, marker `xml_think` (literal `<think>…</think>`
   preserved by `--reasoning-format none`, 734-char span); deterministic recording to
   JSONL/txt artifacts. Answer correctness is **not** a Gate-C criterion (noted
   incidentally only).
-- **Retries:** exactly one, and it was a **CLI-argument correction** — the first
-  invocation passed `-no-cnv` (not a valid flag at this pin); it was removed and the
-  command re-run. **Not** an output re-roll. No retry on any scientific ground.
-- **Metal runtime validation (Phase 9 — distinct from the D-036 *compile* check):**
-  runtime output shows `ggml_metal_init: found device: Apple M5`,
-  `using device MTL0 (Apple M5)`, `offloaded 29/29 layers to GPU`,
-  `MTL0_Mapped model buffer size = 1743.77 MiB`, `MTL0 compute buffer size = 222.24 MiB`;
-  `llama-cli --list-devices` → `MTL0: Apple M5` + `BLAS: Accelerate`. **Metal is
-  initialized and actively used on the M5.** No performance claim is made from one run
-  (~66 tok/s generation reported, recorded as an observation, not a benchmark).
+- **Full model-invocation accounting (so this cannot be read as "one generation
+  total"):** the formal trial (1 generation, n=512) was preceded by 1 **failed
+  pre-load** attempt (`-no-cnv` — not a valid flag at this pin; exit 1; **no model
+  loaded, no generation**; a CLI-argument correction, not an output re-roll) and
+  followed by 3 **infrastructure-only Metal-diagnostic generations** (n=8, n=8, n=4;
+  throwaway prompt "Q: 2+2? A:") plus 1 more **failed pre-load** (a broken
+  output-redirect) and 1 non-inference `--list-devices`. **The 3 diagnostic generations
+  did not use scientific data, were not Gate-C output re-rolls, did not alter the
+  Gate-C verdict, and were not used as model-selection or scientific evidence** — they
+  existed only to capture verbose runtime logs the `--simple-io` trial suppressed.
+- **Metal runtime validation (Phase 9 — distinct from the D-036 *compile* check;
+  evidence from diagnostic generation #6 + `--list-devices`):** runtime output shows
+  `ggml_metal_init: found device: Apple M5`, `using device MTL0 (Apple M5)`,
+  `offloaded 29/29 layers to GPU`, `MTL0_Mapped model buffer size = 1743.77 MiB`,
+  `MTL0 compute buffer size = 222.24 MiB`; `--list-devices` → `MTL0: Apple M5` +
+  `BLAS: Accelerate`. **Metal is initialized and actively used on the M5.** No
+  performance claim is made (~66 tok/s on the formal trial — an observation, not a
+  benchmark).
 - **What Gate C does NOT establish:** nothing scientific. No accuracy, hint effect,
   switch rate, disclosure, hidden influence, Urdu behaviour, or cross-lingual quantity
   was computed or may be inferred. The synthetic item is not a benchmark item.

@@ -1,10 +1,14 @@
 # M1-Mac-Feasibility — Resource-Constrained Track (overview)
 
-**Status:** PLANNING ONLY. No model downloaded, no dataset downloaded, no inference run,
-no results exist. This directory documents a **new, separate experimental track**; it
-does not replace, delete, or retroactively edit `experiments/M1-English-Baseline/`
-(the original GPU-based Milestone-1 design), which remains intact and is now the
-**deferred replication track** (Track B — see below).
+**Status (2026-09-10):** infrastructure gates A/B/C complete on the Apple M5 (`READINESS.md`
+§0). The generator is **locked** (`Qwen/Qwen3-1.7B` Q8_0, D-034) and its GGUF is
+byte-verified on the M5 (D-037); the pinned llama.cpp runtime is built for arm64 (D-036);
+one **synthetic infrastructure** Gate-C smoke has passed (D-040). **No scientific dataset
+has been downloaded. No scientific inference has been run. No scientific metric has been
+computed. No scientific pilot is authorized** — that requires a frozen
+`PILOT_PREREGISTRATION.md`. This directory documents a **separate experimental track**;
+it does not replace or edit `experiments/M1-English-Baseline/` (the GPU-based Milestone-1
+design), which remains the **deferred replication track** (Track B — see below).
 
 ---
 
@@ -85,14 +89,16 @@ distinction are unchanged and apply identically to both tracks.
   winner** — see `MODEL_SCREEN.md`'s 2026-09-06 update.
 
 **Still NOT decided:**
-- No candidate is locked as the Gate-D scientific winner (`MODEL_SCREEN.md` — the
-  full 5-candidate screen, criteria A–E scored with real numbers, in
-  `EXPERIMENT_SPEC.md` §4, still requires Gate C/D).
-- No general Track-A quantization policy is chosen for the other four candidates
-  (`EXPERIMENT_SPEC.md` §6; `READINESS.md` §3) — Q8_0 is locked only for the Qwen3-1.7B
-  smoke test.
-- No inference has occurred, no dataset has been downloaded, and no other model weights
-  have been downloaded (Gate C, `READINESS.md` §0 — NOT AUTHORIZED).
+- **Model selection is CLOSED, not pending (D-034/D-039):** the generator is locked to
+  `Qwen/Qwen3-1.7B`. The former "Gate-D scientific winner" screen is **not** run —
+  no model is chosen or rejected on any behavioural/scientific outcome
+  (`EXPERIMENT_SPEC.md` §3/§4; Criterion C / G5 are diagnostic-only).
+- No general Track-A quantization policy for the other four *screened* candidates
+  (`EXPERIMENT_SPEC.md` §6; `READINESS.md` §3) — Q8_0 is locked for Qwen3-1.7B.
+- **No scientific dataset has been downloaded; no scientific inference has been run; no
+  scientific metric has been computed.** The only real generation is the synthetic
+  infrastructure Gate-C smoke (`READINESS.md` §1.8, D-040). A scientific pilot requires
+  a frozen `PILOT_PREREGISTRATION.md` (still a DRAFT with open `TODO`s).
 
 ## 4. Contents of this directory
 
@@ -103,14 +109,20 @@ distinction are unchanged and apply identically to both tracks.
 - `MODEL_SCREEN.md` — 3–5 candidate small open-weight models, screened on paper only
   (license, multilingual/Urdu evidence, context length, memory class, runtime options,
   reasoning-trace elicitability) — no winner selected.
-- `READINESS.md` — Mac runtime-architecture options (Intel Mac, not Apple Silicon),
-  compatibility research, the authorization-gate sequence (Gate A–D), and the overall
-  GO/NO-GO checklist for the tiny feasibility benchmark (design + a self-tested runner
-  scaffold — no real model run).
-- `environment_checks/` — dated, exploratory, non-scientific records of what is actually
-  installed on the development machine (same role as
-  `M1-English-Baseline/environment_checks/` for Track B). Never authoritative for a real
-  run; a preflight input only.
+- `READINESS.md` — Mac runtime architecture: the **historical Intel** environment and
+  the **current Apple M5 (arm64)** environment (§0), the authorization-gate sequence
+  (Gate A–D) and per-gate records (Gate A §1.6/§1.6.2, Gate B §1.7/§1.7.1, Gate C §1.8),
+  runtime-option research, quantization policy.
+- `REASONING_MARKER_FORENSICS.md` — no-inference audit (D-038) of where reasoning-span
+  markers come from: the model emits literal `<think>…</think>`; `[Start thinking]` is a
+  pinned-llama.cpp CLI presentation transform.
+- `PILOT_PREREGISTRATION.md` — **DRAFT, NOT FROZEN** scaffold for the future Track-A
+  scientific pilot: freezes the decided items, marks every open design choice
+  `TODO — DECISION REQUIRED`. No scientific run is authorized.
+- `environment_checks/` — dated, non-scientific provenance records: Intel preflight +
+  Gate A (2026-09-06), Intel Gate B (2026-09-06), M5 Gate A (2026-09-08), M5 Gate B
+  (2026-09-10), M5 Gate C synthetic smoke (2026-09-10). Infrastructure provenance only;
+  none is scientific data.
 - `fixtures/` — `smoke_questions.jsonl`, 5 hand-written synthetic MCQ items for
   infrastructure testing only. Not MMLU, not GPQA, no scientific value.
 - `run_feasibility.py` — the feasibility-screen entrypoint. Its default (`--dry-run`)

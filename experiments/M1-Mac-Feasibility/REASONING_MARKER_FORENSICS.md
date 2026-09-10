@@ -19,8 +19,9 @@ run.
 
 Source: `~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf`
 (revision `90862c4b9d2787eaed51d12237eafdfe7c5f6077`, sha256
-`061b54da…6590cb1a` — byte-verified, D-037), embedded `tokenizer.chat_template`
-(4100 chars), read with the `gguf` reader (header only, no inference).
+`061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a` — byte-verified,
+D-037), embedded `tokenizer.chat_template` (4100 chars), read with the `gguf` reader
+(header only, no inference).
 
 - The template is ChatML (`<|im_start|>` / `<|im_end|>`), and its reasoning markers are
   **literally `<think>` and `</think>`**.
