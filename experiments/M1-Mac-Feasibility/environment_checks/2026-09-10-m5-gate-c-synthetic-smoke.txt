@@ -1,0 +1,145 @@
+Track A — Gate C (NEW MACHINE): ONE synthetic infrastructure smoke generation
+Date (UTC): 2026-09-10T07:35–07:37Z
+Branch: research/m5-gate-a-provenance
+Research repo HEAD at time of this step: 1603744 (…"remove outcome-dependent model selection")
+
+============================ WHAT THIS IS ============================
+INFRASTRUCTURE-ONLY SYNTHETIC SMOKE. **NOT SCIENTIFIC DATA.** No MMLU, no GPQA, no
+Urdu condition, no misleading hint, no scientific metric. Exactly ONE synthetic
+fixture item, ONE seed, ONE generation, ZERO retries on any scientific ground.
+Purpose (and the only thing checked): does the pinned runtime + locked model
+(a) start and exit cleanly, (b) produce a non-empty generation, (c) yield an
+extractable final answer, (d) yield an extractable/parse-compatible reasoning span,
+(e) record deterministically. Correctness of the answer is NOT a Gate-C criterion
+(it is noted only incidentally).
+
+Authorization: autonomous overnight session, Gate C ("formal Gate C single synthetic
+smoke") explicitly authorized.
+
+======================= PRECONDITIONS (Phase 7) ======================
+A. model SHA-256 matches locked value ...... PASS (061b54da…6590cb1a, D-037)
+B. llama.cpp pin matches ................... PASS (5266f24da…, ~/tools/llama.cpp clean)
+C. parser/template forensic audit complete . PASS (D-038, REASONING_MARKER_FORENSICS.md)
+D. model-selection integrity issue fixed ... PASS (D-039)
+E. repository tests clean .................. PASS (131 passed, ruff/mypy clean)
+F. no scientific dataset downloaded ........ PASS (only the synthetic fixture exists;
+                                                  ~/.cache/huggingface still absent)
+G. synthetic smoke fixture exists ......... PASS (fixtures/smoke_questions.jsonl, smoke-001)
+H. raw output will be preserved ........... PASS (stdout.txt / stderr.txt / result.json /
+                                                  metal-init.txt under feasibility_runs/,
+                                                  which is gitignored; key excerpts below)
+I. no result-dependent retry policy ....... PASS (see "retries" below — one retry, and it
+                                                  was a pure CLI-argument fix, not a
+                                                  re-roll of the output)
+J. Gate-C criteria are infrastructure-only . PASS (see "WHAT THIS IS" above)
+
+============================= THE RUN ================================
+Item:          smoke-001 (SYNTHETIC — "What is the capital city of France?")
+Condition:     control (NO misleading hint)
+Model GGUF:    ~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf
+Model SHA-256: 061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a
+llama.cpp:     5266f24da75dc449bd56cbed7addb9c8e4a6a73e (v0.4.0), build b10809-5266f24da
+Seed:          42
+Temperature:   0.0
+max_new_tokens:512
+GPU offload:   -ngl 99 (all 29 layers -> Metal)
+Reasoning fmt: --reasoning-format none  (so the literal <think>…</think> is preserved — D-038)
+
+Exact command:
+  ~/tools/llama.cpp/build/bin/llama-cli \
+    -m ~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf \
+    -p 'Question: What is the capital city of France?\n(A) Paris\n(B) Berlin\n(C) Madrid\n(D) Rome\n\nAnswer with a single letter (A, B, C, or D).' \
+    -st --reasoning-format none -n 512 -s 42 --temp 0.0 -ngl 99 --no-warmup --simple-io
+
+Retries: ONE. The first invocation also passed `-no-cnv`, which is not a valid flag at
+this llama.cpp pin (`error: invalid argument: -no-cnv`, exit 1, 0.14 s, no model
+loaded). The flag was removed (`-st` alone is already non-interactive with `-p`) and
+the command re-run. This was a pure command-line-argument correction — NOT a re-roll
+of an unwanted generation. No other retries.
+
+============================= RESULT =================================
+exit_code:              0
+wall_clock_seconds:     6.07
+stdout:                 1663 chars, non-empty
+stderr:                 0 chars (with --simple-io)
+parse_status:           VALID
+extracted_answer:       A            (via fallback_regex "Answer: (A)")
+reasoning_span_status:  PRESENT
+reasoning_marker_style: xml_think     (literal <think>…</think> survived, as intended)
+cot_text length:        734 chars
+throughput (reported):  Prompt 202.9 t/s | Generation 66.3 t/s   (ONE run, NOT a benchmark)
+
+Gate C verdict: **PASS** (all of exit-clean / non-empty / answer-extractable /
+reasoning-span-extractable / deterministic-recording satisfied).
+
+RAW MODEL SPAN (verbatim excerpt from stdout.txt — INFRASTRUCTURE SMOKE OUTPUT, NOT
+SCIENTIFIC DATA; the leading llama-cli banner and trailing "[ Prompt: … ] / Exiting…"
+footer are CLI chrome, not model tokens):
+
+  > Question: What is the capital city of France?
+  (A) Paris
+  (B) Berlin
+  (C) Madrid
+  (D) Rome
+
+  Answer with a single letter (A, B, C, or D).
+  <think>
+  Okay, let's see. The question is asking for the capital city of France. The options
+  are Paris, Berlin, Madrid, or Rome. I need to pick the correct one.
+  [...]
+  So France's capital should be Paris. [...] So the answer should be A.
+  </think>
+
+  The capital city of France is Paris.
+
+  Answer: (A) Paris
+
+Full raw artifacts (gitignored — feasibility_runs/ per REPRODUCIBILITY.md §7 convention):
+  experiments/M1-Mac-Feasibility/feasibility_runs/m5-gate-c-smoke/stdout.txt
+  experiments/M1-Mac-Feasibility/feasibility_runs/m5-gate-c-smoke/stderr.txt
+  experiments/M1-Mac-Feasibility/feasibility_runs/m5-gate-c-smoke/result.json
+  experiments/M1-Mac-Feasibility/feasibility_runs/m5-gate-c-smoke/metal-init.txt  (Phase 9)
+
+================== PHASE 9 — METAL RUNTIME VALIDATION ================
+Distinction: Gate A (D-036) verified Metal was *compiled*. This step verifies from
+actual runtime output that Metal is *initialized and used*.
+
+`llama-cli --list-devices` (no model, no inference):
+  Available devices:
+    MTL0: Apple M5 (12124 MiB, 12123 MiB free)
+    BLAS: Accelerate (0 MiB, 0 MiB free)
+
+From a short verbose run (-v, n=4, same model/seed — captured to metal-init.txt):
+  common_param: system_info: ... MTL : EMBED_LIBRARY = 1 | CPU : NEON = 1 | ARM_FMA = 1
+      | FP16_VA = 1 | MATMUL_INT8 = 1 | DOTPROD = 1 | SME = 1 | SME2 = 1 | ACCELERATE = 1 | REPACK = 1
+  llama_prepare_model_devices: using device MTL0 (Apple M5) - 12123 MiB free
+  load_tensors: offloaded 29/29 layers to GPU
+  load_tensors:   CPU_Mapped model buffer size =   315.30 MiB
+  load_tensors:  MTL0_Mapped model buffer size =  1743.77 MiB
+  ggml_metal_init: found device: Apple M5
+  ggml_metal_init: picking default device: Apple M5
+  ggml_metal_init: use fusion = true / use concurrency = true / use graph optimize = true
+  llama_kv_cache:       MTL0 KV buffer size = ...
+  sched_reserve:        MTL0 compute buffer size =   222.24 MiB
+  ggml_metal_log_allocated_size: allocated buffer, size = 1743.78 MiB, (1744.47 / 12124.17)
+
+Conclusion: Metal is **initialized and actively used** on the M5 — the model weights
+(1743.77 MiB) and KV/compute buffers are allocated on device MTL0 (Apple M5), and
+29/29 transformer layers are offloaded to the GPU. Accelerate/BLAS is also present
+(`BLAS : Accelerate`, `ACCELERATE = 1`). No performance claim is made from a single
+generation.
+
+Incidental observation (NOT scientific data): the short verbose run used the *default*
+`--reasoning-format`, and its output showed `[Start thinking]` — a live confirmation of
+the D-038 finding that the default llama-cli path re-renders reasoning with the bracket
+wrapper. The Gate-C smoke itself used `--reasoning-format none` and got literal
+`<think>`.
+
+============================ INTEGRITY ==============================
+  - ONE synthetic item, ONE seed, ONE generation. No scientific dataset. No hint.
+  - No scientific metric computed. No accuracy/switch/disclosure/Urdu/cross-lingual
+    quantity computed or reported.
+  - Raw output preserved verbatim; not hand-edited.
+  - The one retry was a CLI-argument fix, not an output re-roll.
+  - Model lock, GGUF hash, llama.cpp pin all unchanged and re-verified.
+  - Track B byte-unchanged.

@@ -1287,3 +1287,48 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Evidence:** the files above; suite 129 → 131 passing; ruff/mypy clean.
 - **Status:** ACTIVE. No inference performed. Outcome-dependent selection removed
   before any scientific run.
+
+## D-040 — New-machine Gate C: ONE synthetic infrastructure smoke on the M5 — PASS; Metal runtime use verified
+- **Date:** 2026-09-10
+- **Decision:** Following explicit Gate-C authorization (autonomous overnight session),
+  a single **synthetic, infrastructure-only** generation was run and recorded.
+  **This is not scientific data.** Full record:
+  `experiments/M1-Mac-Feasibility/environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`.
+- **Run:** one synthetic fixture item (`smoke-001`, "capital of France"), **control**
+  condition (no misleading hint), seed 42, temp 0, `-n 512`, `-ngl 99`,
+  `--reasoning-format none`. Model = locked `Qwen3-1.7B-Q8_0.gguf` (sha256
+  `061b54da…6590cb1a`); runtime = pinned llama.cpp `5266f24da…` build `b10809`.
+- **Result — PASS (infrastructure criteria only):** exit 0; 6.07 s wall; non-empty
+  1663-char generation; `ParseStatus.VALID` (answer "A" via the fallback regex);
+  `ReasoningSpanStatus.PRESENT`, marker `xml_think` (literal `<think>…</think>`
+  preserved by `--reasoning-format none`, 734-char span); deterministic recording to
+  JSONL/txt artifacts. Answer correctness is **not** a Gate-C criterion (noted
+  incidentally only).
+- **Retries:** exactly one, and it was a **CLI-argument correction** — the first
+  invocation passed `-no-cnv` (not a valid flag at this pin); it was removed and the
+  command re-run. **Not** an output re-roll. No retry on any scientific ground.
+- **Metal runtime validation (Phase 9 — distinct from the D-036 *compile* check):**
+  runtime output shows `ggml_metal_init: found device: Apple M5`,
+  `using device MTL0 (Apple M5)`, `offloaded 29/29 layers to GPU`,
+  `MTL0_Mapped model buffer size = 1743.77 MiB`, `MTL0 compute buffer size = 222.24 MiB`;
+  `llama-cli --list-devices` → `MTL0: Apple M5` + `BLAS: Accelerate`. **Metal is
+  initialized and actively used on the M5.** No performance claim is made from one run
+  (~66 tok/s generation reported, recorded as an observation, not a benchmark).
+- **What Gate C does NOT establish:** nothing scientific. No accuracy, hint effect,
+  switch rate, disclosure, hidden influence, Urdu behaviour, or cross-lingual quantity
+  was computed or may be inferred. The synthetic item is not a benchmark item.
+- **Raw artifacts:** `experiments/M1-Mac-Feasibility/feasibility_runs/m5-gate-c-smoke/`
+  (`stdout.txt`, `stderr.txt`, `result.json`, `metal-init.txt`) — under the
+  **gitignored** `feasibility_runs/` tree (`.gitignore:227`); key excerpts are quoted
+  verbatim in the committed environment-check file.
+- **Follow-up noted for the pilot pre-registration (not done here):** the raw
+  `llama-cli` stdout carries a banner + a `[ Prompt: … t/s ]` footer (CLI chrome, not
+  model tokens); a scientific run must strip that deterministically or use a cleaner
+  interface (`-o` output file, or the `llama-server /completion` API with a
+  pre-rendered prompt).
+- **Evidence:** the environment-check file above; `feasibility_runs/m5-gate-c-smoke/`;
+  `experiments/M1-Mac-Feasibility/READINESS.md` (§0 + §1.8 added).
+- **Status:** ACTIVE. **New-machine Gate C: PASS (infrastructure-only synthetic smoke).**
+  No scientific dataset downloaded, no scientific metric computed, no full experiment
+  run. Gate D is not a selection exercise (D-039); a scientific pilot requires a frozen
+  pre-registration (separate) before any scientific generation.
