@@ -1701,8 +1701,8 @@ are reversed by a **new** entry, not by deleting an old one.
 - **Date:** 2026-09-10
 - **⚠ HARDENED by D-065 (2026-09-10, post-merge, pre-outcome).** The `for_testing_only`
   boolean described below was a **bypass** — removed. `LlamaCppBackend` now *always*
-  requires a `RunToken`; `RunToken` has a construction guard; synthetic tests use a
-  structurally-neutered `RunToken.for_synthetic_test()` + injected fakes. Runtime
+  requires a `RunToken`; `RunToken` has a construction guard; helper-level synthetic
+  tests are separated from authorization. Runtime
   identity verification is fully fail-closed and `timeout_seconds` is in the hash.
 - **Prompted by:** engineering audit BLOCKER — "Track-A scientific generation could reach
   `LlamaCppBackend` without `check_run_ready()` ever being consulted."
@@ -1999,22 +1999,25 @@ are reversed by a **new** entry, not by deleting an old one.
   supplied `GenSpec`s were synthetic — a caller could set the flag and point it at the
   real `llama-cli` / real GGUF / real scientific prompts. A log line ("NOT a scientific
   run") is not enforcement.
-- **Fix:** the public `for_testing_only` boolean is **removed**. `LlamaCppBackend`
-  **always** requires a `RunToken` (validated by `isinstance`; a bool / arbitrary object
-  is rejected). `RunToken` now has a construction guard — it can only be produced by
-  `authorize_track_a_run()` (real run) or `RunToken.for_synthetic_test()` (tests). A
-  synthetic-test token is **structurally neutered**: a backend holding one MUST be given
-  an injected fake `invoker` **and** fake `version_probe`, so the real subprocess code
-  paths (`_subprocess_invoke`, `_binary_version`) are never reachable. An authorized
-  (non-synthetic) token conversely **forbids** injection. `generate()` re-checks the
-  token type. Unit tests use dependency injection (fake invoker + fake probe), not a
-  production bypass; the real `_binary_version` parser is unit-tested directly against a
-  tiny synthetic `--version`-only script.
-- **Tests:** `tests/test_track_a_backend.py` — no boolean bypass param exists;
-  construction without a `RunToken` fails; a bare `RunToken(...)` raises; a synthetic
-  token without injected fakes fails; `generate()` re-checks; synthetic mock tests run
-  without any real authorization token; a forged plain-object token + real execution
-  fails.
+- **Initial PR #16 implementation:** removed the boolean bypass and added a private
+  construction guard, but introduced `RunToken.for_synthetic_test()` and a synthetic
+  flag accepted by the production backend with injected invoker/version-probe callables.
+  Independent review of the actual remote PR #16 (`5d45bfe…`) found this insufficient:
+  arbitrary Python callables could themselves invoke the real runtime, so the synthetic
+  credential remained an alternate production authorization route.
+- **Correction BEFORE PR #16 merge, PRE-OUTCOME:** removed the synthetic token factory,
+  synthetic flag, and backend execution/probe injection parameters. Only
+  `authorize_track_a_run()` constructs a production-usable `RunToken`, meaning all three
+  readiness layers passed for the exact scientific configuration. Direct construction
+  remains guarded; construction and generation reject arbitrary values and subclasses.
+  `generate()` and `invoke_once()` re-check authorization; direct invocation also
+  requires runtime identity verification.
+- **Testing separated from authorization:** argv construction, runtime identity checks,
+  record construction from synthetic `RawInvocation` values, provenance data assembly,
+  and atomic persistence are tested directly. Subprocess tests use only temporary fake
+  executable scripts. Tests never obtain a testing authorization credential or execute
+  an authorized production backend. No scientific outcome was observed before this
+  correction; no model, judge, annotation, or scientific run was performed.
 
 ### Gap 2 — fail-OPEN llama.cpp identity verification
 - **Found:** the merged `_verify_runtime()` only raised on a commit/build **mismatch**
@@ -2046,8 +2049,7 @@ are reversed by a **new** entry, not by deleting an old one.
   llama-cli command surface is fully frozen; an authorized run's argv is entirely
   determined by the hashed config. `scientific_config_dict()` and `TrackARunProvenance`
   carry an explicit empty `llama_cli_extra_args` marker so any future re-introduction
-  would move the hash. Synthetic test infrastructure uses dependency injection, not
-  scientific args.
+  would move the hash. Synthetic tests exercise helpers directly.
 - **Tests:** `tests/test_track_a_run.py` — the scientific hash changes on
   `timeout_seconds` and on `build_number`; `extra_args` is absent from `LlamaCppRuntime`
   (`tests/test_track_a_backend.py`); provenance carries `timeout_seconds` +
