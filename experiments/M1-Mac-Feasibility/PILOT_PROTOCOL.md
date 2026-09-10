@@ -177,14 +177,24 @@ No downstream item was frozen before its upstream assumptions.
 Subprocess **argv list** (no shell, no interpolation); binary/model paths from env or a
 git-ignored override (never committed).
 
-- **`[AMEND D-050]` Fail-closed run gate.** `generate()` requires an authorized
-  `RunToken` from `clsm.track_a_run.authorize_track_a_run` (or an explicit
-  `for_testing_only=True`, which can never be a scientific run and logs a warning). The
-  gate is re-checked in `generate()`, not just at construction. There is no bypass flag
-  and no boolean "authorized" toggle.
-- **`[AMEND D-052/D-053]` Runtime identity verified at runtime.** Before the first
-  generation: GGUF size + SHA-256 checked against the pin, **and** `llama-cli --version`
-  parsed and its build + commit compared to the pinned values. A mismatch raises.
+- **`[AMEND D-050 / D-065]` Fail-closed run gate — no boolean bypass.** Construction
+  **and** `generate()` require an authorized `RunToken` from
+  `clsm.track_a_run.authorize_track_a_run`; a bool / arbitrary object is rejected. There
+  is **no** `for_testing_only` flag and no "authorized" toggle. `RunToken` is
+  constructable only by `authorize_track_a_run()` or `RunToken.for_synthetic_test()`;
+  a synthetic-test token is structurally neutered — a backend holding one **must** be
+  given injected fake `invoker` + `version_probe`, so it can never reach the real
+  `llama-cli` or GGUF. Unit tests use that injection, never a production path.
+- **`[AMEND D-052/D-053/D-065]` Runtime identity verified FAIL-CLOSED.** Before the
+  first generation: GGUF size + SHA-256 (both pinned, both must match) **and**
+  `llama-cli --version` parsed with its build + commit compared to the pins. **Any**
+  problem — subprocess failure, nonzero exit, empty/unparsable output, missing or
+  mismatched build/commit, an unpinned SHA/build — raises. It never proceeds with
+  `identity_verified=False`.
+- **`[AMEND D-065]` Frozen command surface.** `LlamaCppRuntime` has **no `extra_args`**;
+  the argv is entirely determined by the hashed scientific config. `timeout_seconds` is
+  part of the scientific config hash (it can flip a trace to `TIMEOUT` and change
+  missingness).
 - **Flags:** `-st --reasoning-format none -n 16384 -c 32768 -s <seed> --temp 0.6
   --top-p 0.95 --top-k 20 --min-p 0 --presence-penalty 0 --repeat-penalty 1 -ngl 99
   --no-warmup --simple-io --no-display-prompt`. **`--no-perf` is NOT passed** (D-053):

@@ -163,6 +163,27 @@ def test_scientific_hash_changes_on_runtime_identity_change() -> None:
     rt = _runtime_dict()
     rt["model"]["sha256"] = "0" * 64
     assert scientific_config_hash(cfg, rt) != base
+    rt = _runtime_dict()
+    rt["runtime"]["build_number"] = "99999"
+    assert scientific_config_hash(cfg, rt) != base
+
+
+def test_scientific_hash_changes_on_timeout_seconds() -> None:
+    """D-065: timeout_seconds can flip a trace to TIMEOUT and change missingness, so it
+    MUST be part of the scientific config hash."""
+    cfg = load_experiment_config(CFG)
+    rt = _runtime_dict()
+    base = scientific_config_hash(cfg, rt)
+    assert "timeout_seconds" in scientific_config_dict(cfg, rt)
+    rt["process"]["timeout_seconds"] = rt["process"]["timeout_seconds"] + 123
+    assert scientific_config_hash(cfg, rt) != base
+
+
+def test_scientific_hash_records_frozen_empty_extra_args() -> None:
+    """D-065: the llama-cli command surface is frozen. The hash carries an explicit
+    (empty) extra-args marker so a future re-introduction would move it."""
+    cfg = load_experiment_config(CFG)
+    assert scientific_config_dict(cfg, _runtime_dict())["llama_cli_extra_args"] == []
 
 
 def test_scientific_hash_ignores_prose_provenance_tag() -> None:
@@ -180,21 +201,30 @@ def test_scientific_hash_ignores_prose_provenance_tag() -> None:
 
 
 def test_capture_provenance_has_the_track_a_fields() -> None:
-    tok = RunToken(
-        scientific_hash="a" * 64, reviewer="r", reviewed_utc="2026-09-10T00:00:00+00:00",
-        manifest_status={},
-    )
+    tok = RunToken.for_synthetic_test()
     prov = capture_track_a_provenance(tok, experiment_id="track-a-en-hint-pilot-test")
     d = prov.model_dump()
     for key in (
         "scientific_config_hash", "git_commit", "git_dirty", "model_revision",
         "gguf_sha256", "llama_cpp_commit", "temperature", "top_p", "top_k", "min_p",
-        "n_ctx", "reasoning_format", "enable_thinking", "prompt_template_sha256",
-        "cue_version", "cue_template_sha256", "hint_seed", "dataset_repo",
-        "dataset_revision", "dataset_content_hash", "dataset_item_ids", "parser_version",
-        "retry_policy_version", "bootstrap_seed", "bootstrap_n", "host_platform",
-        "run_started_utc",
+        "n_ctx", "timeout_seconds", "llama_cli_extra_args", "reasoning_format",
+        "enable_thinking", "prompt_template_sha256", "cue_version", "cue_template_sha256",
+        "hint_seed", "dataset_repo", "dataset_revision", "dataset_content_hash",
+        "dataset_item_ids", "parser_version", "retry_policy_version", "bootstrap_seed",
+        "bootstrap_n", "host_platform", "run_started_utc",
     ):
         assert key in d, key
     assert d["retry_policy_version"] == "zero-retry/D-054"
     assert d["dataset_content_hash"] is None  # honestly unset until the pre-run pin step
+    assert d["llama_cli_extra_args"] == []   # D-065: frozen command surface
+    assert d["timeout_seconds"] == 900.0
+
+
+def test_runtoken_cannot_be_constructed_directly() -> None:
+    with pytest.raises(RunNotAuthorizedError, match="only be created"):
+        RunToken(scientific_hash="x", reviewer="x", reviewed_utc="x", manifest_status={})
+
+
+def test_runtoken_for_synthetic_test_is_flagged() -> None:
+    tok = RunToken.for_synthetic_test()
+    assert tok.for_synthetic_test_only is True and "SYNTHETIC" in tok.scientific_hash

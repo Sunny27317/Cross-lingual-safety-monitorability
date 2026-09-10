@@ -1699,6 +1699,11 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-050 — Technically-enforced Track-A run-authorization gate (fail-closed)
 - **Date:** 2026-09-10
+- **⚠ HARDENED by D-065 (2026-09-10, post-merge, pre-outcome).** The `for_testing_only`
+  boolean described below was a **bypass** — removed. `LlamaCppBackend` now *always*
+  requires a `RunToken`; `RunToken` has a construction guard; synthetic tests use a
+  structurally-neutered `RunToken.for_synthetic_test()` + injected fakes. Runtime
+  identity verification is fully fail-closed and `timeout_seconds` is in the hash.
 - **Prompted by:** engineering audit BLOCKER — "Track-A scientific generation could reach
   `LlamaCppBackend` without `check_run_ready()` ever being consulted."
 - **Decision:** `src/clsm/track_a_run.py` adds a **fail-closed** gate with three separable
@@ -1723,6 +1728,9 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-051 — Track-A scientific-config hash (covers everything that can move an outcome)
 - **Date:** 2026-09-10
+- **⚠ EXTENDED by D-065 (2026-09-10, post-merge, pre-outcome):** `timeout_seconds` and
+  `llama_cpp_build` are now also in the hash, plus an explicit empty `llama_cli_extra_args`
+  marker (the `extra_args` escape hatch is removed).
 - **Prompted by:** engineering audit MAJOR — the generic `config_hash()` did not cover
   llama.cpp runtime identity, decoding extras (`min_p`, `presence_penalty`), reasoning
   format, thinking mode, parser/metrics/retry versions, or the dataset content pin.
@@ -1766,6 +1774,9 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-053 — Honest tri-state stop-reason / token accounting (no fabricated `truncated=False`)
 - **Date:** 2026-09-10
+- **⚠ RELATED HARDENING (D-065):** `_binary_version` (the `--version` probe) is now
+  fail-closed and `_verify_runtime` requires a pinned SHA + build; `timeout_seconds` (a
+  `TIMEOUT` driver) is in the scientific config hash.
 - **Prompted by:** engineering audit MAJOR — `truncated` was set `True` only on subprocess
   timeout; a `max_new_tokens` exhaustion was silently recorded as `truncated=False`, and
   there was no token count or stop reason.
@@ -1963,3 +1974,89 @@ are reversed by a **new** entry, not by deleting an old one.
   `POWER_ANALYSIS.md` and the script header. The power sim is design exploration, not a
   scientific result.
 - **Status:** ACTIVE.
+
+---
+
+> **D-065 batch (2026-09-10): POST-MERGE PRE-OUTCOME ENGINEERING AMENDMENT — Track-A
+> execution-integrity hotfix.** PR #15 (Track-A pilot + the D-050…D-063 correction pass)
+> was **merged to `main`** (merge commit `d767c45…`, PR head `abe3a44…`) **before** this
+> independent review of the *actually merged* implementation. **No Track-A scientific
+> outcome had been — or has been — observed:** no generator run on any scientific item,
+> no MMLU/GPQA/Urdu download, no disclosure-judge run, no human annotation, no metric on
+> real data. The review found three implementation-integrity gaps; they are corrected
+> here, on branch `research/track-a-post-merge-integrity-hotfix`, **before** any
+> scientific execution. These fixes were **not** part of PR #15 — the chronology is:
+> PR #15 merged → independent remote review → this hotfix. Track B is untouched and its
+> `config_hash` is unchanged (`7e7c236b…`).
+
+## D-065 — Post-merge Track-A execution-integrity hotfix (3 gaps closed pre-outcome)
+- **Date:** 2026-09-10 (after PR #15 merge `d767c45…`)
+- **Prompted by:** independent review of the merged GitHub implementation.
+
+### Gap 1 — public `for_testing_only=True` backend bypass
+- **Found:** the merged `LlamaCppBackend(..., for_testing_only=True)` allowed
+  `generate()` to run **without** a `RunToken`. The backend could not know that the
+  supplied `GenSpec`s were synthetic — a caller could set the flag and point it at the
+  real `llama-cli` / real GGUF / real scientific prompts. A log line ("NOT a scientific
+  run") is not enforcement.
+- **Fix:** the public `for_testing_only` boolean is **removed**. `LlamaCppBackend`
+  **always** requires a `RunToken` (validated by `isinstance`; a bool / arbitrary object
+  is rejected). `RunToken` now has a construction guard — it can only be produced by
+  `authorize_track_a_run()` (real run) or `RunToken.for_synthetic_test()` (tests). A
+  synthetic-test token is **structurally neutered**: a backend holding one MUST be given
+  an injected fake `invoker` **and** fake `version_probe`, so the real subprocess code
+  paths (`_subprocess_invoke`, `_binary_version`) are never reachable. An authorized
+  (non-synthetic) token conversely **forbids** injection. `generate()` re-checks the
+  token type. Unit tests use dependency injection (fake invoker + fake probe), not a
+  production bypass; the real `_binary_version` parser is unit-tested directly against a
+  tiny synthetic `--version`-only script.
+- **Tests:** `tests/test_track_a_backend.py` — no boolean bypass param exists;
+  construction without a `RunToken` fails; a bare `RunToken(...)` raises; a synthetic
+  token without injected fakes fails; `generate()` re-checks; synthetic mock tests run
+  without any real authorization token; a forged plain-object token + real execution
+  fails.
+
+### Gap 2 — fail-OPEN llama.cpp identity verification
+- **Found:** the merged `_verify_runtime()` only raised on a commit/build **mismatch**
+  when `llama-cli --version` *parsed*. If `--version` changed format, was empty, exited
+  non-zero, or failed to parse, `_binary_version` returned `(line, None, None)` and
+  generation continued with `identity_verified = False`. That contradicts exact runtime
+  pinning.
+- **Fix:** `_binary_version()` is **fail-closed** — it raises `LlamaCppInvocationError`
+  on a subprocess failure, a nonzero exit, empty output, output not matching
+  `version: X (build N, commit H)`, or a missing build/commit group; it never returns a
+  partial result. `_verify_runtime()` additionally **requires** the GGUF SHA-256 and the
+  llama.cpp build to be pinned (raises if either is `None`), and only sets
+  `identity_verified = True` / `self._verified = True` after every pinned value is
+  positively matched. Pinned identity: commit `5266f24da75dc449bd56cbed7addb9c8e4a6a73e`,
+  build `10809`.
+- **Tests:** `tests/test_track_a_backend.py` — `_binary_version` raises on
+  subprocess-failure / nonzero-exit / empty / unparsable / missing-build / missing-commit;
+  `_verify_runtime` raises on probe-error / wrong-commit / wrong-build / unpinned-sha /
+  unpinned-build; valid identity passes.
+
+### Gap 3 — `timeout_seconds` and the `extra_args` CLI escape hatch outside the hash
+- **Found:** `runtime_llamacpp.yaml` freezes `timeout_seconds: 900`, but it was **not**
+  in `scientific_config_dict()` / `scientific_config_hash()` — changing it silently
+  changes which traces become `TIMEOUT`, and thus missingness and downstream estimates.
+  `LlamaCppRuntime.extra_args` was an **un-hashed, un-provenanced** arbitrary-CLI-args
+  field appended to every argv.
+- **Fix:** `timeout_seconds` (and `llama_cpp_build`) are now in the scientific config
+  hash and in `TrackARunProvenance`. `LlamaCppRuntime.extra_args` is **removed** — the
+  llama-cli command surface is fully frozen; an authorized run's argv is entirely
+  determined by the hashed config. `scientific_config_dict()` and `TrackARunProvenance`
+  carry an explicit empty `llama_cli_extra_args` marker so any future re-introduction
+  would move the hash. Synthetic test infrastructure uses dependency injection, not
+  scientific args.
+- **Tests:** `tests/test_track_a_run.py` — the scientific hash changes on
+  `timeout_seconds` and on `build_number`; `extra_args` is absent from `LlamaCppRuntime`
+  (`tests/test_track_a_backend.py`); provenance carries `timeout_seconds` +
+  `llama_cli_extra_args == []`.
+
+### Gap 4 (doc) — stale cross-reference
+- `configs/track_a_pilot/dataset.yaml` referenced "PILOT_PROTOCOL.md §11" for the
+  descriptive eligibility-yield measurement; corrected to "§16 DIAGNOSTIC" (the section
+  that actually lists it). Reference only — no methodological change.
+
+- **Status:** ACTIVE. `AUTHORIZED TO RUN` remains **NO**. Full mock/synthetic test suite
+  green; `ruff` + `mypy` clean; Track B unchanged.
