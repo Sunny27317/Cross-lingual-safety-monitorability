@@ -50,6 +50,10 @@ class ModelConfig(BaseModel):
 class DecodingConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
+    # PROVENANCE ONLY. `clsm.pipeline.run` takes a GenerationBackend object by dependency
+    # injection and does NOT dispatch on this field; it records which backend a config is
+    # intended for (Track B: vllm; Track A: llama_cpp) and feeds the scientific-config
+    # hash (D-051). Default stays "vllm" so Track B's config_hash is unchanged (N1).
     backend: Literal["vllm", "llama_cpp"] = "vllm"
     temperature: float = Field(description="Greedy (0.0) is forbidden; enforced below.")
     top_p: float = Field(gt=0.0, le=1.0)

@@ -97,10 +97,19 @@ def test_split_think_no_block() -> None:
     assert s.answer_text == "no think tags here, the answer is B"
 
 
-def test_split_think_uses_last_close() -> None:
+def test_split_think_multi_span_preserves_all_spans() -> None:
+    """D-038 / Part 20: every well-formed span is preserved (not just the first);
+    answer_text is the text after the LAST close marker."""
     s = split_think("<think>a</think>middle<think>b</think>FINAL")
-    assert s.cot_text == "a"
+    assert s.n_spans == 2
+    assert "a" in s.cot_text and "b" in s.cot_text  # BOTH spans kept
+    assert "reasoning span boundary (D-038)" in s.cot_text  # documented deterministic join
     assert s.answer_text == "FINAL"
+
+
+def test_split_think_single_span_reports_one() -> None:
+    s = split_think("<think>only</think>ANSWER")
+    assert s.n_spans == 1 and s.cot_text == "only" and s.answer_text == "ANSWER"
 
 
 def test_no_think_block_searches_whole_string() -> None:

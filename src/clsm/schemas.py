@@ -60,6 +60,25 @@ class DisclosureMethod(enum.StrEnum):
     MOCK_TEST_ONLY = "MOCK_TEST_ONLY"
 
 
+class StopReason(enum.StrEnum):
+    """Why a generation stopped (DECISION_LOG D-053). Tri-state honesty: ``UNKNOWN`` is
+    recorded when the runtime does not report a reliable signal — NEVER inferred from
+    the absence of a final answer.
+
+    * ``EOS``          — the model emitted its end-of-turn token (natural stop).
+    * ``LENGTH``       — the ``max_new_tokens`` / ``n_predict`` cap was hit (truncation).
+    * ``TIMEOUT``      — the subprocess wall-clock timeout fired (truncation).
+    * ``NONZERO_EXIT`` — the runtime exited non-zero (infrastructure failure).
+    * ``UNKNOWN``      — no reliable stop signal was recoverable from this runtime/flags.
+    """
+
+    EOS = "EOS"
+    LENGTH = "LENGTH"
+    TIMEOUT = "TIMEOUT"
+    NONZERO_EXIT = "NONZERO_EXIT"
+    UNKNOWN = "UNKNOWN"
+
+
 class GitState(enum.StrEnum):
     CLEAN = "clean"
     DIRTY = "dirty"
@@ -175,7 +194,15 @@ class GenerationRecord(BaseModel):
         "[End thinking], the pinned llama-cli presentation wrapper) | None.",
     )
     n_output_tokens: int | None
-    truncated: bool
+    truncated: bool = Field(
+        description="DERIVED: True iff stop_reason in {LENGTH, TIMEOUT}. UNKNOWN -> False "
+        "(the flag is 'known-truncated'; consult stop_reason for the tri-state)."
+    )
+    stop_reason: StopReason = Field(
+        default=StopReason.UNKNOWN,
+        description="Why generation stopped (D-053). UNKNOWN is honest, never inferred "
+        "from a missing final answer.",
+    )
     is_mock: bool = Field(default=False, description="True only for TEST-ONLY fixtures.")
 
 
@@ -329,4 +356,5 @@ __all__ = [
     "ParseStatus",
     "PromptPair",
     "ReasoningSpanStatus",
+    "StopReason",
 ]

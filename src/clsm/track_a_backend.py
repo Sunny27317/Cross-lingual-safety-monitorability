@@ -3,26 +3,34 @@
 Implements :class:`~clsm.generation.GenerationBackend` so it drops straight into
 ``clsm.pipeline.run`` in place of the (GPU / vLLM) ``VLLMBackend`` and the ``MockBackend``.
 
-Design constraints (PILOT_PROTOCOL.md §6, DECISION_LOG D-043):
+Design constraints (PILOT_PROTOCOL.md §6, DECISION_LOG D-043/D-050/D-052/D-053/D-054):
 
+* **Fail-closed run gate (D-050).** A real generation requires a
+  :class:`~clsm.track_a_run.RunToken` (from ``authorize_track_a_run``) or an explicit
+  ``for_testing_only=True``. Without either, ``generate()`` raises
+  :class:`~clsm.track_a_run.RunNotAuthorizedError`.
 * **Subprocess argument LIST, never a shell string.** No ``shell=True``, no string
   interpolation into a command line.
 * **No hard-coded user paths.** Binary / model paths come from :class:`LlamaCppRuntime`
   (loaded from a YAML / env), never a literal ``/Users/...`` in committed code.
-* **Model identity is verified** (size + optional SHA-256) before the first generation,
-  once per backend instance -- a mismatch raises, it never silently proceeds.
-* **Every knob is explicit** on the command line: seed, temperature, top-p, top-k,
-  min-p, repeat-penalty, n-predict, ctx-size, ``--reasoning-format``, ``-ngl``.
+* **Runtime + model identity is verified (D-043/D-052)** before the first generation:
+  the GGUF size + SHA-256, AND ``llama-cli --version`` is parsed and its build/commit
+  compared to the pinned values. A mismatch raises; it never silently proceeds.
+* **Every knob is explicit** on the command line.
 * **Full provenance is captured** per generation: exact argv, exit code, wall-clock,
-  stdout, stderr, timeout flag.
-* **No retry of any kind here.** A failure is recorded (``error`` field / a
-  ``PARSE_ERROR`` record) and returned; the *pipeline's* frozen retry policy
-  (PILOT_PROTOCOL.md §15) is applied one layer up, and only for infrastructure faults.
-* **Raw output is preserved verbatim** on the record; parsing is a separate step
-  (``clsm.extraction``), and the llama-cli banner / ``[ Prompt: ... t/s ]`` footer are
-  stripped only by the documented deterministic rule in :func:`strip_cli_chrome`.
+  stdout, stderr, stop reason, token count.
+* **ZERO retries (D-054).** One invocation per spec, whatever the output. An
+  infrastructure fault is a recorded failure, counted, never silently retried.
+* **Raw output is preserved verbatim** (``GenerationRecord.raw_output``); a separate
+  ``cleaned`` form removes ONLY two anchored, runtime-generated strings — the leading
+  ``llama-cli`` startup banner and the exact trailing perf-summary line — via
+  :func:`strip_cli_banner` / :func:`strip_cli_footer` (``cli_chrome_v2``, D-052). **No
+  generic regex ever interprets model content structurally.**
+* **Persistence never overwrites (D-052).** Every artifact filename includes the
+  experiment id, item id, condition, seed, sample index, and attempt number;
+  :func:`_atomic_write` refuses to overwrite an existing file.
 
-**This module never chooses a model, never downloads anything, and must not be run on
+**This module never chooses a model, never downloads anything, and cannot be run on
 scientific data without an authorized, frozen protocol.**
 """
 
@@ -45,7 +53,8 @@ from clsm.config import DecodingConfig, ModelConfig
 from clsm.extraction import extract_answer
 from clsm.generation import GenSpec
 from clsm.logging_utils import get_logger
-from clsm.schemas import GenerationRecord
+from clsm.schemas import GenerationRecord, StopReason
+from clsm.track_a_run import RunNotAuthorizedError, RunToken
 
 _log = get_logger("clsm.track_a_backend")
 
@@ -68,9 +77,10 @@ class LlamaCppRuntime:
 
     binary_path: str  # e.g. "~/tools/llama.cpp/build/bin/llama-cli"
     model_path: str  # e.g. "~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf"
-    llama_cpp_commit: str  # pinned; recorded in provenance, not enforced here
-    expected_model_sha256: str | None = None  # verified once if given
-    expected_model_bytes: int | None = None  # verified once if given
+    llama_cpp_commit: str  # pinned; VERIFIED against `--version` (D-052)
+    expected_llama_cpp_build: str | None = None  # e.g. "10809"; verified against `--version`
+    expected_model_sha256: str | None = None  # verified before the first generation
+    expected_model_bytes: int | None = None  # verified before the first generation
 
     # decoding knobs llama-cli needs that DecodingConfig does not carry
     min_p: float = 0.0
@@ -94,39 +104,65 @@ class LlamaCppRuntime:
 
 
 # --------------------------------------------------------------------------------------
-# Deterministic output cleaning (PILOT_PROTOCOL.md §14)
+# Deterministic output cleaning (PILOT_PROTOCOL.md §14, DECISION_LOG D-052)
+#
+# cli_chrome_v2: RAW stdout is always persisted verbatim. `cleaned` removes ONLY two
+# strings that are proven runtime-generated (never model tokens):
+#   1. the leading `llama-cli` startup banner block (ASCII logo + `build : ...` lines +
+#      `available commands:` list), matched ANCHORED to the start of the stream and only
+#      up to the first blank line after `available commands:`;
+#   2. the exact trailing perf-summary line, matched ANCHORED to the end of the stream
+#      with an exact numeric format, single-line, NO `re.DOTALL`.
+# There is NO generic `>` / `[Prompt:` regex that could interpret model content.
+# With `--no-display-prompt` the prompt is not echoed, and with the model's own
+# `<think>` output these strippers are usually no-ops.
 # --------------------------------------------------------------------------------------
 
-# The pinned llama-cli prints a fixed banner block and a trailing perf/exit footer to
-# stdout around the model's own tokens. These patterns are matched to the pinned
-# v0.4.0 build ONLY and are versioned with the parser.
-_BANNER_END = re.compile(r"^\s*>\s.*?$", re.MULTILINE)  # the "> <prompt>" echo line
+CLI_CHROME_VERSION = "cli_chrome_v2"  # D-052; pinned to llama.cpp v0.4.0 build b10809
+
+# Anchored: from \A, the banner ends at the blank line(s) after the `available commands:`
+# bullet list. `available commands:` must appear within the first 40 lines or nothing is
+# stripped. `[\s\S]` (not `.` + DOTALL) keeps intent explicit.
+_BANNER = re.compile(
+    r"\A(?:[^\n]*\n){0,40}?[ \t]*available commands:\n"
+    r"(?:[ \t]*/[^\n]*\n)+"
+    r"\n+"
+)
+# Anchored to \Z, single line, exact llama-cli end-of-turn summary format.
 _FOOTER = re.compile(
-    r"\n\s*\[\s*Prompt:.*?t/s\s*\|\s*Generation:.*?t/s\s*\]\s*\n.*?Exiting\.\.\.\s*$",
-    re.DOTALL,
+    r"\n?\[ Prompt:\s*[0-9.]+\s*t/s\s*\|\s*Generation:\s*[0-9.]+\s*t/s\s*\]\s*"
+    r"(?:\n\s*Exiting\.\.\.\s*)?\Z"
 )
 
 
-def strip_cli_chrome(stdout: str, *, prompt: str) -> str:
-    """Return the model's own text from a ``llama-cli`` stdout.
+def strip_cli_banner(stdout: str) -> str:
+    """Remove ONLY the anchored leading ``llama-cli`` startup banner. No-op if absent."""
+    return _BANNER.sub("", stdout, count=1)
 
-    Deterministic, versioned (`cli_chrome_v1`, pinned to llama.cpp v0.4.0). Rule:
 
-    1. drop everything up to and including the echoed ``> <prompt-first-line>`` line
-       (llama-cli echoes the user turn once);
-    2. drop the trailing ``[ Prompt: ... t/s | Generation: ... t/s ] ... Exiting...``
-       footer.
+def strip_cli_footer(text: str) -> str:
+    """Remove ONLY the anchored trailing perf-summary line. No-op if absent."""
+    return _FOOTER.sub("", text)
 
-    Nothing else is altered -- no grammar repair, no reasoning edits, no letter
-    inference. If the banner/footer are not found, the input is returned unchanged
-    (the caller records ``chrome_stripped=False``).
-    """
-    body = stdout
-    m = list(_BANNER_END.finditer(body))
-    if m:
-        body = body[m[-1].end():]
-    body = _FOOTER.sub("", body)
-    return body.lstrip("\n")
+
+def clean_cli_output(stdout: str) -> tuple[str, bool]:
+    """Return (cleaned, changed). ``cleaned`` = banner-stripped + footer-stripped, then
+    a single leading-newline trim. RAW is preserved by the caller regardless."""
+    body = strip_cli_footer(strip_cli_banner(stdout))
+    body = body.lstrip("\n")
+    return body, body != stdout
+
+
+# best-effort token accounting from the llama.cpp perf block on STDERR (D-053).
+_PERF_EVAL = re.compile(r"eval time\s*=\s*[0-9.]+\s*ms\s*/\s*(\d+)\s*(?:runs|tokens)", re.IGNORECASE)
+_PERF_LLAMA = re.compile(r"llama_perf.*?(\d+)\s*runs", re.IGNORECASE | re.DOTALL)
+
+
+def parse_output_tokens(stderr: str) -> int | None:
+    """Best-effort output-token count from the llama.cpp perf block (STDERR). None if
+    the perf block is absent (e.g. built with `--no-perf`)."""
+    m = _PERF_EVAL.search(stderr) or _PERF_LLAMA.search(stderr)
+    return int(m.group(1)) if m else None
 
 
 # --------------------------------------------------------------------------------------
@@ -165,15 +201,29 @@ class LlamaCppBackend:
         decoding: DecodingConfig,
         runtime: LlamaCppRuntime,
         *,
+        run_token: RunToken | None = None,
+        for_testing_only: bool = False,
         raw_dir: str | Path | None = None,
-        verify_model: bool = True,
+        verify_runtime: bool = True,
     ) -> None:
+        # FAIL-CLOSED run gate (D-050): a real generation needs an authorized RunToken
+        # OR an explicit test-only opt-in. There is no boolean "authorized" toggle.
+        if run_token is None and not for_testing_only:
+            raise RunNotAuthorizedError(
+                "LlamaCppBackend requires either an authorized RunToken (from "
+                "clsm.track_a_run.authorize_track_a_run) or for_testing_only=True. "
+                "It will not run a real model without one."
+            )
         self.model = model
         self.decoding = decoding
         self.runtime = runtime
+        self.run_token = run_token
+        self.for_testing_only = for_testing_only
         self.raw_dir = Path(raw_dir).expanduser() if raw_dir is not None else None
         self._verified = False
-        if verify_model:
+        self._version_string: str = ""
+        self._version_build: str | None = None
+        if verify_runtime:
             self._verify_runtime()
 
     # -- set-up verification (no generation) -----------------------------------------
@@ -198,8 +248,28 @@ class LlamaCppBackend:
                 raise LlamaCppInvocationError(
                     f"model SHA-256 mismatch: {got} != expected {self.runtime.expected_model_sha256}"
                 )
+        # runtime identity (D-052): parse `llama-cli --version`, compare build + commit.
+        self._version_string, self._version_build, version_commit = _binary_version(b)
+        exp_commit = self.runtime.llama_cpp_commit
+        if version_commit and exp_commit and not exp_commit.startswith(version_commit):
+            raise LlamaCppInvocationError(
+                f"llama.cpp commit mismatch: --version reports {version_commit!r}, "
+                f"pinned {exp_commit!r}"
+            )
+        exp_build = self.runtime.expected_llama_cpp_build
+        if exp_build and self._version_build and self._version_build != exp_build:
+            raise LlamaCppInvocationError(
+                f"llama.cpp build mismatch: --version reports build {self._version_build!r}, "
+                f"pinned build {exp_build!r}"
+            )
+        self.model_sha256_verified = self.runtime.expected_model_sha256 is not None
+        self.identity_verified = bool(version_commit) and (
+            not exp_build or self._version_build == exp_build
+        )
         self._verified = True
-        _log.info("llama.cpp runtime verified: %s (commit %s)", b, self.runtime.llama_cpp_commit)
+        _log.info(
+            "llama.cpp runtime verified: %s (%s)", b, self._version_string or self.runtime.llama_cpp_commit
+        )
 
     # -- command construction --------------------------------------------------------
 
@@ -225,7 +295,9 @@ class LlamaCppBackend:
             "--no-warmup",
             "--simple-io",
             "--no-display-prompt",  # do not echo the user turn (v0.4.0 flag)
-            "--no-perf",            # suppress the internal perf-timing footer
+            # NOTE: `--no-perf` is deliberately NOT passed (D-053) -- the llama.cpp perf
+            # block on STDERR is the token-count / stop-reason signal. STDOUT chrome is
+            # removed by the anchored strip_cli_footer, never a generic regex.
         ]
         if d.top_k is not None:
             argv += ["--top-k", str(d.top_k)]
@@ -262,19 +334,36 @@ class LlamaCppBackend:
 
     # -- GenerationBackend protocol ------------------------------------------------
 
+    # ZERO retries (D-054): exactly one attempt per spec, always attempt 1.
+    ATTEMPT = 1
+
     def generate(self, specs: list[GenSpec]) -> list[GenerationRecord]:
+        # FAIL-CLOSED (D-050): never generate real data without a RunToken. This is
+        # re-checked here (not only in __init__) so a backend that was constructed
+        # for_testing_only cannot later be handed a real workload silently.
+        if self.run_token is None and not self.for_testing_only:
+            raise RunNotAuthorizedError(
+                "LlamaCppBackend.generate() called without an authorized RunToken "
+                "and without for_testing_only=True."
+            )
+        if self.for_testing_only:
+            _log.warning("LlamaCppBackend running in for_testing_only mode -- NOT a scientific run.")
         if not self._verified:
             self._verify_runtime()
         records: list[GenerationRecord] = []
         for spec in specs:
             raw = self.invoke_once(spec.prompt, seed=spec.seed)
-            cleaned = strip_cli_chrome(raw.stdout, prompt=spec.prompt)
-            chrome_stripped = cleaned != raw.stdout
+            cleaned, chrome_stripped = clean_cli_output(raw.stdout)
             infra_ok = raw.returncode == 0 and not raw.timed_out and bool(cleaned.strip())
             # An infrastructure failure (nonzero exit / timeout / empty output) is a
             # PARSE_ERROR -- NOT a genuine "model gave no answer" (which would pollute the
             # non-differential-parse-failure check). The infra reason is in the .meta.json.
             ext = extract_answer(cleaned) if infra_ok else extract_answer(None)
+            n_tokens = parse_output_tokens(raw.stderr)
+            stop_reason = _derive_stop_reason(
+                raw, n_tokens=n_tokens, max_new_tokens=self.decoding.max_new_tokens
+            )
+            truncated = stop_reason in (StopReason.LENGTH, StopReason.TIMEOUT)
             rec = GenerationRecord(
                 experiment_id=spec.experiment_id,
                 item_id=spec.item_id,
@@ -305,28 +394,45 @@ class LlamaCppBackend:
                 parse_status=ext.status,
                 reasoning_span_status=ext.reasoning_status,
                 reasoning_marker_style=ext.reasoning_marker_style,
-                n_output_tokens=None,
-                truncated=raw.timed_out,
+                n_output_tokens=n_tokens,
+                truncated=truncated,
+                stop_reason=stop_reason,
                 is_mock=False,
             )
             records.append(rec)
             if self.raw_dir is not None:
-                self._persist_raw(spec, raw, cleaned, chrome_stripped, infra_ok)
+                self._persist_raw(
+                    spec, raw, cleaned, chrome_stripped, infra_ok,
+                    n_tokens=n_tokens, stop_reason=stop_reason,
+                )
         return records
 
     # -- provenance persistence (atomic) -----------------------------------------
 
     def _persist_raw(
-        self, spec: GenSpec, raw: RawInvocation, cleaned: str, chrome_stripped: bool, infra_ok: bool
+        self, spec: GenSpec, raw: RawInvocation, cleaned: str, chrome_stripped: bool, infra_ok: bool,
+        *, n_tokens: int | None, stop_reason: StopReason,
     ) -> None:
         assert self.raw_dir is not None
         self.raw_dir.mkdir(parents=True, exist_ok=True)
-        stem = f"{spec.item_id.replace(':', '_')}__{spec.condition.value}__s{spec.seed}__k{spec.sample_idx}"
+        # Unique deterministic identity (D-052 / Part 4): experiment id + item + condition
+        # + seed + sample index + attempt number. `_atomic_write` refuses to overwrite.
+        safe_exp = re.sub(r"[^A-Za-z0-9._-]", "_", spec.experiment_id)
+        safe_item = re.sub(r"[^A-Za-z0-9._-]", "_", spec.item_id)
+        stem = (
+            f"{safe_exp}__{safe_item}__{spec.condition.value}"
+            f"__s{spec.seed}__k{spec.sample_idx}__a{self.ATTEMPT}"
+        )
         payload = {
             "spec": {
                 "experiment_id": spec.experiment_id, "item_id": spec.item_id,
                 "condition": spec.condition.value, "seed": spec.seed,
                 "sample_idx": spec.sample_idx, "prompt_sha256": spec.prompt_sha256,
+                "attempt": self.ATTEMPT,
+            },
+            "result": {
+                "stop_reason": stop_reason.value, "n_output_tokens": n_tokens,
+                "retry_policy": "zero-retry/D-054",
             },
             "runtime": {
                 "llama_cpp_commit": self.runtime.llama_cpp_commit,
@@ -347,6 +453,22 @@ class LlamaCppBackend:
                 "argv": raw.argv, "returncode": raw.returncode, "timed_out": raw.timed_out,
                 "wall_clock_seconds": raw.wall_clock_seconds,
                 "chrome_stripped": chrome_stripped, "infra_ok": infra_ok,
+                "cli_chrome_version": CLI_CHROME_VERSION,
+            },
+            "authorization": {
+                "for_testing_only": self.for_testing_only,
+                "run_token_scientific_hash": (
+                    self.run_token.scientific_hash if self.run_token is not None else None
+                ),
+                "run_token_reviewer": (
+                    self.run_token.reviewer if self.run_token is not None else None
+                ),
+            },
+            "runtime_identity": {
+                "llama_cpp_version_string": self._version_string,
+                "llama_cpp_build": self._version_build,
+                "model_sha256_verified": getattr(self, "model_sha256_verified", None),
+                "identity_verified": getattr(self, "identity_verified", None),
             },
             "timestamp_utc": _utcnow(),
         }
@@ -377,9 +499,67 @@ def _sha256_file(path: Path, *, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
+def _derive_stop_reason(
+    raw: RawInvocation, *, n_tokens: int | None, max_new_tokens: int
+) -> StopReason:
+    """Honest tri-state stop reason (D-053). NEVER inferred from a missing final answer.
+
+    * TIMEOUT      -- the subprocess wall-clock timeout fired.
+    * NONZERO_EXIT -- llama-cli exited non-zero (and did not time out).
+    * LENGTH       -- perf block reports >= the requested ``-n`` (length exhaustion).
+    * EOS          -- perf block reports a token count strictly below ``-n`` (natural stop).
+    * UNKNOWN      -- no reliable perf signal on STDERR; we do not guess.
+    """
+    if raw.timed_out:
+        return StopReason.TIMEOUT
+    if raw.returncode != 0:
+        return StopReason.NONZERO_EXIT
+    if n_tokens is None:
+        return StopReason.UNKNOWN
+    if n_tokens >= max_new_tokens:
+        return StopReason.LENGTH
+    return StopReason.EOS
+
+
+_VERSION_RE = re.compile(
+    r"version:\s*([0-9][^\s(]*)\s*\(build\s*(\d+)\s*,\s*commit\s*([0-9a-f]+)", re.IGNORECASE
+)
+
+
+def _binary_version(path: Path) -> tuple[str, str | None, str | None]:
+    """Parse ``llama-cli --version`` -> (version_string, build, commit). Any field may be
+    None if ``--version`` output is not in the expected ``0.4.0-dev (build 10809,
+    commit 5266f24da)`` shape. Never raises for a parse miss -- the caller decides."""
+    try:
+        proc = subprocess.run(
+            [str(path), "--version"], capture_output=True, text=True, timeout=30, check=False
+        )
+    except (OSError, subprocess.SubprocessError) as exc:  # pragma: no cover - env dependent
+        raise LlamaCppInvocationError(f"could not run `{path} --version`: {exc}") from exc
+    blob = f"{proc.stdout}\n{proc.stderr}"
+    m = _VERSION_RE.search(blob)
+    line = next((ln.strip() for ln in blob.splitlines() if "version:" in ln.lower()), blob.strip())
+    if not m:
+        return line, None, None
+    return line, m.group(2), m.group(3)
+
+
 def _atomic_write(path: Path, text: str) -> None:
+    """Atomic write that REFUSES to overwrite (Part 4). If the target exists, it is only
+    accepted when the on-disk bytes are already identical (idempotent replay); otherwise
+    a collision is a hard error -- a silent overwrite would destroy a prior generation."""
+    if path.exists():
+        if path.read_text(encoding="utf-8") == text:
+            return  # idempotent replay -- byte-identical, safe no-op
+        raise LlamaCppInvocationError(
+            f"refusing to overwrite an existing generation artifact: {path} "
+            f"(on-disk content differs from the new write)"
+        )
     tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(text, encoding="utf-8")
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+        f.flush()
+        os.fsync(f.fileno())
     tmp.replace(path)
 
 
@@ -408,6 +588,7 @@ def load_llamacpp_runtime(
         binary_path=str(b),
         model_path=str(m),
         llama_cpp_commit=rt["commit"],
+        expected_llama_cpp_build=(str(rt["build_number"]) if rt.get("build_number") else None),
         expected_model_sha256=mdl.get("sha256"),
         expected_model_bytes=mdl.get("size_bytes"),
         min_p=float(dx["min_p"]),
@@ -429,15 +610,16 @@ def llamacpp_runtime_available(binary_path: str, model_path: str) -> bool:
     )
 
 
-CLI_CHROME_VERSION = "cli_chrome_v1"  # pinned to llama.cpp v0.4.0 build b10809
-
 __all__ = [
     "CLI_CHROME_VERSION",
     "LlamaCppBackend",
     "LlamaCppInvocationError",
     "LlamaCppRuntime",
     "RawInvocation",
+    "clean_cli_output",
     "llamacpp_runtime_available",
     "load_llamacpp_runtime",
-    "strip_cli_chrome",
+    "parse_output_tokens",
+    "strip_cli_banner",
+    "strip_cli_footer",
 ]
