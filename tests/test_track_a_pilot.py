@@ -200,6 +200,38 @@ def test_track_a_mock_pipeline_end_to_end(tmp_path: Path) -> None:
     assert cfg.model.revision == "90862c4b9d2787eaed51d12237eafdfe7c5f6077"
 
 
+def test_track_a_mock_pipeline_is_reproducible_on_the_deterministic_fields(tmp_path: Path) -> None:
+    """Same config + same deterministic mock backend, run twice -> identical item IDs,
+    hint targets, prompts, parsed answers, and metric values. (Timestamps / temp paths
+    are expected to differ and are not compared.)"""
+    from clsm.data import LocalJsonlSource
+
+    def one_run(out: Path) -> tuple[list[dict], dict]:
+        cfg = _track_a_smoke_cfg()
+        be = MockBackend(cfg.model, cfg.decoding, _switch_and_disclose, i_understand_this_is_test_only=True)
+        rdir = run(
+            cfg, experiment_id="track-a-repro", backend=be,
+            classifier=MockDisclosureClassifier(i_understand_this_is_test_only=True),
+            out_dir=out, source=LocalJsonlSource(Path(cfg.dataset.local_path)),
+            allow_mock_metrics=True,
+        )
+        gens = [json.loads(x) for x in (out / "raw" / "generations.jsonl").read_text().strip().splitlines()]
+        metrics = json.loads((rdir / "metrics.json").read_text())
+        return gens, metrics
+
+    g1, m1 = one_run(tmp_path / "run1")
+    g2, m2 = one_run(tmp_path / "run2")
+
+    det = lambda g: [  # noqa: E731
+        (r["item_id"], r["condition"], r["seed"], r["hint_target_letter"],
+         r["prompt_sha256"], r["extracted_answer"], r["parse_status"])
+        for r in g
+    ]
+    assert det(g1) == det(g2)
+    for k in ("n_eligible_switched", "n_items_total", "adoption_increase", "answer_switch_rate"):
+        assert m1[k] == m2[k], k
+
+
 def test_track_a_mock_pipeline_zero_hint_effect_is_a_retained_null(tmp_path: Path) -> None:
     cfg = _track_a_smoke_cfg()
     from clsm.data import LocalJsonlSource
