@@ -1137,3 +1137,43 @@ are reversed by a **new** entry, not by deleting an old one.
   byte-level-verify the already-locked Qwen GGUF artifact against its recorded size
   and SHA-256; requires separate explicit authorization. Gate C and Gate D remain
   NOT AUTHORIZED.
+
+## D-037 — New-machine Gate B: locked Qwen3-1.7B Q8_0 GGUF re-downloaded on the M5 and byte-verified (no selection, no inference)
+- **Date:** 2026-09-10
+- **Decision:** Following explicit authorization to *restore the already-locked model
+  artifact* on the Apple M5 machine (autonomous overnight session), the identical GGUF
+  file locked in D-034 was re-downloaded and re-verified byte-for-byte. **This is not a
+  model-selection decision** — no candidate was screened, compared, or chosen; the
+  generator remains `Qwen/Qwen3-1.7B` exactly as locked in D-034.
+  - **Source:** `Qwen/Qwen3-1.7B-GGUF` (official first-party, author "Qwen") @ pinned
+    revision `90862c4b9d2787eaed51d12237eafdfe7c5f6077`, file `Qwen3-1.7B-Q8_0.gguf`.
+  - **Download:** `curl -L --fail` from the revision-pinned HF `resolve/` URL (same
+    reproducible method as the Intel Gate B), to `~/models/clsm/Qwen3-1.7B/`
+    (outside the repo).
+  - **Verification (HARD-STOP gate):** `stat -f%z` → **1,834,426,016 bytes** — exact
+    match. `shasum -a 256` → **`061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`**
+    — exact match to the full locked hash. Bit-for-bit identical to the artifact
+    verified on the Intel machine 2026-09-06.
+  - **Metadata-only inspection (pinned llama.cpp v0.4.0 `llama-gguf`, plus the local
+    `gguf` Python reader via PYTHONPATH — no package installed, header parse only, NO
+    inference):** GGUF v3, 28 KV, 310 tensors, architecture `qwen3`; name
+    "Qwen3 1.7B Instruct"; `context_length` metadata = 40960 (the base model card says
+    32768 — discrepancy recorded, not resolved, same as the Intel Gate B); tokenizer
+    `gpt2`/`qwen2`-pre, bos 151643, eos 151645, `add_bos_token=false`; chat template
+    present (4100 chars, ChatML + literal `<think>`/`</think>` markers).
+- **Explicitly unchanged:** generator lock, GGUF identity/revision/hash, quantization
+  (Q8_0), llama.cpp pin (`5266f24da…` / `v0.4.0`), prompts, decoding, seeds,
+  hypotheses, operational definitions, datasets, metrics, and all of Track B. No
+  dataset was downloaded. No inference occurred during this step.
+- **Historical record preserved:** the Intel Gate-B record
+  (`environment_checks/2026-09-06-gate-b-model-download.txt`) and D-034/D-035 are
+  unchanged.
+- **Rationale:** the artifact must be present and byte-verified on the machine that
+  will run it; `CLAUDE.md` §2.7 (record exact model ID / revision / hash / download
+  provenance).
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`;
+  `experiments/M1-Mac-Feasibility/READINESS.md` (§0 gate table + §1.7 updated).
+- **Status:** ACTIVE. **New-machine Gate B: PASS (artifact restored + byte-verified).**
+  No model selected, no dataset downloaded, no inference performed, no scientific
+  metric computed. Gate C (single synthetic infrastructure smoke) and Gate D remain
+  separately gated.

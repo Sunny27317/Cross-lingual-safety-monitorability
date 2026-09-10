@@ -59,8 +59,8 @@ Each gate below is a distinct, separately-authorized step:
 
 | Gate | What it authorizes | Status |
 |---|---|---|
-| **Gate A** | Runtime installation (build/verify llama.cpp locally) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — see §1.6 below and `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
-| **Gate B** | Model-weight download (exactly ONE model, selected on neutral criteria) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — `Qwen/Qwen3-1.7B-GGUF` (Q8_0), see `environment_checks/2026-09-06-gate-b-model-download.txt` |
+| **Gate A** | Runtime installation (build/verify llama.cpp locally) | **✅ COMPLETE** — Intel 2026-09-06 (§1.6, `environment_checks/2026-09-06-llamacpp-gate-a.txt`); **rebuilt natively for arm64 on the Apple M5, 2026-09-08 (§1.6.2, `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`, D-036)** |
+| **Gate B** | Model-weight download (exactly ONE model, selected on neutral criteria) | **✅ COMPLETE** — Intel 2026-09-06 (`environment_checks/2026-09-06-gate-b-model-download.txt`, D-034); **same artifact re-downloaded + byte-verified on the M5, 2026-09-10 (`environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`, D-037)** — `Qwen/Qwen3-1.7B-GGUF` (Q8_0), size + full SHA-256 exact match |
 | **Gate C** | A single-model tiny smoke run (infrastructure plumbing check on ONE real candidate, analogous to Track B's Stage-A smoke, `M1-English-Baseline/PRE_RUN_READINESS.md` §3.0) | **NOT AUTHORIZED** |
 | **Gate D** | The multi-candidate tiny feasibility screen (`EXPERIMENT_SPEC.md` §5, G1–G5) across all screened candidates | **NOT AUTHORIZED** |
 
@@ -192,7 +192,29 @@ Full record: `environment_checks/2026-09-06-gate-b-model-download.txt`. Summary:
 
 **What Gate B does NOT mean:** no inference has occurred; no control or treatment
 prompt has been evaluated; no reasoning trace has been generated; the scientific study
-is not "ready." **Gate C (single-model smoke inference run) remains NOT AUTHORIZED.**
+is not "ready."
+
+### 1.7.1 Gate B (CURRENT — Apple M5 machine) — identical artifact restored + byte-verified (2026-09-10)
+
+The Intel-machine download (§1.7) does not carry to the new machine. The **same
+locked artifact** was re-downloaded on the M5 and re-verified. This is **not** a new
+selection. Full record: `environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`.
+Decision record: `DECISION_LOG.md` D-037.
+
+| Field | Value |
+|---|---|
+| Model / GGUF repo / revision | `Qwen/Qwen3-1.7B` · `Qwen/Qwen3-1.7B-GGUF` @ `90862c4b9d2787eaed51d12237eafdfe7c5f6077` — **unchanged** from D-034 |
+| File / quantization | `Qwen3-1.7B-Q8_0.gguf` · Q8_0 — **unchanged** |
+| Download method | `curl -L --fail` from the revision-pinned HF `resolve/` URL (same as Intel Gate B) |
+| Size check | `stat -f%z` → **1,834,426,016 bytes** — EXACT MATCH |
+| SHA-256 check | `shasum -a 256` → **`061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`** — EXACT MATCH (full 64-char value) — bit-for-bit identical to the Intel-verified file |
+| Local storage | `~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf` — **outside** the repo (`.gitignore:240` `*.gguf`) |
+| Metadata-only inspection | pinned `llama-gguf` + local `gguf` reader (PYTHONPATH only, no install): GGUF v3, 28 KV, 310 tensors, arch `qwen3`, name "Qwen3 1.7B Instruct", ctx_len metadata 40960 (card says 32768 — recorded, not resolved), tokenizer gpt2/qwen2-pre, chat template present (ChatML + `<think>`/`</think>`). **No inference.** |
+
+**What §1.7.1 does NOT mean:** no inference has occurred on the M5; no control or
+treatment prompt has been evaluated; no reasoning trace has been generated; no
+scientific metric has been computed. Gate C (a single **synthetic infrastructure**
+smoke) and Gate D remain separately gated.
 
 ### 1.2 MLX
 
