@@ -5,12 +5,15 @@
   generator locked (`Qwen/Qwen3-1.7B` Q8_0, D-034/D-037); pinned llama.cpp built for
   arm64 (D-036); one synthetic infrastructure Gate-C smoke passed (D-040).
 - **Scientific protocol:** **methodology FROZEN, execution BLOCKED** (2026-09-10,
-  D-041…D-049). The Track-A English hint-faithfulness pilot is fully specified
-  (`PILOT_PROTOCOL.md`), power-analysed (`POWER_ANALYSIS.md`), and implemented +
-  mock-validated (`clsm.track_a_backend`, `clsm.track_a_manifest`, 30 new tests).
-  Every choice that could bias the result is frozen; the run is blocked only by
-  **external resources** — a disclosure judge, a blinded human audit, and an ethics
-  determination (`MONITOR_VALIDATION_PROTOCOL.md`, `PILOT_PREREGISTRATION.md`).
+  D-041…D-049, **as amended by D-050…D-063 after independent review — pre-outcome**).
+  The Track-A English hint-faithfulness pilot is fully specified (`PILOT_PROTOCOL.md`),
+  sensitivity-analysed (`POWER_ANALYSIS.md` — **no confirmatory N or SESOI is frozen**,
+  D-058), and implemented + mock-validated (`clsm.track_a_backend`, `clsm.track_a_run`,
+  `clsm.track_a_manifest`). A **technically-enforced fail-closed run gate**
+  (`clsm.track_a_run`, D-050) means no real generation can occur without an authorized
+  `RunToken`. The run is blocked by **external resources** — a dataset content pin
+  (D-056), a disclosure judge, a blinded human audit, and an ethics determination
+  (`MONITOR_VALIDATION_PROTOCOL.md`, `PILOT_PREREGISTRATION.md`).
 - **Scientific data:** **none.** No dataset downloaded, no scientific generation, no
   metric computed, no human annotation. **No run is authorized** — only the user
   authorizes one, after review.

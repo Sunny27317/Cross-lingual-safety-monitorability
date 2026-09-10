@@ -7,14 +7,34 @@
 #     MMLU for exactly this hidden-influence / thinking-vs-answer paradigm; Track B
 #     (configs/milestone1/dataset.yaml) pins this same dataset+revision (D-011/D-019).
 #   - eligibility feasibility on the LOCKED small model: switch-eligibility requires
-#     a_u == correct. Qwen3-1.7B (thinking) scores MMLU-Redux 73.9 vs GPQA-Diamond 40.1
-#     (Qwen3 Technical Report arXiv:2505.09388, Tables 19-20). On a 4-way MCQ, 40.1 is
-#     ~15pp above chance -> a small, noisy eligible set on GPQA; ~74% on MMLU -> a large
-#     eligible set. Dataset chosen for measurability of the research question on the
-#     locked model, NOT to shop for an effect.
+#     a_u == correct, so the generator must get a workable fraction of items right
+#     UNHINTED. A 4-way MMLU MCQ is a substantially easier task than GPQA-Diamond
+#     (graduate-level, deliberately Google-proof), so MMLU is expected to yield a
+#     larger, less noisy eligible set for a small instruction-tuned reasoning model.
+#     The pilot MEASURES the realized eligibility yield descriptively (PILOT_PROTOCOL.md
+#     §11); it does not assume a number. Dataset chosen for measurability of the research
+#     question on the locked model, NOT to shop for an effect.
+#     NOTE (D-057, PRE-OUTCOME REVIEW AMENDMENT): earlier wording here cited
+#     "MMLU-Redux 73.9 / GPQA-Diamond 40.1" as Qwen3-1.7B thinking-mode scores from the
+#     Qwen3 Technical Report. Independent review flags those figures as belonging to a
+#     LARGER Qwen3 variant, not the 1.7B. Published benchmark results for larger Qwen3
+#     variants must not be used as evidence for this generator. No verified Urdu-specific
+#     or MMLU-specific capability estimate from the official release is relied upon by
+#     this protocol; the eligibility argument above is qualitative only.
 #   - MIT license, no access gating, loadable as metadata.
 # GPQA-Diamond stays as a DEFERRED robustness secondary (PILOT_PROTOCOL.md §17), same as
 # Track B. Its Urdu translation + native correction is a Milestone-3+ dependency.
+
+# Dataset library + content pin (D-056 / Part 9): BEFORE any real inference a pre-run
+# step MUST record, into experiments/M1-Mac-Feasibility/DATASET_CONTENT_PIN.json:
+#   - the `datasets` library version actually used
+#   - the resolved data/parquet revision actually read
+#   - the exact selected item identifiers (the 50)
+#   - a sha256 over the selected item CONTENT
+#   - verified question/choice schema, choice ordering, and label->letter mapping
+# Nothing is downloaded during protocol design (source: hf_datasets, below, only fetches
+# on first use AFTER run authorization). The run manifest field `dataset_content_pin`
+# stays BLOCKED until that file exists and is cross-checked.
 
 id: cais/mmlu
 config_name: all
@@ -48,6 +68,8 @@ source: hf_datasets
 local_path: null
 
 provenance_tag: >-
-  DECISION_LOG D-041 ; MMLU pin inherited from Track B D-011/D-019 (HF refs API verified
-  2026-09-01) ; eligibility evidence from Qwen3 Technical Report arXiv:2505.09388
-  Tables 19-20 ; contamination is a documented threat (PILOT_PROTOCOL.md §3, §17)
+  DECISION_LOG D-041 (+ D-056/D-057 amendments) ; MMLU pin inherited from Track B
+  D-011/D-019 (HF refs API verified 2026-09-01) ; eligibility argument is QUALITATIVE
+  (MMLU 4-way MCQ easier than GPQA-Diamond) -- no benchmark number for Qwen3-1.7B is
+  relied upon (D-057) ; realized eligibility yield is measured descriptively ;
+  contamination is a documented threat (PILOT_PROTOCOL.md §3, §17)

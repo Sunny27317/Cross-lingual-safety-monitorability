@@ -2,9 +2,24 @@
 
 **Design only. Nothing here is executed.** No judge is run, no translation is produced,
 no annotator is recruited, no annotation is performed. Decisions: `DECISION_LOG.md`
-D-047 (judge), D-049 (translation + native-Urdu + ethics). This is the strongest
-feasible protocol for each arm; where the M5 cannot support the scientifically correct
-choice, that is stated — the standard is **not** lowered to fit the laptop.
+D-047 (judge), D-049 (translation + native-Urdu + ethics), **as amended by D-061**.
+This is the strongest feasible protocol for each arm; where the M5 cannot support the
+scientifically correct choice, that is stated — the standard is **not** lowered to fit
+the laptop.
+
+> **PRE-OUTCOME REVIEW AMENDMENT (2026-09-10, DECISION_LOG D-061).** Independent
+> scientific review flagged several acceptance thresholds in this document (judge size
+> ≥ 8B/14B/32B; Balanced Accuracy ≥ 0.75; F1 ≥ 0.65; PABAK ≥ 0.70; κ ≥ 0.65;
+> Krippendorff α ≥ 0.67; n ≥ 100 human split; ≥ 30 % double-annotation; translator
+> "≥ 8K context"; NLLB-200 / Qwen2.5 as the translator) as reading like decisions.
+> **They are not decisions.** Every one is now either (a) removed, or (b) explicitly
+> labelled *illustrative / heuristic*. The binding rule for the judge, the human
+> reference, and the translator is: **REQUIRES HUMAN SCIENTIFIC DECISION / CALIBRATION
+> PLAN BEFORE USE.** Judge size is **not** a proxy for validity. No judge, translator,
+> or annotator is selected. The scientific *concepts* (independence, blinding,
+> preservation of raw disagreement, adjudication, ethics-before-recruitment, non-lossy
+> translation, same-trace translate-then-monitor) are unchanged. No Track-A scientific
+> outcome had been or has been observed.
 
 The four monitors (`RESEARCH_PLAN.md` §16): **M1** automated English judge · **M2**
 automated in-language judge · **M3** native-Urdu human (the reference standard) ·
@@ -20,10 +35,12 @@ automated in-language judge · **M3** native-Urdu human (the reference standard)
 1. **Independence from the generator** — not the same checkpoint; ideally a different
    family. Using Qwen3-1.7B to judge Qwen3-1.7B traces is a circularity risk
    (`MILESTONE_1_READINESS.md` §7a #7).
-2. **Capacity ≥ the generator** — a judge weaker than the generator will miss
-   disclosure that a competent reader would catch, inflating "hidden influence". The
-   judge should be **larger** than the 1.7B generator (Track B's plan: Qwen3-8B → 14B →
-   32B, pick the smallest clearing the human-agreement floor).
+2. **`[AMEND D-061]` Demonstrated agreement with the human reference, not size.** A
+   judge is acceptable **only** if it clears a human-agreement calibration plan that a
+   human scientist defines and approves before use. Judge parameter count is **not** a
+   proxy for validity (a larger model can be *more* confidently wrong on disclosure
+   language). Any size ordering mentioned elsewhere (e.g. "8B → 14B → 32B") is an
+   *illustrative* search order, not a requirement.
 3. **Multilingual competence** for the later Urdu arm — but the judge's Urdu weakness is
    itself the object of study (M1 vs M3), so a *deliberately English-centric* judge is
    the correct M1, with M2 (in-language) and M4 (translate-then-English) as contrasts.
@@ -31,6 +48,9 @@ automated in-language judge · **M3** native-Urdu human (the reference standard)
 5. **Validated against blinded native-human labels BEFORE any scientific conclusion**,
    with the residual judge error **propagated into every disclosure-rate CI**. The
    judge is **never** ground truth.
+
+**Acceptance rule: REQUIRES HUMAN SCIENTIFIC DECISION / CALIBRATION PLAN BEFORE JUDGE
+USE.** No judge is selected here and no numeric agreement bar is frozen.
 
 ### 2.2 Why it is BLOCKED on the M5
 
@@ -52,14 +72,16 @@ automated in-language judge · **M3** native-Urdu human (the reference standard)
    real English `<think>` traces stored.
 2. **Blinded human disclosure annotation** of a subset (§4 rubric, same text as the
    judge prompt) — the reference labels.
-3. Score each candidate judge (local quantised 8–14B; and/or a pinned API judge) by
-   **Cohen's κ vs the human labels, with a bootstrap CI**. Lock the **smallest** judge
-   clearing the **"moderate" floor (κ > ~0.4)**; prefer "substantial" (κ > ~0.6).
-   Report κ **with its CI**, not a point value (Landis & Koch bands are an accepted but
-   arbitrary convention).
+3. Score each candidate judge against the human labels on **multiple** agreement
+   statistics reported **with bootstrap CIs** (e.g. Cohen's κ, balanced accuracy, F1 on
+   the disclosed class, PABAK). **`[AMEND D-061]` The pass/fail bar is set by a human
+   scientist in a written calibration plan before any judge is chosen** — no cutoff (no
+   "κ > 0.4", no "κ > 0.6", no "BA ≥ 0.75", …) is frozen in this document; any number
+   that appears is *illustrative*. Landis & Koch bands are an accepted but arbitrary
+   convention and are not an acceptance rule.
 4. `configs/track_a_pilot/judge.yaml` → `status: RESOLVED` with `model`, `revision`,
-   `rubric_version`; the run harness then propagates `(1 − κ)`-scale error into the
-   disclosure-rate CIs.
+   `rubric_version` **only after** the calibration plan is satisfied; the run harness
+   then propagates the measured judge–human disagreement into the disclosure-rate CIs.
 
 **Until step 4:** the pilot may compute its **behavioural** primaries
 (`adoption_increase`, `answer_switch_rate` — no judge needed) and store traces; the
@@ -99,13 +121,18 @@ The translation is graded (by a native reviewer, on a subset) on whether it pres
 
 ### 3.3 Method
 
-- **Deterministic MT** with a **pinned** model + **pinned** translation prompt (versioned,
-  hashed) is the default — reproducibility. An LLM translator is acceptable if pinned;
-  its prompt must forbid summarising, "improving", or answering the question.
-- **The translator is BLIND** to condition and to any monitor's output.
-- **Every translation** gets a **back-translation audit** (English→Urdu→English or
-  Urdu→English→Urdu) flagged for divergence; a **native spot-check** on ≥ 20 % with the
-  §3.2 rubric; ≥ 90 % native-agreement acceptance, per-item accept/reject recorded.
+- **`[AMEND D-061]` Translator selection is UNRESOLVED and BLOCKING.** No model, API, or
+  context size is frozen — **not** NLLB-200, **not** Qwen2.5, **not** "≥ 8K context".
+  The **operational requirement** is: *"the translator must support the complete
+  observed trace lengths without truncation under the frozen translation protocol."*
+  A future translator additionally needs: a pinned identity + version; reproducible
+  settings; raw source preservation; raw translation preservation; blindness to
+  condition; blindness to every monitor's output (translation output can **never**
+  depend on monitor output); recorded translation failures; and a semantic-equivalence
+  assessment. Its prompt must forbid summarising, "improving", or answering the question.
+- **`[AMEND D-061]` Acceptance of translated output** is a human scientific decision —
+  a **back-translation audit** and a **native review** step are required; no numeric
+  agreement cutoff (e.g. "≥ 90 %") is frozen here.
 - **Translation quality is a measured variable**, not an assumption (SQ5 — is
   translation *introducing or removing* disclosure signal?). If translation *damages*
   detection → translation artefact (kill/pivot E).
@@ -123,9 +150,18 @@ trace all along **and** the back-translation/native audit shows the translation 
 
 **No annotations are performed here. No annotators are named or invented.**
 
+> **`[AMEND D-061]`** The scientific *concepts* below are preserved. The specific
+> numbers — annotator count, double-annotation fraction, κ/α cutoffs, sample counts —
+> are **NOT frozen**; each is a human scientific decision made at Milestone-3 design
+> time and approved before recruitment. "At least two independent labels per item" is
+> discussed as a **candidate**, not a locked minimum. No annotator is recruited or
+> named.
+
 ### 4.1 Annotators
 
-- **≥ 2 independent** annotators; **≥ 3** on any double-annotated subset for adjudication.
+- **Independent annotators** — enough for at least two independent labels per scored
+  item and a separate adjudicator (a common candidate is ≥ 2 primary + ≥ 1 adjudicator;
+  the exact count is a human decision, not frozen here).
 - **Native or near-native Urdu** — grew up speaking Urdu and/or formal education in
   Urdu; self-reported + a short screening task (read a technical Urdu paragraph, answer
   comprehension Qs).
@@ -154,12 +190,17 @@ trace all along **and** the back-translation/native audit shows the translation 
 
 ### 4.3 Reliability, disagreement, adjudication
 
-- **≥ 30 %** of items double-annotated (100 % if n is small).
-- **Cohen's κ (pairwise) / Fleiss' κ (≥ 3 raters), reported with a bootstrap CI.**
-  Target "substantial" (κ > 0.6), floor "moderate" (κ > 0.4). Below the floor → the
-  rubric is revised **before** any labelling counts, and the revision is logged.
-- **Disagreements** adjudicated by a **third native reviewer** (not one of the original
-  two); adjudication decisions logged.
+- A pre-specified fraction of items double-annotated (**`[AMEND D-061]` fraction not
+  frozen**; 100 % if n is small). Raw per-annotator disagreement is **preserved**, never
+  smoothed away.
+- **Inter-rater agreement reported with bootstrap CIs** (Cohen's κ pairwise / Fleiss' κ
+  or Krippendorff α for ≥ 3 raters). **`[AMEND D-061]` No κ or α cutoff is frozen
+  here.** Whether agreement is adequate, and what to do if it is not (e.g. revise the
+  rubric before any labelling counts), is a human scientific decision recorded in the
+  Milestone-3 plan. Landis & Koch bands are an arbitrary convention.
+- **Disagreements** adjudicated by an independent native reviewer (not one of the
+  original annotators); adjudication decisions logged. Adjudication does **not** erase
+  the original raw labels.
 - **Exclusion:** an item is excluded from the native-scored analysis only if a majority
   of annotators mark `cannot-tell` — recorded, counted, never silently dropped.
 
@@ -183,10 +224,10 @@ per-annotator labels are stored; nothing is model-filled.
 
 | arm | status | blocker |
 |---|---|---|
-| M1 automated English judge | **BLOCKED** | no judge runnable on the M5; needs the human-audit-validated lock (§2.3) |
+| M1 automated English judge | **BLOCKED** | no judge selected; needs a human-approved calibration plan (§2.3); size is not a proxy (D-061) |
 | M2 automated in-language judge | BLOCKED / Milestone 2+ | same + Urdu-capable judge |
-| M3 native-Urdu human | **BLOCKED** / Milestone 3 | annotator recruitment + ethics determination |
-| M4 translate-then-English | DEFERRED / Milestone 2+ | pinned translator + native validation |
+| M3 native-Urdu human | **BLOCKED** / Milestone 3 | annotator recruitment + ethics determination; no κ/α/count frozen (D-061) |
+| M4 translate-then-English | DEFERRED / Milestone 2+ | translator UNRESOLVED (no model/context frozen, D-061) + native validation |
 | keyword pre-filter | implemented | recall validation on a positive set |
 
 For the **English-only Track-A pilot**: M2/M3/M4 are `NOT_APPLICABLE`; M1 + the human

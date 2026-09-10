@@ -14,6 +14,11 @@ license: Apache-2.0
 provenance_tag: >-
   DECISION_LOG D-034 (selected on neutral pre-scientific criteria) + D-037 (M5 byte
   verification: 1,834,426,016 bytes, sha256
-  061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a) + Qwen3 technical
-  report arXiv:2505.09388 (MMLU-Redux 73.9 thinking / GPQA-Diamond 40.1 thinking) +
-  HF model card huggingface.co/Qwen/Qwen3-1.7B (fetched 2026-09-10)
+  061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a) +
+  HF model card huggingface.co/Qwen/Qwen3-1.7B (fetched 2026-09-10).
+  NOTE (D-057, PRE-OUTCOME REVIEW AMENDMENT): an earlier version of this tag attributed
+  "MMLU-Redux 73.9 / GPQA-Diamond 40.1 (thinking)" to Qwen3-1.7B from the Qwen3
+  Technical Report (arXiv:2505.09388). Independent review flags those numbers as
+  belonging to a LARGER Qwen3 variant. Published benchmark results for larger Qwen3
+  variants are NOT used as evidence for this generator, and no verified capability
+  estimate for Qwen3-1.7B from the official release is relied upon by this protocol.

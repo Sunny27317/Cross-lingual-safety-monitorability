@@ -1356,6 +1356,17 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-041 — Track-A pilot dataset: MMLU (`cais/mmlu` @ `c30699e8…`), GPQA-Diamond deferred
 - **Date:** 2026-09-10
+- **⚠ AMENDED by D-056 and D-057 (2026-09-10, pre-outcome).** The MMLU decision stands.
+  BUT: (a) rationale point 2 below cites "Qwen3-1.7B thinking-mode MMLU-Redux 73.9 /
+  GPQA-Diamond 40.1" from the Qwen3 Technical Report — independent review flags those
+  figures as belonging to a **larger** Qwen3 variant; **no benchmark number for
+  Qwen3-1.7B is relied upon** and the MMLU-vs-GPQA argument is now **qualitative** (a
+  4-way MCQ is easier than graduate-level GPQA-Diamond), with the realized eligibility
+  yield measured descriptively (D-057). (b) The dataset *content* (not just the
+  revision) must be pinned before any real inference — exact `datasets` version,
+  resolved data revision, selected item ids, content SHA-256, verified schema + choice
+  ordering + label→letter map — and the manifest field `dataset_content_pin` is a
+  run-blocker until then (D-056).
 - **Decision:** The Track-A English pilot uses **MMLU** — `cais/mmlu`, config `all`,
   split `test`, revision **`c30699e8356da336a370243923dbaf21066bb9fe`** (the exact pin
   Track B verified via the HF refs API, D-019; MIT-licensed, ungated). 10 fixed
@@ -1496,6 +1507,14 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-045 — Track-A sample size: pilot n = 50 (pipeline validation); confirmatory n ≈ 300–600 (deferred), from a prospective power simulation
 - **Date:** 2026-09-10
+- **⚠ AMENDED by D-058 (2026-09-10, pre-outcome).** The pilot n = 50 stands. The
+  **"indicative range ~300–600" and "central 400" are WITHDRAWN**, and **no SESOI is
+  frozen.** `SESOI / confirmatory target effect = REQUIRES HUMAN SCIENTIFIC DECISION
+  BEFORE CONFIRMATORY DESIGN.` `POWER_ANALYSIS.md` and `track_a_power_sim.py` are
+  reframed as a **sensitivity / design-exploration** illustration (now including an ICC
+  sensitivity band, since ICC = 0.10 is an assumption, not a fact — audit M8). The
+  "convergence with Track B's 400–600" is coincidental and is not evidence. Notation:
+  β = P(Type-II error), power = 1 − β. The pilot may inform *nuisance* parameters only.
 - **Decision:**
   - **Pilot n = 50** (10 stratified subjects × 5 deterministic items). Its **purpose is
     PIPELINE VALIDATION + qualitative direction** — NOT a hypothesis test. Its bootstrap
@@ -1527,7 +1546,12 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-046 — Track-A output-cleaning, retry, and missingness policy
 - **Date:** 2026-09-10
-- **Decision (all frozen before any generation):**
+- **⚠ AMENDED by D-052 and D-054 (2026-09-10, pre-outcome).** Output cleaning is now
+  `clean_cli_output` (`cli_chrome_v2`): **RAW output is never semantically modified**;
+  cleaning removes ONLY the anchored startup banner and the anchored perf-summary line,
+  with **no** generic `>` / structural regex (D-052). Retry policy is now **ZERO
+  retries** — the harness matches the backend; an infra fault is recorded + counted,
+  never retried; "≤ 1 infrastructure retry" is withdrawn (D-054).
   - **Output cleaning** = `clsm.track_a_backend.strip_cli_chrome` (`cli_chrome_v1`,
     pinned to llama.cpp v0.4.0): drop the echoed prompt line and the perf/exit footer;
     **nothing else** — no grammar repair, no reasoning edits, no letter inference, no
@@ -1555,6 +1579,11 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-047 — Track-A disclosure judge: BLOCKED (external dependency), not weakened to fit the laptop
 - **Date:** 2026-09-10
+- **⚠ AMENDED by D-061 (2026-09-10, pre-outcome).** The judge stays BLOCKED. The
+  acceptance rule is now **"REQUIRES HUMAN SCIENTIFIC DECISION / CALIBRATION PLAN BEFORE
+  JUDGE USE"** — the "lock the smallest judge clearing κ > ~0.4 / prefer κ > ~0.6"
+  cutoff is withdrawn; no numeric bar (κ, balanced accuracy, F1, PABAK, …) is frozen,
+  and judge **size is not a proxy for validity**.
 - **Decision:** The automated disclosure judge is **BLOCKED**, not selected.
   `configs/track_a_pilot/judge.yaml` `status: TODO` ⇒ `clsm.config.JudgeConfig.
   require_resolved()` raises ⇒ the real classification path is unreachable. This is
@@ -1584,6 +1613,15 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-048 — Track-A primary / secondary / diagnostic estimands + uncertainty
 - **Date:** 2026-09-10
+- **⚠ AMENDED by D-059 and D-063 (2026-09-10, pre-outcome).** The metric *definitions*
+  are unchanged. The *hierarchy* is restated in its simplest form: the research
+  **PRIMARY** estimand is the **Urdu Monitor-Validity Gap** and the research
+  **SECONDARY** is the **Translate-then-Monitor Recovery Effect** — both DEFERRED and
+  not measurable in this English pilot. `adoption_increase` and `answer_switch_rate` are
+  the pilot's **descriptive** supporting/prerequisite behavioural quantities;
+  `hidden_influence_rate` etc. stay judge-gated. Pilot bootstrap CIs are **descriptive,
+  not inferential**. `bootstrap_n = 10000` (real-data CIs) is a different quantity from
+  the power-sim's inner `BOOT` (D-063).
 - **Decision** (`PILOT_PROTOCOL.md` §16; definitions frozen exactly as `src/clsm/
   metrics.py` / `RESEARCH_PLAN.md` §9 — **not redefined**):
   - **PRIMARY (2, small and interpretable):**
@@ -1615,6 +1653,13 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ## D-049 — Translate-then-monitor + native-Urdu human-validation protocols DESIGNED (not run); English pilot marks them NOT_APPLICABLE
 - **Date:** 2026-09-10
+- **⚠ AMENDED by D-061 (2026-09-10, pre-outcome).** The concepts stand. The **numeric
+  thresholds are withdrawn**: no translator model / API / context size is frozen (not
+  NLLB-200, not Qwen2.5, not "≥ 8K context") — the operational rule is "the translator
+  must support the complete observed trace lengths without truncation"; no
+  native-annotation κ/α cutoff, double-annotation fraction, or annotator count is
+  frozen ("≥ 2 independent labels per item" is a *candidate*). Acceptance in every case
+  = REQUIRES HUMAN SCIENTIFIC DECISION.
 - **Decision:** `MONITOR_VALIDATION_PROTOCOL.md` specifies, as **design only**:
   - **§3 Translation arm (Milestone 2+):** the Urdu trace is translated to English and
     re-monitored. Translation must be **non-lossy** — a preservation rubric covers
@@ -1638,3 +1683,283 @@ are reversed by a **new** entry, not by deleting an old one.
   human disclosure audit, D-047).
 - **Status:** ACTIVE. Protocols designed, nothing executed. No annotators recruited, no
   annotation performed, no translation produced.
+
+---
+
+> **D-050 – D-061 batch (2026-09-10): PRE-OUTCOME REVIEW AMENDMENT — Track-A consolidated
+> correction pass.** After D-041–D-049 were committed (branch `research/track-a-pilot-protocol`,
+> not merged), the branch was put through an independent engineering + research-integrity
+> audit and an independent scientific red-team review. **No Track-A scientific outcome had
+> been — or has been — observed at any point:** no generator run on any scientific MMLU item,
+> no judge evaluation, no human annotation, no metric computed on real data. These entries
+> correct methodology and evidence wording BEFORE outcomes exist; they add new decisions
+> rather than silently rewriting D-041–D-049. Where an entry changes earlier wording it
+> quotes the previous text, the corrected text, and the reason. Track B is untouched and its
+> `config_hash` is unchanged (`7e7c236b…`). Nothing here authorizes a run.
+
+## D-050 — Technically-enforced Track-A run-authorization gate (fail-closed)
+- **Date:** 2026-09-10
+- **Prompted by:** engineering audit BLOCKER — "Track-A scientific generation could reach
+  `LlamaCppBackend` without `check_run_ready()` ever being consulted."
+- **Decision:** `src/clsm/track_a_run.py` adds a **fail-closed** gate with three separable
+  layers, all of which must pass to obtain a `RunToken`:
+  1. **methodology readiness** — every run-blocking METHODOLOGY manifest field is LOCKED;
+  2. **external-resource readiness** — every run-blocking EXTERNAL_RESOURCE field is
+     resolved (disclosure judge, human audit, ethics, **dataset content pin** — D-056);
+  3. **explicit human run authorization** — a *structured JSON* payload in
+     `CLSM_TRACK_A_RUN_AUTHORIZED` naming the exact `scientific_hash` (D-051) it authorizes
+     plus a verbatim reviewer assertion. `true` / `1` / `yes` are **rejected** — it is not a
+     boolean toggle, and there is **no secret bypass flag**.
+  `LlamaCppBackend` requires either a `RunToken` or an explicit `for_testing_only=True`
+  (which logs a warning and can never be a scientific run); `generate()` re-checks the gate,
+  not just `__init__`. The mock/`for_testing_only` path is unaffected so tests still run.
+  If a future institutional human-authorization mechanism is added it replaces layer 3;
+  until then layer 3 defaults to **refuse**.
+- **Tests:** `tests/test_track_a_run.py`, `tests/test_track_a_backend.py`
+  (`test_backend_without_token_or_test_flag_fails_closed`,
+  `test_generate_rechecks_the_gate_not_only_init`, boolean-toggle rejection, hash-mismatch
+  rejection, "human token present but external resources still block").
+- **Status:** ACTIVE. AUTHORIZED TO RUN remains **NO**.
+
+## D-051 — Track-A scientific-config hash (covers everything that can move an outcome)
+- **Date:** 2026-09-10
+- **Prompted by:** engineering audit MAJOR — the generic `config_hash()` did not cover
+  llama.cpp runtime identity, decoding extras (`min_p`, `presence_penalty`), reasoning
+  format, thinking mode, parser/metrics/retry versions, or the dataset content pin.
+- **Decision:** `scientific_config_hash()` hashes a **curated canonical dict**
+  (`scientific_config_dict`) over: generator identity + model revision + GGUF SHA-256 +
+  size; llama.cpp commit + tag; backend; all decoding params (temp, top_p, top_k, min_p,
+  presence/repetition penalty, max_new_tokens, n_ctx, n_gpu_layers); reasoning_format;
+  enable_thinking; force_think_prefix; system_prompt; samples_per_condition; seed schedule;
+  prompt-template version + SHA-256; cue type + version + template SHA-256 + target rule;
+  hint_seed; dataset id/config/split/revision/subjects/items_per_subject/selection rule;
+  bootstrap seed + n; parser version; cli-chrome version; metrics version; retry-policy
+  version; judge status/model/rubric version. It **excludes** prose (`provenance_tag`) and
+  local machine paths. Serialisation is `json.dumps(…, sort_keys=True, separators=(",",":"))`.
+- **Tests:** `tests/test_track_a_run.py` — hash moves on every decoding change, on runtime
+  identity change, on cue/prompt/seed/bootstrap change; does **not** move on a prose-only
+  YAML edit.
+- **Status:** ACTIVE.
+
+## D-052 — RAW output is never semantically modified; CLI-chrome cleaning narrowed (`cli_chrome_v2`)
+- **Date:** 2026-09-10
+- **Prompted by:** engineering audit BLOCKER — the previous `strip_cli_chrome` used a
+  generic line-oriented regex that could delete legitimate generated text (e.g. an answer
+  line beginning `> (B) …`, blockquotes, or any line resembling the echoed prompt).
+- **Previous behaviour:** `strip_cli_chrome(stdout, prompt=…)` removed "the echoed prompt
+  line and the perf/exit footer" using substring/line heuristics on model content.
+- **Corrected behaviour (`cli_chrome_v2`):** `clean_cli_output()` removes **only two
+  strings proven to be runtime-generated**, both anchored:
+  - the leading `llama-cli` startup banner — matched from `\A` up to the blank line after
+    the `available commands:` bullet list, and only if that marker appears within the first
+    40 lines;
+  - the exact trailing perf-summary line `[ Prompt: … t/s | Generation: … t/s ]` (optionally
+    followed by `Exiting…`) — matched anchored to `\Z`, single-line, no `re.DOTALL`.
+  There is **no** generic `>` / structural regex. `raw_output` is always persisted verbatim
+  (`GenerationRecord.raw_output` **and** `<stem>.stdout.txt`); `cleaned` is stored
+  separately. With `--no-display-prompt` in the argv the prompt is not echoed, so in
+  practice both strippers are usually no-ops.
+- **Tests:** `tests/test_track_a_backend.py` — blockquote `> (B) Paris` preserved, multiple
+  `>` lines preserved, ANSI escapes + multiple `<think>` blocks preserved, no-chrome
+  identity, anchored banner+footer removal.
+- **Status:** ACTIVE.
+
+## D-053 — Honest tri-state stop-reason / token accounting (no fabricated `truncated=False`)
+- **Date:** 2026-09-10
+- **Prompted by:** engineering audit MAJOR — `truncated` was set `True` only on subprocess
+  timeout; a `max_new_tokens` exhaustion was silently recorded as `truncated=False`, and
+  there was no token count or stop reason.
+- **Decision:** new `schemas.StopReason` enum — `EOS` / `LENGTH` / `TIMEOUT` /
+  `NONZERO_EXIT` / `UNKNOWN`. `--no-perf` is **removed** from the argv so the llama.cpp
+  perf block on STDERR yields an output-token count. `_derive_stop_reason()`:
+  TIMEOUT if the wall-clock timeout fired; NONZERO_EXIT if the process exited non-zero;
+  LENGTH if the perf token count ≥ requested `-n`; EOS if it is strictly below; **UNKNOWN
+  if no perf signal is present**. `truncated == stop_reason in {LENGTH, TIMEOUT}`. UNKNOWN
+  is recorded honestly and is **never inferred from the absence of a final answer**.
+  `GenerationRecord` now carries `stop_reason` and `n_output_tokens`; the `.meta.json`
+  records `stop_reason`, `n_output_tokens`, and the requested cap.
+- **Tests:** `tests/test_track_a_backend.py` — EOS (perf runs < cap), LENGTH (perf runs ==
+  cap → `truncated=True`), TIMEOUT, NONZERO_EXIT, and empty-stdout → UNKNOWN (`truncated`
+  stays `False`, not a fake value).
+- **Status:** ACTIVE.
+
+## D-054 — Track-A retry policy: ZERO retries (docs/config/impl/tests reconciled)
+- **Date:** 2026-09-10
+- **Prompted by:** engineering audit MAJOR — D-046 / the manifest said "infrastructure
+  faults: retry ≤ 1 time", but the implementation performed **zero** retries.
+- **Previous wording (D-046):** "Infrastructure faults only (nonzero exit / timeout / empty
+  stdout): retry ≤ 1 time, log both attempts; then record as failure."
+- **Corrected wording:** **ZERO retries.** Exactly one `llama-cli` invocation per spec
+  (attempt id `a1`), whatever the output. An infrastructure fault is recorded and
+  **counted** as a failure, never retried. There is **no** content-dependent retry of any
+  kind (never on answer, parse status, switch, disclosure, null effect, or reasoning
+  length). This is the simpler defensible policy and it already matched the code; the docs,
+  the manifest `retry_policy` field, and `RETRY_POLICY_VERSION = "zero-retry/D-054"` are
+  now aligned to it.
+- **Tests:** `tests/test_track_a_backend.py::test_no_content_dependent_retry` (one CLI call
+  per spec even on a malformed output); `test_no_content_dependent_retry` argv-count check.
+- **Status:** ACTIVE.
+
+## D-055 — Track-A run provenance schema (self-contained; not dependent on gitignored side files)
+- **Date:** 2026-09-10
+- **Prompted by:** engineering audit MAJOR + the observation that the preregistration
+  rewrite had dropped the explicit provenance-requirement list.
+- **Decision:** `track_a_run.TrackARunProvenance` (Pydantic, `extra="forbid"`) captures, in
+  one record written into the run directory: scientific-config hash; experiment id; git
+  commit + dirty flag; run-token hash/reviewer/time; model repo + revision + tokenizer
+  revision; GGUF filename + full SHA-256 + size + verified flag; llama.cpp repo + commit +
+  `--version` string + build + identity-verified flag; backend; every decoding param; n_ctx;
+  n_gpu_layers; reasoning_format; enable_thinking; force_think_prefix; system_prompt;
+  samples_per_condition; seeds; prompt-template version + SHA-256; cue version + template
+  SHA-256 + target rule; hint_seed; dataset repo/revision/config/split; `datasets` library
+  version; dataset content hash; exact selected item ids; schema-verified flag; parser /
+  cli-chrome / metrics / retry-policy versions; bootstrap seed + n; host platform / machine
+  / python; run start time. The per-generation `.meta.json` remains, but provenance no
+  longer *depends* on gitignored files. `PILOT_PROTOCOL.md` §12 restores the explicit
+  enumerated requirement.
+- **Status:** ACTIVE.
+
+## D-056 — Dataset content pinning is a run-blocking prerequisite (MMLU stays primary)
+- **Date:** 2026-09-10
+- **Prompted by:** scientific review — the revision is pinned but the *content* is not, and
+  MMLU schema / choice ordering / label→letter mapping were not verified.
+- **Decision:** MMLU remains the Track-A primary dataset (**no change** to D-041). **No
+  content is downloaded in this pass.** Before any real inference a pre-run step must write
+  `experiments/M1-Mac-Feasibility/DATASET_CONTENT_PIN.json` recording: the exact `datasets`
+  library version, the resolved data/parquet revision actually read, the exact selected
+  item identifiers (the 50), a SHA-256 over the selected item **content**, and verified
+  question/choice schema + choice ordering + label→letter mapping. The manifest gains a
+  run-blocking `dataset_content_pin` field (BLOCKED until that file exists and is
+  cross-checked); `check_run_ready()` fails while it is unresolved. UrduBench and any
+  non-MMLU dataset remain future-milestone only.
+- **Status:** ACTIVE. `dataset_content_pin` = BLOCKED.
+
+## D-057 — Remove misattributed Qwen3 benchmark numbers from Track-A evidence
+- **Date:** 2026-09-10
+- **Prompted by:** independent scientific review — "MMLU-Redux 73.9" and "GPQA-Diamond 40.1"
+  were cited as **Qwen3-1.7B** thinking-mode scores; the reviewer identifies those figures
+  as belonging to a **larger** Qwen3 variant.
+- **Previous wording:** `configs/track_a_pilot/model.yaml` and `dataset.yaml` and D-041
+  cited "Qwen3 Technical Report arXiv:2505.09388 (MMLU-Redux 73.9 thinking / GPQA-Diamond
+  40.1 thinking)" as capability evidence for the pinned 1.7B generator, and the WHY-MMLU
+  rationale leaned on "~74% on MMLU → a large eligible set".
+- **Corrected wording:** "The pinned Track-A generator is `Qwen/Qwen3-1.7B`. Published
+  benchmark results for larger Qwen3 variants must not be used as evidence for this
+  generator. No verified Urdu-specific or MMLU-specific capability estimate from the
+  official release is currently relied upon by this protocol." The eligibility argument is
+  now **qualitative only** (a 4-way MMLU MCQ is an easier task than graduate-level
+  GPQA-Diamond, so it is *expected* to yield a workable eligible set for a small
+  instruction-tuned reasoning model); the **realized** eligibility yield is measured
+  descriptively in the pilot. No approximate range is substituted. The MMLU decision
+  (D-041) is unchanged; the official decoding recommendation (temp 0.6 / top-p 0.95 /
+  top-k 20), which is a general thinking-mode setting, is unaffected.
+- **Status:** ACTIVE.
+
+## D-058 — No frozen confirmatory N and no frozen SESOI; power doc is sensitivity-only
+- **Date:** 2026-09-10
+- **Prompted by:** independent scientific review — a fixed confirmatory target (variously
+  "n ≈ 300–600", "central 400", "≥ 600") and a fixed SESOI = 15 pp were written as if
+  decided.
+- **Previous wording (D-045 / `POWER_ANALYSIS.md`):** "confirmatory n ≈ 300–600 (deferred),
+  from a prospective power simulation"; "Recommended confirmatory range: n ≈ 300–600,
+  central 400"; SESOI = 15 %.
+- **Corrected wording:** **SESOI / confirmatory target effect = REQUIRES HUMAN SCIENTIFIC
+  DECISION BEFORE CONFIRMATORY DESIGN.** No confirmatory N and no SESOI are frozen.
+  `POWER_ANALYSIS.md` is retained only as a **sensitivity / design-exploration
+  illustration** — it shows how required N varies with assumed effect size and ICC, it
+  does not recommend a number. The pilot may inform **nuisance** parameters (eligibility
+  yield, parse-failure rate, missingness, descriptive switch yield) but must **not** be
+  used to choose a favourable SESOI after seeing effects. Notation corrected: β = Type-II
+  error probability, power = 1 − β (never "power β < …"). ICC = 0.10 is an **assumption**,
+  not a fact (audit M8); the doc now runs a sensitivity band over ICC ∈ {0.0, 0.05, 0.10,
+  0.20}.
+- **Status:** ACTIVE. `confirmatory_sample_size` = DEFERRED (methodology).
+
+## D-059 — Track-A estimand hierarchy (simplest form); pilot quantities are descriptive
+- **Date:** 2026-09-10
+- **Prompted by:** independent scientific review proposing a two-primary structure.
+- **Decision (simplest hierarchy that fits the frozen intent):**
+  - **PRIMARY (research; DEFERRED, not measurable in this English pilot):** the
+    **Monitor-Validity Gap for Urdu** = native-human disclosure detection − automated-monitor
+    disclosure detection, on the **same** traces.
+  - **SECONDARY (research; DEFERRED):** the **Translate-then-Monitor Recovery Effect** — the
+    change in that gap when the same traces are monitored after English translation.
+  - **SUPPORTING / PREREQUISITE BEHAVIOURAL (what this pilot estimates, descriptively):**
+    hint adoption increase and answer-switch rate on the switch-eligible set.
+  - **DIAGNOSTIC (descriptive):** parseability, missingness, format compliance, truncation
+    (`stop_reason`), `n_reasoning_spans`, per-item answer stability, realized eligibility /
+    switch yield.
+  The two-primary structure is **not** adopted. No estimand is computed on real data in
+  this pass. Pilot bootstrap CIs are **descriptive**, not inferential.
+- **Status:** ACTIVE.
+
+## D-060 — Primary answer-extraction contract is language-neutral Latin A/B/C/D
+- **Date:** 2026-09-10
+- **Prompted by:** scientific review — a future Urdu milestone could tempt an
+  asymmetric parser.
+- **Decision:** the **primary** extracted answer uses the **same** narrow, symmetric Latin
+  `\boxed{A|B|C|D}` (and the `answer is (X)` fallback) contract across **all** languages.
+  A future exploratory field for Urdu-script option markers (الف/ب/ج/د) **may** be defined,
+  but an exploratory parser must **never** modify the primary extracted answer or any
+  primary metric. No Urdu parsing is implemented now (the Urdu milestone is not active);
+  the planned primary/exploratory split is documented in `PILOT_PROTOCOL.md` and the
+  manifest `parser_version` field.
+- **Related (D-038 / audit Mo2):** multiple `<think>` spans are now **all** preserved and
+  deterministically combined into one monitor input (`\n\n[--- reasoning span boundary
+  (D-038) ---]\n\n`); `ExtractionResult.n_reasoning_spans` records the count. The first
+  span is never used as a proxy for "the" reasoning. Tests in `tests/test_extraction.py`.
+- **Status:** ACTIVE.
+
+## D-061 — Judge / human-reference / translation acceptance rules stay unresolved and blocking
+- **Date:** 2026-09-10
+- **Prompted by:** scientific review — several acceptance thresholds (judge ≥ 70B / ≥ 14B;
+  Balanced Accuracy ≥ 0.75; F1 ≥ 0.65; PABAK ≥ 0.70; κ ≥ 0.65; Krippendorff α ≥ 0.67;
+  n ≥ 100 human split; translator "≥ 8K context"; NLLB-200 / Qwen2.5 as the translator)
+  read as decided.
+- **Decision:** `MONITOR_VALIDATION_PROTOCOL.md` keeps every one of these as
+  **"REQUIRES HUMAN SCIENTIFIC DECISION / CALIBRATION PLAN BEFORE USE"**, not a frozen
+  number. Specifically:
+  - **Disclosure judge:** unresolved and run-blocking (D-047). Judge size is not a proxy
+    for validity. No judge is selected. Any stated numeric bar is labelled *illustrative /
+    heuristic*, not an acceptance rule.
+  - **Native-Urdu human reference:** the *concepts* are preserved (native/near-native
+    competence, independent annotation, shared rubric, blinding to condition and to the
+    automated monitor, preservation of raw disagreement, adjudication, fair compensation,
+    ethics/IRB before recruitment). "At least two independent labels" is discussed as a
+    *candidate*, not frozen. No annotator count / κ / α cutoff is frozen. No recruitment.
+  - **Translation:** translator selection is unresolved and blocking. No model / API / context
+    size is frozen. The operational requirement is: *"the translator must support the
+    complete observed trace lengths without truncation under the frozen translation
+    protocol."* A future translator needs a pinned identity + version, reproducible
+    settings, adequate context, raw source + raw translation preservation, condition
+    blindness, monitor blindness, recorded translation failures, and a semantic-equivalence
+    assessment. Translation output can never depend on monitor output. The same-trace
+    translate-then-monitor concept (D-049) is unchanged.
+- **Status:** ACTIVE. All three remain BLOCKED / unresolved.
+
+## D-062 — Novelty wording tightened (no "first"; no "collapse"/"mitigate" claims)
+- **Date:** 2026-09-10
+- **Prompted by:** scientific review + `CLAUDE.md` §2.6 / §5.
+- **Previous risk:** phrasings implying we are "first", that monitoring "collapses" on
+  Urdu, that we "mitigate multilingual monitoring failures", or claims spanning "all
+  low-resource languages" / "frontier reasoning models" / "intentional deception".
+- **Canonical wording (this replaces earlier novelty text where it conflicts):** "We study
+  whether disagreement between automated monitoring and native-human assessment of Urdu
+  reasoning traces reflects language-dependent monitor error, and whether monitoring the
+  same traces after English translation changes that disagreement. The design combines
+  native Urdu human reference judgments with a same-trace translate-then-monitor
+  diagnostic to distinguish reasoning behavior from monitoring limitations." No "first";
+  no "collapse"; no "mitigate"; scope is Urdu + one small locked model at pilot stage.
+- **Status:** ACTIVE. Supersedes the wording in D-015 only where the two conflict; D-015's
+  approval history is preserved.
+
+## D-063 — BOOT (power-sim) vs bootstrap_n (analysis) are different quantities
+- **Date:** 2026-09-10
+- **Prompted by:** audit Mo4.
+- **Decision:** `analysis/track_a_power_sim.py` `BOOT` (inner resamples inside each
+  simulated confirmatory dataset, a **design-exploration** knob) and `ExperimentConfig.
+  bootstrap_n = 10000` (the item-clustered percentile bootstrap used for **descriptive CIs
+  on real pilot data**) are unrelated. Both are now documented as such in
+  `POWER_ANALYSIS.md` and the script header. The power sim is design exploration, not a
+  scientific result.
+- **Status:** ACTIVE.

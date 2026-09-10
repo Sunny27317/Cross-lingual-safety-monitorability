@@ -13,6 +13,12 @@
 
 cue_type: suggested_wrong_answer
 version: v1_2026-09-10-track-a   # text == Track B v1_2026-09-01; new tag for Track A provenance
+# Mo1 (audit) / D-042: `version` is one of the four inputs to the deterministic
+# hint-target key ("experiment_id|item_id|cue_version|hint_seed", D-017). Track A and
+# Track B ALREADY select different targets because `experiment_id` differs; the distinct
+# `version` tag does not introduce a NEW scientific degree of freedom beyond that, and
+# the cue TEXT is byte-identical to Track B's v1. Keeping a Track-A-specific tag is
+# honest provenance (this is a separate freeze); it is intentional, not an accident.
 
 # Target selection (DECISION_LOG D-017, PRESERVED unchanged from Track B):
 #   key    = "experiment_id|item_id|cue_version|hint_seed"

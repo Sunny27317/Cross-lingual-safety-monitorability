@@ -1,8 +1,20 @@
-"""Track-A PROSPECTIVE power / sensitivity analysis (DECISION_LOG D-045).
+"""Track-A sample-size SENSITIVITY / DESIGN-EXPLORATION analysis (DECISION_LOG D-045/D-058/D-063).
 
 Deterministic Monte-Carlo. **Uses ONLY synthetic Bernoulli/beta-binomial assumptions
 and effect-size ranges from prior literature. It does NOT use any observed Track-A
 model outcome** -- none exist. Run before the pilot; re-run unchanged afterwards.
+
+**This is NOT a confirmatory power calculation and it does NOT recommend a sample size
+or a SESOI (D-058).** It shows how the required N moves with the assumed effect size
+and the assumed intra-item correlation (ICC). Choosing the confirmatory SESOI, N, ICC,
+and target estimand REQUIRES A HUMAN SCIENTIFIC DECISION.
+
+Notation: beta = P(Type-II error); power = 1 - beta. "power" here = simulated
+P(bootstrap CI lower bound > 0) under a *synthetic* effect.
+
+`BOOT` below (inner resamples per simulated dataset) is a design-exploration knob and
+is UNRELATED to `ExperimentConfig.bootstrap_n = 10000`, which is the item-clustered
+percentile bootstrap applied once to the REAL pilot data for descriptive CIs (D-063).
 
 Estimands modelled (frozen definitions -- see src/clsm/metrics.py):
   * adoption_increase  : paired per-item [1(a_h==h) - 1(a_u==h)], mean over items with a
@@ -30,7 +42,8 @@ import numpy as np
 
 RNG = np.random.default_rng(20260910)  # frozen seed
 N_SIM = 2000                            # simulation reps per cell (planning precision)
-BOOT = 400                              # bootstrap resamples inside each sim rep
+BOOT = 1000                             # inner bootstrap resamples per simulated dataset
+                                        # (design-exploration knob; NOT config.bootstrap_n, D-063)
 
 # ---- assumption grid --------------------------------------------------------------
 N_ITEMS = [50, 100, 200, 400, 600]
@@ -39,7 +52,9 @@ ELIGIBILITY_SENS = [0.40, 0.55, 0.70]
 PARSE_FAIL = 0.03        # per-generation; central
 PARSE_FAIL_SENS = [0.00, 0.03, 0.10]
 K = 8                    # samples per condition (D-044)
-ITEM_ICC = 0.10          # intra-item correlation of the switch outcome (beta-binomial)
+ITEM_ICC = 0.10          # intra-item correlation of the switch outcome -- an ASSUMPTION,
+                         # NOT a measured fact (audit M8). See ICC_SENS.
+ICC_SENS = [0.0, 0.05, 0.10, 0.20]   # sensitivity band over the intra-item correlation
 
 SWITCH_RATES = [0.05, 0.10, 0.20, 0.35]     # answer_switch_rate on eligible items
 DISCLOSURE_RATES = [0.20, 0.40, 0.60]        # disclosure among switched
@@ -55,10 +70,11 @@ def _beta_ab(mean: float, icc: float) -> tuple[float, float]:
 
 def simulate_cell(
     n_items: int, switch: float, disclosure: float, eligibility: float, parse_fail: float,
+    icc: float = ITEM_ICC,
 ) -> dict[str, float]:
     """Return CI half-width and power (P[95% CI excludes 0]) for both estimands."""
     hidden = switch * (1.0 - disclosure)
-    a_sw, b_sw = _beta_ab(switch, ITEM_ICC)
+    a_sw, b_sw = _beta_ab(switch, icc)
 
     ai_hw = np.empty(N_SIM)      # adoption_increase CI half-width
     ai_excl0 = np.empty(N_SIM)   # 1 if CI excludes 0
@@ -87,7 +103,7 @@ def simulate_cell(
         adoption_increase_item = switched.astype(float) - ctrl_adopt.astype(float)
 
         # disclosure among switched items (independent per item)
-        p_disc = RNG.beta(*_beta_ab(disclosure, ITEM_ICC), size=n_e)
+        p_disc = RNG.beta(*_beta_ab(disclosure, icc), size=n_e)
         disclosed = (RNG.random(n_e) < p_disc) & switched
         hidden_item = (switched & ~disclosed).astype(float)      # over ALL eligible items
 
@@ -113,10 +129,13 @@ def simulate_cell(
 
 def main() -> None:
     print("=" * 100)
-    print("TRACK-A PROSPECTIVE POWER / SENSITIVITY ANALYSIS  (D-045)")
+    print("TRACK-A SAMPLE-SIZE SENSITIVITY / DESIGN EXPLORATION  (D-045/D-058/D-063)")
     print("SYNTHETIC ASSUMPTIONS ONLY -- NO OBSERVED TRACK-A OUTCOME. seed=20260910")
+    print("NOT a confirmatory power calc. Does NOT recommend an N or a SESOI (D-058).")
+    print("'power' = simulated P(CI lower bound > 0) under a synthetic effect = 1 - beta.")
     print(f"K={K} samples/condition, eligibility={ELIGIBILITY}, parse_fail={PARSE_FAIL}, "
-          f"item ICC={ITEM_ICC}, N_SIM={N_SIM}, BOOT={BOOT}")
+          f"central ICC={ITEM_ICC} (ASSUMPTION, see ICC sensitivity), N_SIM={N_SIM}, "
+          f"BOOT={BOOT} (design knob != config.bootstrap_n)")
     print("=" * 100)
 
     print("\n### PRIMARY: adoption_increase  (== switch rate on eligible items, neutral hint)")
@@ -162,10 +181,23 @@ def main() -> None:
         )
         print(f"  {n:>5} | {row}")
 
+    print("\n### SENSITIVITY to intra-item correlation ICC (hidden_influence, s=0.20, d=0.40)")
+    print("    ICC is an ASSUMPTION, not a measured fact (audit M8).")
+    print(f"  {'n':>5} | " + " | ".join(f"ICC={i:.2f} hw / power" for i in ICC_SENS))
+    for n in N_ITEMS:
+        cells = [simulate_cell(n, 0.20, 0.40, ELIGIBILITY, PARSE_FAIL, icc=i) for i in ICC_SENS]
+        row = " | ".join(
+            f"{c['hidden_influence_halfwidth']:.3f} / {c['hidden_influence_power']:.2f}"
+            for c in cells
+        )
+        print(f"  {n:>5} | {row}")
+
     print("\n" + "=" * 100)
-    print("READING: 'hw' = mean 95% bootstrap CI half-width; 'power' = P(CI lower bound > 0).")
+    print("READING: 'hw' = mean 95% bootstrap CI half-width; 'power' = P(CI lower bound > 0)")
+    print("         under a SYNTHETIC effect (= 1 - beta for that synthetic scenario).")
     print("The PILOT (n=50) is not powered to exclude 0 for small effects -- BY DESIGN.")
-    print("Use the grid to pick the CONFIRMATORY n from a pre-stated minimum effect of interest.")
+    print("This grid is a SENSITIVITY ILLUSTRATION. It does NOT recommend a confirmatory n")
+    print("and does NOT set a SESOI -- both REQUIRE A HUMAN SCIENTIFIC DECISION (D-058).")
     print("=" * 100)
 
 
