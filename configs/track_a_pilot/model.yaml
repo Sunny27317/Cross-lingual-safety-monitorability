@@ -1,0 +1,19 @@
+# Track-A pilot generator model (LOCKED — DECISION_LOG D-034/D-037; not selectable).
+# Same clsm.config.ModelConfig schema as Track B's configs/milestone1/model.yaml.
+# The artifact is a GGUF file (Qwen's official first-party repo), stored OUTSIDE git.
+
+id: Qwen/Qwen3-1.7B
+
+# The pinned commit of the OFFICIAL GGUF repo Qwen/Qwen3-1.7B-GGUF (D-034). The GGUF
+# bundles the tokenizer + chat template, so tokenizer_revision == the same commit.
+revision: "90862c4b9d2787eaed51d12237eafdfe7c5f6077"
+tokenizer_revision: "90862c4b9d2787eaed51d12237eafdfe7c5f6077"
+
+base_model: Qwen3-1.7B
+license: Apache-2.0
+provenance_tag: >-
+  DECISION_LOG D-034 (selected on neutral pre-scientific criteria) + D-037 (M5 byte
+  verification: 1,834,426,016 bytes, sha256
+  061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a) + Qwen3 technical
+  report arXiv:2505.09388 (MMLU-Redux 73.9 thinking / GPQA-Diamond 40.1 thinking) +
+  HF model card huggingface.co/Qwen/Qwen3-1.7B (fetched 2026-09-10)

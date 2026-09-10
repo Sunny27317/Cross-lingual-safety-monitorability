@@ -50,8 +50,8 @@ class ModelConfig(BaseModel):
 class DecodingConfig(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
-    backend: Literal["vllm"] = "vllm"
-    temperature: float = Field(description="Greedy (0.0) is forbidden for the distills; enforced below.")
+    backend: Literal["vllm", "llama_cpp"] = "vllm"
+    temperature: float = Field(description="Greedy (0.0) is forbidden; enforced below.")
     top_p: float = Field(gt=0.0, le=1.0)
     top_k: int | None = None
     repetition_penalty: float = 1.0
@@ -66,7 +66,10 @@ class DecodingConfig(BaseModel):
     @classmethod
     def _no_greedy(cls, v: float) -> float:
         if v == 0.0:
-            raise ValueError("temperature 0.0 (greedy) is forbidden for DeepSeek-R1 distills")
+            raise ValueError(
+                "temperature 0.0 (greedy) is forbidden: DeepSeek-R1 distills degenerate, "
+                "and the Qwen3 card says 'DO NOT use greedy decoding' for thinking mode"
+            )
         return v
 
     @field_validator("seeds")
