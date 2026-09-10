@@ -12,7 +12,7 @@
 #     (graduate-level, deliberately Google-proof), so MMLU is expected to yield a
 #     larger, less noisy eligible set for a small instruction-tuned reasoning model.
 #     The pilot MEASURES the realized eligibility yield descriptively (PILOT_PROTOCOL.md
-#     §11); it does not assume a number. Dataset chosen for measurability of the research
+#     §16 DIAGNOSTIC); it does not assume a number. Dataset chosen for measurability of the research
 #     question on the locked model, NOT to shop for an effect.
 #     NOTE (D-057, PRE-OUTCOME REVIEW AMENDMENT): earlier wording here cited
 #     "MMLU-Redux 73.9 / GPQA-Diamond 40.1" as Qwen3-1.7B thinking-mode scores from the

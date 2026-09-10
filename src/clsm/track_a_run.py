@@ -1,9 +1,13 @@
 """Track-A run-authorization gate + scientific-config hash + run provenance.
 
-**Technically enforced (DECISION_LOG D-050).** A real Track-A generation cannot occur
-unless :func:`authorize_track_a_run` succeeds and hands back a :class:`RunToken`; the
-real backend (:class:`clsm.track_a_backend.LlamaCppBackend`) requires that token or an
-explicit test-only flag, and fails **closed** otherwise.
+**Technically enforced (DECISION_LOG D-050, hardened D-065).** A real Track-A generation
+cannot occur unless :func:`authorize_track_a_run` succeeds and hands back a
+:class:`RunToken`; the real backend (:class:`clsm.track_a_backend.LlamaCppBackend`)
+**always** requires a :class:`RunToken` and fails **closed** otherwise. There is no
+public boolean bypass. Synthetic unit tests use :meth:`RunToken.for_synthetic_test`,
+which is structurally incapable of authorizing a real run: a backend holding one MUST
+be given an injected fake invoker + fake version probe, so it can never drive the real
+``llama-cli`` or the real GGUF.
 
 Three separable readiness layers (all must pass):
 
@@ -90,6 +94,14 @@ def scientific_config_dict(cfg: ExperimentConfig, runtime: dict[str, Any]) -> di
         "max_new_tokens": d.max_new_tokens,
         "n_ctx": pr["n_ctx"],
         "n_gpu_layers": pr["n_gpu_layers"],
+        # D-065: timeout_seconds can flip a trace to TIMEOUT and thus change missingness
+        # and downstream estimates -> it is a scientific setting, hashed here.
+        "timeout_seconds": pr["timeout_seconds"],
+        "llama_cpp_build": rt.get("build_number"),
+        # D-065: the llama-cli command surface is FROZEN. LlamaCppRuntime has no
+        # `extra_args` escape hatch; an authorized run's argv is fully determined by the
+        # hashed fields above. (Marker kept so a future re-introduction moves the hash.)
+        "llama_cli_extra_args": [],
         "reasoning_format": dx["reasoning_format"],
         "enable_thinking": dx["enable_thinking"],
         "force_think_prefix": d.force_think_prefix,
@@ -138,16 +150,48 @@ class RunNotAuthorizedError(UnresolvedProductionSettingError):
     :class:`RunToken`."""
 
 
+# Module-private construction guard: a RunToken can ONLY come from
+# authorize_track_a_run() or RunToken.for_synthetic_test(). A bare RunToken(...) raises.
+_RUNTOKEN_GUARD = object()
+
+
 @dataclass(frozen=True)
 class RunToken:
     """Proof that all three readiness layers passed for one exact scientific hash.
-    Only :func:`authorize_track_a_run` constructs it."""
+
+    Constructable ONLY via :func:`authorize_track_a_run` (a real, authorized run) or
+    :meth:`for_synthetic_test` (a structurally-neutered token for synthetic unit tests).
+    A direct ``RunToken(...)`` raises :class:`RunNotAuthorizedError`.
+    """
 
     scientific_hash: str
     reviewer: str
     reviewed_utc: str
     manifest_status: dict[str, int]
+    _guard: object = None
+    for_synthetic_test_only: bool = False
     authorized_utc: str = field(default_factory=lambda: _dt.datetime.now(_dt.UTC).isoformat())
+
+    def __post_init__(self) -> None:
+        if self._guard is not _RUNTOKEN_GUARD:
+            raise RunNotAuthorizedError(
+                "RunToken may only be created by clsm.track_a_run.authorize_track_a_run() "
+                "or, for synthetic unit tests, RunToken.for_synthetic_test()."
+            )
+
+    @classmethod
+    def for_synthetic_test(cls) -> RunToken:
+        """TEST-ONLY. A backend holding this token is structurally incapable of invoking
+        the real ``llama-cli`` or verifying the real runtime: it MUST be given an injected
+        fake invoker + fake version probe. It can NEVER authorize a scientific run."""
+        return cls(
+            scientific_hash="SYNTHETIC-TEST-ONLY-NOT-A-REAL-RUN",
+            reviewer="synthetic-test",
+            reviewed_utc="",
+            manifest_status={},
+            _guard=_RUNTOKEN_GUARD,
+            for_synthetic_test_only=True,
+        )
 
 
 @dataclass(frozen=True)
@@ -256,6 +300,7 @@ def authorize_track_a_run(
         reviewer=payload["reviewer"],
         reviewed_utc=payload["reviewed_utc"],
         manifest_status=m.status_summary(),
+        _guard=_RUNTOKEN_GUARD,
     )
 
 
@@ -317,6 +362,8 @@ class TrackARunProvenance(BaseModel):
     max_new_tokens: int
     n_ctx: int
     n_gpu_layers: int
+    timeout_seconds: float
+    llama_cli_extra_args: list[str]  # D-065: frozen empty; the command surface is fixed
     reasoning_format: str
     enable_thinking: bool
     force_think_prefix: bool
@@ -410,6 +457,8 @@ def capture_track_a_provenance(
         max_new_tokens=d.max_new_tokens,
         n_ctx=int(pr["n_ctx"]),
         n_gpu_layers=int(pr["n_gpu_layers"]),
+        timeout_seconds=float(pr["timeout_seconds"]),
+        llama_cli_extra_args=[],  # D-065: no escape hatch
         reasoning_format=str(dx["reasoning_format"]),
         enable_thinking=bool(dx["enable_thinking"]),
         force_think_prefix=d.force_think_prefix,

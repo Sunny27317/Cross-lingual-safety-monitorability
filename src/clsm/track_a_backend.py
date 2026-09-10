@@ -3,19 +3,24 @@
 Implements :class:`~clsm.generation.GenerationBackend` so it drops straight into
 ``clsm.pipeline.run`` in place of the (GPU / vLLM) ``VLLMBackend`` and the ``MockBackend``.
 
-Design constraints (PILOT_PROTOCOL.md §6, DECISION_LOG D-043/D-050/D-052/D-053/D-054):
+Design constraints (PILOT_PROTOCOL.md §6, DECISION_LOG D-043/D-050/D-052/D-053/D-054/D-065):
 
-* **Fail-closed run gate (D-050).** A real generation requires a
-  :class:`~clsm.track_a_run.RunToken` (from ``authorize_track_a_run``) or an explicit
-  ``for_testing_only=True``. Without either, ``generate()`` raises
-  :class:`~clsm.track_a_run.RunNotAuthorizedError`.
+* **Fail-closed run gate (D-050, hardened D-065).** Construction and ``generate()`` both
+  require a :class:`~clsm.track_a_run.RunToken`. There is **no public boolean bypass**.
+  Synthetic unit tests pass ``RunToken.for_synthetic_test()`` *together with* an injected
+  ``invoker`` + ``version_probe``; such a backend is structurally incapable of driving
+  the real ``llama-cli`` or the real GGUF. Without a token, ``RunNotAuthorizedError``.
 * **Subprocess argument LIST, never a shell string.** No ``shell=True``, no string
-  interpolation into a command line.
+  interpolation into a command line. The argv is fully determined by the frozen,
+  hashed scientific config — there is **no ``extra_args`` escape hatch** (D-065).
 * **No hard-coded user paths.** Binary / model paths come from :class:`LlamaCppRuntime`
   (loaded from a YAML / env), never a literal ``/Users/...`` in committed code.
-* **Runtime + model identity is verified (D-043/D-052)** before the first generation:
-  the GGUF size + SHA-256, AND ``llama-cli --version`` is parsed and its build/commit
-  compared to the pinned values. A mismatch raises; it never silently proceeds.
+* **Runtime + model identity is verified FAIL-CLOSED (D-043/D-052/D-065)** before the
+  first generation: the GGUF size + SHA-256 (both must be pinned), AND
+  ``llama-cli --version`` is parsed and its build + commit compared to the pinned
+  values. ANY problem — subprocess failure, nonzero exit, empty/unparsable output,
+  missing or mismatched build/commit, missing pin — raises. It never proceeds with
+  ``identity_verified=False``.
 * **Every knob is explicit** on the command line.
 * **Full provenance is captured** per generation: exact argv, exit code, wall-clock,
   stdout, stderr, stop reason, token count.
@@ -44,7 +49,8 @@ import re
 import shutil
 import subprocess
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
@@ -77,9 +83,9 @@ class LlamaCppRuntime:
 
     binary_path: str  # e.g. "~/tools/llama.cpp/build/bin/llama-cli"
     model_path: str  # e.g. "~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf"
-    llama_cpp_commit: str  # pinned; VERIFIED against `--version` (D-052)
-    expected_llama_cpp_build: str | None = None  # e.g. "10809"; verified against `--version`
-    expected_model_sha256: str | None = None  # verified before the first generation
+    llama_cpp_commit: str  # pinned; VERIFIED against `--version` (D-052), fail-closed
+    expected_llama_cpp_build: str | None = None  # e.g. "10809"; REQUIRED for a real run (D-065)
+    expected_model_sha256: str | None = None  # REQUIRED for a real run (D-065)
     expected_model_bytes: int | None = None  # verified before the first generation
 
     # decoding knobs llama-cli needs that DecodingConfig does not carry
@@ -91,8 +97,10 @@ class LlamaCppRuntime:
     n_gpu_layers: int = 99  # offload all; Metal on M5 (D-036/D-040)
 
     # process controls
-    timeout_seconds: float = 900.0
-    extra_args: tuple[str, ...] = field(default_factory=tuple)
+    timeout_seconds: float = 900.0  # D-065: part of the scientific config hash
+    # NOTE (D-065): there is NO `extra_args` field. The llama-cli command surface is
+    # fully frozen -- an authorized run's argv is entirely determined by the hashed
+    # scientific config. Synthetic tests use dependency injection, not scientific args.
 
     @property
     def resolved_binary(self) -> Path:
@@ -185,6 +193,12 @@ class LlamaCppInvocationError(RuntimeError):
     an undesirable *generation*."""
 
 
+# Dependency-injection seams (D-065). The DEFAULTS are the real subprocess code paths;
+# a synthetic-test RunToken REQUIRES both to be injected, so it can never reach them.
+Invoker = Callable[..., "RawInvocation"]          # (argv: list[str], *, timeout: float) -> RawInvocation
+VersionProbe = Callable[[Path], "tuple[str, str, str]"]  # path -> (version_string, build, commit)
+
+
 class LlamaCppBackend:
     """A pinned-``llama-cli`` :class:`~clsm.generation.GenerationBackend`.
 
@@ -200,35 +214,59 @@ class LlamaCppBackend:
         model: ModelConfig,
         decoding: DecodingConfig,
         runtime: LlamaCppRuntime,
+        run_token: RunToken,
         *,
-        run_token: RunToken | None = None,
-        for_testing_only: bool = False,
         raw_dir: str | Path | None = None,
         verify_runtime: bool = True,
+        invoker: Invoker | None = None,
+        version_probe: VersionProbe | None = None,
     ) -> None:
-        # FAIL-CLOSED run gate (D-050): a real generation needs an authorized RunToken
-        # OR an explicit test-only opt-in. There is no boolean "authorized" toggle.
-        if run_token is None and not for_testing_only:
+        # FAIL-CLOSED run gate (D-050, hardened D-065). A RunToken is ALWAYS required and
+        # there is NO public boolean bypass. `True`/`1`/an object/None are not RunTokens.
+        if not isinstance(run_token, RunToken):
             raise RunNotAuthorizedError(
-                "LlamaCppBackend requires either an authorized RunToken (from "
-                "clsm.track_a_run.authorize_track_a_run) or for_testing_only=True. "
-                "It will not run a real model without one."
+                "LlamaCppBackend requires an authorized RunToken from "
+                "clsm.track_a_run.authorize_track_a_run(). There is no boolean bypass. "
+                "For synthetic unit tests pass RunToken.for_synthetic_test() together "
+                "with an injected `invoker` and `version_probe`."
             )
+        self._synthetic = run_token.for_synthetic_test_only
+        if self._synthetic:
+            # A synthetic token is structurally forbidden from reaching the real runtime.
+            if invoker is None or version_probe is None:
+                raise RunNotAuthorizedError(
+                    "A synthetic-test RunToken REQUIRES an injected `invoker` and "
+                    "`version_probe`; it must never drive the real llama-cli or GGUF."
+                )
+        else:
+            # An authorized run uses the real, frozen invoker + probe -- no injection.
+            if invoker is not None or version_probe is not None:
+                raise RunNotAuthorizedError(
+                    "An authorized RunToken must use the real (frozen) invoker + version "
+                    "probe; injection is only for RunToken.for_synthetic_test()."
+                )
         self.model = model
         self.decoding = decoding
         self.runtime = runtime
         self.run_token = run_token
-        self.for_testing_only = for_testing_only
+        self._invoke: Invoker = invoker if invoker is not None else _subprocess_invoke
+        self._probe_version: VersionProbe = (
+            version_probe if version_probe is not None else _binary_version
+        )
         self.raw_dir = Path(raw_dir).expanduser() if raw_dir is not None else None
         self._verified = False
         self._version_string: str = ""
-        self._version_build: str | None = None
+        self._version_build: str = ""
+        self.model_sha256_verified = False
+        self.identity_verified = False
         if verify_runtime:
             self._verify_runtime()
 
     # -- set-up verification (no generation) -----------------------------------------
 
     def _verify_runtime(self) -> None:
+        """FAIL-CLOSED identity verification (D-052/D-065). Every branch either positively
+        verifies a pinned value or raises -- generation never proceeds unverified."""
         b = self.runtime.resolved_binary
         m = self.runtime.resolved_model
         if not b.exists():
@@ -242,34 +280,48 @@ class LlamaCppBackend:
             raise LlamaCppInvocationError(
                 f"model size mismatch: {size} != expected {self.runtime.expected_model_bytes}"
             )
-        if self.runtime.expected_model_sha256 is not None:
-            got = _sha256_file(m)
-            if got != self.runtime.expected_model_sha256.lower():
-                raise LlamaCppInvocationError(
-                    f"model SHA-256 mismatch: {got} != expected {self.runtime.expected_model_sha256}"
-                )
-        # runtime identity (D-052): parse `llama-cli --version`, compare build + commit.
-        self._version_string, self._version_build, version_commit = _binary_version(b)
+        # GGUF SHA-256 MUST be pinned and MUST match (D-065).
+        if not self.runtime.expected_model_sha256:
+            raise LlamaCppInvocationError(
+                "expected_model_sha256 is not pinned -- cannot verify the GGUF identity"
+            )
+        got = _sha256_file(m)
+        if got != self.runtime.expected_model_sha256.lower():
+            raise LlamaCppInvocationError(
+                f"model SHA-256 mismatch: {got} != expected {self.runtime.expected_model_sha256}"
+            )
+        self.model_sha256_verified = True
+
+        # Runtime identity (D-052/D-065). `self._probe_version` RAISES on any failure
+        # mode (subprocess error, nonzero exit, empty/unparsable output, missing groups).
+        self._version_string, version_build, version_commit = self._probe_version(b)
         exp_commit = self.runtime.llama_cpp_commit
-        if version_commit and exp_commit and not exp_commit.startswith(version_commit):
+        if not exp_commit:
+            raise LlamaCppInvocationError("llama_cpp_commit is not pinned")
+        # Accept a short<->long prefix match either way (e.g. "5266f24da" vs the full 40).
+        if not (
+            exp_commit == version_commit
+            or exp_commit.startswith(version_commit)
+            or version_commit.startswith(exp_commit)
+        ):
             raise LlamaCppInvocationError(
                 f"llama.cpp commit mismatch: --version reports {version_commit!r}, "
                 f"pinned {exp_commit!r}"
             )
         exp_build = self.runtime.expected_llama_cpp_build
-        if exp_build and self._version_build and self._version_build != exp_build:
+        if not exp_build:
             raise LlamaCppInvocationError(
-                f"llama.cpp build mismatch: --version reports build {self._version_build!r}, "
+                "expected_llama_cpp_build is not pinned -- cannot verify the build"
+            )
+        if version_build != exp_build:
+            raise LlamaCppInvocationError(
+                f"llama.cpp build mismatch: --version reports build {version_build!r}, "
                 f"pinned build {exp_build!r}"
             )
-        self.model_sha256_verified = self.runtime.expected_model_sha256 is not None
-        self.identity_verified = bool(version_commit) and (
-            not exp_build or self._version_build == exp_build
-        )
+        self._version_build = version_build
+        self.identity_verified = True
         self._verified = True
-        _log.info(
-            "llama.cpp runtime verified: %s (%s)", b, self._version_string or self.runtime.llama_cpp_commit
-        )
+        _log.info("llama.cpp runtime verified: %s (%s)", b, self._version_string)
 
     # -- command construction --------------------------------------------------------
 
@@ -303,34 +355,14 @@ class LlamaCppBackend:
             argv += ["--top-k", str(d.top_k)]
         if not r.enable_thinking:
             argv += ["--reasoning", "off"]
-        argv += list(r.extra_args)
+        # D-065: NO extra_args. The command surface is fully frozen.
         return argv
 
     # -- one invocation ------------------------------------------------------------
 
     def invoke_once(self, prompt: str, *, seed: int) -> RawInvocation:
         argv = self.build_argv(prompt, seed=seed)
-        t0 = time.perf_counter()
-        timed_out = False
-        try:
-            proc = subprocess.run(
-                argv,
-                capture_output=True,
-                text=True,
-                timeout=self.runtime.timeout_seconds,
-                check=False,
-            )
-            stdout, stderr, rc = proc.stdout, proc.stderr, proc.returncode
-        except subprocess.TimeoutExpired as exc:
-            timed_out = True
-            stdout = exc.stdout or "" if isinstance(exc.stdout, str) else ""
-            stderr = (exc.stderr or "" if isinstance(exc.stderr, str) else "") + "\n[TIMEOUT]"
-            rc = -1
-        wall = time.perf_counter() - t0
-        return RawInvocation(
-            argv=argv, returncode=rc, stdout=stdout, stderr=stderr,
-            wall_clock_seconds=wall, timed_out=timed_out,
-        )
+        return self._invoke(argv, timeout=self.runtime.timeout_seconds)
 
     # -- GenerationBackend protocol ------------------------------------------------
 
@@ -338,16 +370,16 @@ class LlamaCppBackend:
     ATTEMPT = 1
 
     def generate(self, specs: list[GenSpec]) -> list[GenerationRecord]:
-        # FAIL-CLOSED (D-050): never generate real data without a RunToken. This is
-        # re-checked here (not only in __init__) so a backend that was constructed
-        # for_testing_only cannot later be handed a real workload silently.
-        if self.run_token is None and not self.for_testing_only:
+        # FAIL-CLOSED (D-050/D-065): re-checked here, not only in __init__, so a backend
+        # whose run_token was tampered with after construction cannot run.
+        if not isinstance(self.run_token, RunToken):
             raise RunNotAuthorizedError(
-                "LlamaCppBackend.generate() called without an authorized RunToken "
-                "and without for_testing_only=True."
+                "LlamaCppBackend.generate() called without an authorized RunToken."
             )
-        if self.for_testing_only:
-            _log.warning("LlamaCppBackend running in for_testing_only mode -- NOT a scientific run.")
+        if self._synthetic:
+            _log.warning(
+                "LlamaCppBackend: SYNTHETIC-TEST RunToken + injected fakes -- NOT a scientific run."
+            )
         if not self._verified:
             self._verify_runtime()
         records: list[GenerationRecord] = []
@@ -456,19 +488,15 @@ class LlamaCppBackend:
                 "cli_chrome_version": CLI_CHROME_VERSION,
             },
             "authorization": {
-                "for_testing_only": self.for_testing_only,
-                "run_token_scientific_hash": (
-                    self.run_token.scientific_hash if self.run_token is not None else None
-                ),
-                "run_token_reviewer": (
-                    self.run_token.reviewer if self.run_token is not None else None
-                ),
+                "synthetic_test_token": self._synthetic,
+                "run_token_scientific_hash": self.run_token.scientific_hash,
+                "run_token_reviewer": self.run_token.reviewer,
             },
             "runtime_identity": {
                 "llama_cpp_version_string": self._version_string,
                 "llama_cpp_build": self._version_build,
-                "model_sha256_verified": getattr(self, "model_sha256_verified", None),
-                "identity_verified": getattr(self, "identity_verified", None),
+                "model_sha256_verified": self.model_sha256_verified,
+                "identity_verified": self.identity_verified,
             },
             "timestamp_utc": _utcnow(),
         }
@@ -526,22 +554,56 @@ _VERSION_RE = re.compile(
 )
 
 
-def _binary_version(path: Path) -> tuple[str, str | None, str | None]:
-    """Parse ``llama-cli --version`` -> (version_string, build, commit). Any field may be
-    None if ``--version`` output is not in the expected ``0.4.0-dev (build 10809,
-    commit 5266f24da)`` shape. Never raises for a parse miss -- the caller decides."""
+def _binary_version(path: Path) -> tuple[str, str, str]:
+    """Run ``<binary> --version`` and return ``(version_string, build, commit)``.
+
+    FAIL-CLOSED (DECISION_LOG D-065). Raises :class:`LlamaCppInvocationError` on ANY of:
+    a subprocess failure, a nonzero exit, empty output, output that does not match the
+    expected ``version: X (build N, commit H)`` shape, or a missing build / commit
+    group. It NEVER returns a partial or unverified result -- the caller can trust that
+    a successful return means the identity was positively parsed.
+    """
     try:
         proc = subprocess.run(
             [str(path), "--version"], capture_output=True, text=True, timeout=30, check=False
         )
-    except (OSError, subprocess.SubprocessError) as exc:  # pragma: no cover - env dependent
+    except (OSError, subprocess.SubprocessError) as exc:
         raise LlamaCppInvocationError(f"could not run `{path} --version`: {exc}") from exc
-    blob = f"{proc.stdout}\n{proc.stderr}"
+    if proc.returncode != 0:
+        raise LlamaCppInvocationError(
+            f"`{path} --version` exited {proc.returncode} "
+            f"(stderr: {proc.stderr.strip()[:200]!r})"
+        )
+    blob = f"{proc.stdout}\n{proc.stderr}".strip()
+    if not blob:
+        raise LlamaCppInvocationError(f"`{path} --version` produced no output")
     m = _VERSION_RE.search(blob)
-    line = next((ln.strip() for ln in blob.splitlines() if "version:" in ln.lower()), blob.strip())
-    if not m:
-        return line, None, None
+    if m is None:
+        raise LlamaCppInvocationError(
+            f"`{path} --version` output does not match the expected "
+            f"`version: X (build N, commit H)` shape: {blob[:200]!r}"
+        )
+    line = next((ln.strip() for ln in blob.splitlines() if "version:" in ln.lower()), blob[:120])
     return line, m.group(2), m.group(3)
+
+
+def _subprocess_invoke(argv: list[str], *, timeout: float) -> RawInvocation:
+    """The REAL invocation adapter: run ``argv`` as a subprocess. Only reached for an
+    authorized (non-synthetic) :class:`~clsm.track_a_run.RunToken`."""
+    t0 = time.perf_counter()
+    timed_out = False
+    try:
+        proc = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, check=False)
+        stdout, stderr, rc = proc.stdout, proc.stderr, proc.returncode
+    except subprocess.TimeoutExpired as exc:
+        timed_out = True
+        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
+        stderr = (exc.stderr if isinstance(exc.stderr, str) else "") + "\n[TIMEOUT]"
+        rc = -1
+    return RawInvocation(
+        argv=argv, returncode=rc, stdout=stdout, stderr=stderr,
+        wall_clock_seconds=time.perf_counter() - t0, timed_out=timed_out,
+    )
 
 
 def _atomic_write(path: Path, text: str) -> None:
