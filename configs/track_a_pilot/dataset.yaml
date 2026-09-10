@@ -33,7 +33,7 @@
 #   - a sha256 over the selected item CONTENT
 #   - verified question/choice schema, choice ordering, and label->letter mapping
 # Nothing is downloaded during protocol design (source: hf_datasets, below, only fetches
-# on first use AFTER run authorization). The run manifest field `dataset_content_pin`
+# only in the separately opted-in dataset-pin step). The run manifest field `dataset_content_pin`
 # stays BLOCKED until that file exists and is cross-checked.
 
 id: cais/mmlu
@@ -62,8 +62,9 @@ items_per_subject: 5
 max_chars: 1500
 selection_rule: sha256_sorted_first_n
 
-# 'hf_datasets' downloads MMLU on first use -- only after run authorization. NOT
-# downloaded during protocol design. Tests use tests/fixtures/mmlu_mini.jsonl instead.
+# The Track-A runner never constructs this network source: it consumes the reviewed pin.
+# Only clsm.track_a_dataset_pin create-real-pin with explicit opt-in retrieves content.
+# No dataset is downloaded during protocol design; fixture-check uses synthetic data.
 source: hf_datasets
 local_path: null
 

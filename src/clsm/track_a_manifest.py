@@ -5,8 +5,8 @@ requirements are represented **explicitly** (``BLOCKED`` / ``DEFERRED`` /
 ``NOT_APPLICABLE``), never silently omitted. :func:`check_run_ready` fails loudly if a
 field that must be locked before *generator inference* is still unresolved.
 
-This is the single artifact a human reviewer inspects to decide whether the pilot may
-run. It does not itself authorize anything.
+The final checklist/preflight combines this methodology record with real content-pin
+evidence and human authorization. This record does not itself authorize anything.
 
 Design: PILOT_PROTOCOL.md, PILOT_PREREGISTRATION.md, DECISION_LOG D-041..D-049.
 """
@@ -24,6 +24,29 @@ from clsm.config import ExperimentConfig, load_experiment_config
 
 SCHEMA_VERSION = "track-a-pilot-manifest/1"
 PROTOCOL_VERSION = "track-a-en-hint-pilot/2026-09-10"
+
+
+class RunStage(enum.StrEnum):
+    GENERATOR = "generator"
+    JUDGE = "judge"
+    HUMAN_VALIDATION = "human_validation"
+    URDU = "urdu"
+    CONFIRMATORY = "confirmatory"
+
+
+# D-066: stage membership is code-frozen, not controlled by editable per-field flags.
+_DOWNSTREAM = {
+    "disclosure_judge", "human_disclosure_audit", "ethics_determination",
+    "translation_protocol", "native_urdu_validation", "confirmatory_sample_size",
+}
+_STAGE_EXTRA = {
+    RunStage.GENERATOR: set(),
+    RunStage.HUMAN_VALIDATION: {"human_disclosure_audit", "ethics_determination"},
+    RunStage.JUDGE: {"disclosure_judge", "human_disclosure_audit", "ethics_determination"},
+    RunStage.URDU: {"disclosure_judge", "human_disclosure_audit", "ethics_determination",
+                    "translation_protocol", "native_urdu_validation"},
+    RunStage.CONFIRMATORY: _DOWNSTREAM,
+}
 
 
 class Status(enum.StrEnum):
@@ -117,6 +140,12 @@ class TrackAPilotManifest(BaseModel):
     native_urdu_validation: Field_
     ethics_determination: Field_
 
+    def stage_unresolved(self, stage: RunStage) -> list[str]:
+        """Required later-stage fields cannot pass with an English-only NOT_APPLICABLE."""
+        required = (set(self._fields()) - _DOWNSTREAM) | _STAGE_EXTRA[stage]
+        return sorted(name for name in required if self._fields()[name].status is not Status.LOCKED
+                      or not self._fields()[name].value)
+
     def blocking_unresolved(self) -> list[str]:
         """Names of run-blocking fields that are neither LOCKED nor NOT_APPLICABLE."""
         out: list[str] = []
@@ -154,12 +183,13 @@ class ManifestNotRunReady(RuntimeError):
     pass
 
 
-def check_run_ready(manifest: TrackAPilotManifest) -> None:
+def check_run_ready(manifest: TrackAPilotManifest, *, stage: RunStage | None = None) -> None:
     """Raise :class:`ManifestNotRunReady` listing every run-blocking unresolved field.
 
-    A pilot generation run MUST call this and see it pass first.
+    Without a stage this retains the conservative legacy aggregate check. Actual
+    generation uses full staged preflight, not this metadata-only check.
     """
-    unresolved = manifest.blocking_unresolved()
+    unresolved = manifest.stage_unresolved(stage) if stage is not None else manifest.blocking_unresolved()
     if unresolved:
         raise ManifestNotRunReady(
             "Track-A pilot is NOT run-ready. Run-blocking fields still unresolved:\n  - "

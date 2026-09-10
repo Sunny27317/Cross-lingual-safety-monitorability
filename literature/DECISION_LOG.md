@@ -2062,3 +2062,100 @@ are reversed by a **new** entry, not by deleting an old one.
 
 - **Status:** ACTIVE. `AUTHORIZED TO RUN` remains **NO**. Full mock/synthetic test suite
   green; `ruff` + `mypy` clean; Track B unchanged.
+
+## D-066 — Final pre-run package: stage-specific readiness after PR #17
+- **Date:** 2026-09-10. **PRE-OUTCOME.** Starting main is
+  `062bfbef83cd416a275df3c6634f16582e813a74`, which merged PR #17's
+  `44e3cbf53f3afcc3495382a9d3b79d46e3962fbb` correction. The authorization boundary is
+  singular: only `authorize_track_a_run()` issues production-usable RunToken credentials.
+  No testing credential is reintroduced. No scientific outcomes have been observed.
+- **Audit finding:** the aggregate readiness gate made judge, human disclosure audit and
+  ethics block English generator traces. Yet `MONITOR_VALIDATION_PROTOCOL.md` §2.3
+  explicitly orders generator traces before human references and judge calibration, and
+  allows behavioural reporting while disclosure is blocked. This was an executable
+  dependency cycle, not a requirement to choose a weak judge.
+- **Clarification:** typed `RunStage` distinguishes generator, human_validation, judge,
+  urdu and confirmatory. Generator requires every frozen generator/design/parsing/analysis
+  policy and an actually validated dataset content pin, model/runtime verification and
+  explicit human authorization. Judge/human reference/ethics remain mandatory for their
+  stages; translation/native Urdu and confirmatory N/SESOI remain unresolved later-stage
+  requirements. English NOT_APPLICABLE entries do not clear later stages.
+- **Ethics scope:** D-049 described institutional determination before human recruitment.
+  The public-benchmark generator stage does not recruit or annotate humans. Deferring that
+  requirement to human stages is not an exemption claim and does not authorize recruitment.
+- **Enforcement:** stage requirements cannot be removed with per-field `blocking_for_run`
+  flags or an unrecognized block kind. Full preflight additionally checks clean Git,
+  expected commit/hash, committed manifest consistency, local identity, content, workload,
+  exclusive output destination and structured human approval. Later-stage execution is
+  deliberately unimplemented/refused. The old aggregate check is retained conservatively
+  for legacy callers; the new runner uses full staged preflight.
+- **Canonicality:** `PRE_RUN_FINAL_CHECKLIST.md` is the operational checklist;
+  `SCIENTIFIC_RUN_PLAN.md` is the command recipe; `BLOCKER_MATRIX.md` records the audit
+  and external dependencies. Scientific rationale stays in `PILOT_PROTOCOL.md`; older
+  feasibility/gate records remain historical. No Track B or primary-question change.
+
+## D-067 — Dataset content pin, reviewed run identity and plan freeze
+- **Date:** 2026-09-10. **PRE-OUTCOME; no real dataset retrieved in this package.**
+- **Content pin schema/tool:** `track-a-dataset-pin/1` records repository/config/split,
+  requested/resolved immutable revision, library version, source kind/file hashes,
+  selection rule/subjects/count/length cap, exact IDs, selected content, exclusions,
+  schema/choice-order/label verification, UTC timestamp and tool version. The content
+  SHA (`content_digest`) covers, in canonical UTF-8 JSON: every selected item's stable
+  ID, subject, exact question, all choices in exact order and correct index, **and** the
+  identifying dataset metadata — repo/config/split, requested + resolved revision,
+  datasets library version, selection rule, subject list, per-subject and total counts,
+  and the sorted exact ID list. Because the pin file is git-ignored (bundled into the
+  run, not committed), this single hash — bound into the human authorization payload and
+  the RunToken — is the sole cryptographic anchor for the entire reviewed selection, so
+  a metadata-only swap (e.g. a different datasets library version) cannot keep the same
+  hash. Existing selection/inclusion rules are reused unchanged. A fixture pin cannot
+  clear scientific generation readiness.
+  *(Take-over note, 2026-09-10: Codex's initial draft hashed only item content; this
+  finishing pass extended `content_sha256` to bind the metadata Phase 3 requires. No
+  real pin exists; `scientific_config_hash` and `pre_run_freeze.json` are unaffected.)*
+- **Retrieval:** explicit dataset-only opt-in, separate from generator approval. Only native
+  parquet files from the requested configuration/split at the exact revision are accepted;
+  no converted-branch fallback, remote dataset script or guessed label mapping. Actual
+  source layout/metadata compatibility must be established during authorized preparation.
+  This engineering pass runs only fixture mode. The real content pin remains absent.
+- **Additional hash omission found:** D-017 uses experiment ID in hint selection, but the
+  scientific hash did not include it. Freeze/hash `experiment_id=track-a-en-hint-pilot`
+  and the ordered two conditions. Date/git suffixes belong only in output paths. No cue,
+  target-selection rule, model, dataset or estimand changes. New scientific config hash:
+  `e325114a6de5764e81011510272e42bd27310b614dd4f2c9de3740f33261740b`.
+  Timeout/build hashes and the frozen empty CLI-args marker remain intact.
+- **Authorization:** human JSON additionally binds generator stage, full reviewed Git
+  commit, content hash, absolute output directory and experiment ID. No program sets it.
+  The issuer reruns full preflight; the backend binds actual model/decoding/runtime
+  settings, destination and exact permitted specifications. No new public token factory.
+- **Plan:** existing prompt/hint/spec builders produce exactly 50 × 2 × 8 = **800**
+  distinct planned calls. Each is attempted once; no content retry or second execution
+  into an existing directory. An interrupted run needs explicit human deviation review,
+  not automatic resume. The future runner never constructs a network dataset source.
+
+## D-068 — Completion evidence, descriptive report and explicit English STOP
+- **Date:** 2026-09-10. **PRE-OUTCOME.** No scientific inference, judge, human annotation,
+  Urdu run or confirmatory analysis is performed by this engineering task.
+- **Runner:** `clsm.track_a_execute` is prepared but not executed here. It performs
+  collection/parsing only, with per-record durable writes, raw argv/output evidence,
+  config/plan/content/provenance snapshots, and a typed completion manifest only after
+  all planned records and raw artifacts are present. Output hashes make future tampering
+  or missing artifacts explicit. New bundle writes use atomic exclusive publication.
+- **Timeout correction:** subprocess timeout output can be bytes even with text mode;
+  those bytes were previously discarded. Preserve UTF-8-decoded partial stdout/stderr
+  (replacement decoding only for invalid UTF-8). Timeout remains an infrastructure
+  PARSE_ERROR and TIMEOUT with zero retry. No shared parser/metric definition changes.
+- **Descriptive entry point:** `clsm.track_a_analyze` reads saved records, reports planned/
+  present/missing counts, parsing/reasoning/stop diagnostics, ties and majority answers.
+  Complete collections reuse existing `clsm.metrics` behavioural definitions and
+  item-cluster bootstrap seed/replicate count. Judge-dependent fields are withheld,
+  never presented as measured zeros. Incomplete collections get diagnostics but no
+  behavioural estimates; missing samples are never fabricated or silently dropped.
+- **Reporting freeze:** `PILOT_REPORT_TEMPLATE.md` is written before results. The n=50
+  pilot is descriptive pipeline/instrument validation, with no p-value success test,
+  outcome-selected threshold, model choice, confirmatory N or SESOI selection.
+  It cannot establish the Monitor-Validity Gap, cross-lingual degradation, Urdu monitor
+  failure, translation recovery or frontier-model generalization.
+- **STOP:** English traces plus descriptive report end this package's execution scope.
+  Judge/reference validation, Urdu, translation and confirmatory evidence each require
+  separate prospective human scientific decisions. `AUTHORIZED TO RUN` remains **NO**.

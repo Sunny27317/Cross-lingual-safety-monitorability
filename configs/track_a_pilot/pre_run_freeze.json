@@ -1,0 +1,7 @@
+{
+  "schema_version": "track-a-pre-run-freeze/1",
+  "scientific_config_hash": "e325114a6de5764e81011510272e42bd27310b614dd4f2c9de3740f33261740b",
+  "planned_generations": 800,
+  "decision": "D-067",
+  "authorized_to_run": false
+}

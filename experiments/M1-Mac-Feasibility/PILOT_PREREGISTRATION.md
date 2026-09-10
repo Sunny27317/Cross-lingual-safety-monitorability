@@ -1,5 +1,10 @@
 # PILOT_PREREGISTRATION.md — Track-A English hint-faithfulness pilot
 
+> Operational authority: `PRE_RUN_FINAL_CHECKLIST.md` / `SCIENTIFIC_RUN_PLAN.md` (D-066–D-068).
+> This preregistration remains the scientific summary; it is not a separate execution recipe.
+> Staged English generation precedes separately approved judge/reference validation.
+
+
 ## STATUS: METHODOLOGY FROZEN — EXECUTION BLOCKED PENDING EXTERNAL REQUIREMENT — NOT A RUN AUTHORIZATION
 
 Every methodological choice that could bias the pilot's result **is frozen** (see the

@@ -11,7 +11,7 @@ Three separable readiness layers (all must pass):
 1. **methodology readiness** — every run-blocking METHODOLOGY field in the manifest is
    LOCKED (``TrackAPilotManifest.methodology_frozen()``).
 2. **external-resource readiness** — every run-blocking EXTERNAL_RESOURCE field is
-   resolved (disclosure judge, human audit, ethics, dataset content pin, …).
+   resolved for the requested stage (dataset pin for generator; judge/audit/ethics later, D-066).
 3. **explicit human run authorization** — a *structured* token in the environment
    variable ``CLSM_TRACK_A_RUN_AUTHORIZED`` whose payload names the exact scientific
    hash it authorizes and the reviewer's assertion. It is **not** a boolean toggle:
@@ -38,7 +38,7 @@ from pydantic import BaseModel, ConfigDict
 from clsm.config import ExperimentConfig, load_experiment_config
 from clsm.errors import UnresolvedProductionSettingError
 from clsm.logging_utils import get_logger
-from clsm.track_a_manifest import TrackAPilotManifest, build_pilot_manifest
+from clsm.track_a_manifest import BlockKind, RunStage, TrackAPilotManifest, build_pilot_manifest
 
 _log = get_logger("clsm.track_a_run")
 
@@ -73,6 +73,8 @@ def scientific_config_dict(cfg: ExperimentConfig, runtime: dict[str, Any]) -> di
     rt, mdl, dx, pr = runtime["runtime"], runtime["model"], runtime["decoding_extras"], runtime["process"]
     return {
         "protocol": "track-a-en-hint-pilot",
+        "experiment_id": cfg.experiment_name,
+        "conditions": ["control", "treatment"],
         "generator_model": cfg.model.id,
         "model_revision": cfg.model.revision,
         "tokenizer_revision": cfg.model.tokenizer_revision,
@@ -164,6 +166,13 @@ class RunToken:
     reviewer: str
     reviewed_utc: str
     manifest_status: dict[str, int]
+    stage: RunStage = RunStage.GENERATOR
+    backend_hash: str = ""
+    git_commit: str = ""
+    dataset_content_hash: str = ""
+    output_dir: str = ""
+    experiment_id: str = ""
+    allowed_spec_hashes: tuple[str, ...] = ()
     _guard: object = None
     authorized_utc: str = field(default_factory=lambda: _dt.datetime.now(_dt.UTC).isoformat())
 
@@ -193,7 +202,7 @@ class ReadinessReport:
 
 
 def _check_human_authorization(
-    expected_hash: str,
+    expected_hash: str, *, bindings: dict[str, str] | None = None,
 ) -> tuple[bool, str | None, dict[str, Any] | None]:
     raw = os.environ.get(ENV_AUTH)
     if not raw:
@@ -206,6 +215,14 @@ def _check_human_authorization(
         return False, f"{ENV_AUTH} is not valid JSON", None
     if not isinstance(payload, dict) or not set(payload) >= _AUTH_REQUIRED_KEYS:
         return False, f"{ENV_AUTH} JSON must contain keys {sorted(_AUTH_REQUIRED_KEYS)}", None
+    if any(not isinstance(payload[k], str) or not payload[k].strip() for k in _AUTH_REQUIRED_KEYS):
+        return False, "authorization fields must be nonempty strings", None
+    try:
+        reviewed = _dt.datetime.fromisoformat(payload["reviewed_utc"])
+        if reviewed.utcoffset() is None or reviewed > _dt.datetime.now(_dt.UTC):
+            raise ValueError("timezone missing or future review")
+    except ValueError:
+        return False, "authorization reviewed_utc must be a valid past timezone-aware timestamp", None
     if payload["assertion"].strip() != _AUTH_ASSERTION:
         return False, f"{ENV_AUTH}.assertion does not match the required text verbatim", None
     if payload["scientific_hash"] != expected_hash:
@@ -215,6 +232,10 @@ def _check_human_authorization(
             f"the config being run ({expected_hash[:12]}…) — re-authorize for THIS protocol",
             None,
         )
+    if bindings is not None:
+        for key, value in bindings.items():
+            if not value or payload.get(key) != value:
+                return False, f"authorization {key} does not match reviewed run", None
     return True, None, payload
 
 
@@ -223,17 +244,28 @@ def evaluate_readiness(
     *,
     config_path: str | Path = "configs/track_a_pilot/pilot.yaml",
     runtime_path: str | Path = "configs/track_a_pilot/runtime_llamacpp.yaml",
+    stage: RunStage = RunStage.GENERATOR,
+    pin_path: str | Path = "experiments/M1-Mac-Feasibility/DATASET_CONTENT_PIN.json",
 ) -> ReadinessReport:
     """Static, side-effect-free readiness evaluation across all three layers."""
-    from clsm.track_a_manifest import BlockKind
+    from clsm.track_a_dataset_pin import load_pin
 
     m = manifest or build_pilot_manifest(config_path)
     cfg = load_experiment_config(config_path)
     runtime = yaml.safe_load(Path(runtime_path).read_text())
     expected_hash = scientific_config_hash(cfg, runtime)
 
-    meth = m.unresolved_by_kind(BlockKind.METHODOLOGY)
-    ext = m.unresolved_by_kind(BlockKind.EXTERNAL_RESOURCE)
+    unresolved = m.stage_unresolved(stage)
+    # Unknown/NONE block kinds still fail closed as methodology blockers.
+    meth = [n for n in unresolved if m._fields()[n].block_kind is not BlockKind.EXTERNAL_RESOURCE]
+    ext = [n for n in unresolved if m._fields()[n].block_kind is BlockKind.EXTERNAL_RESOURCE]
+    try:
+        load_pin(pin_path, cfg.dataset, require_real=True)
+        if "dataset_content_pin" in ext:
+            ext.remove("dataset_content_pin")
+    except (ValueError, OSError):
+        if "dataset_content_pin" not in ext:
+            ext.append("dataset_content_pin")
     human_ok, human_err, _ = _check_human_authorization(expected_hash)
     return ReadinessReport(
         methodology_frozen=not meth,
@@ -249,37 +281,43 @@ def authorize_track_a_run(
     *,
     config_path: str | Path = "configs/track_a_pilot/pilot.yaml",
     runtime_path: str | Path = "configs/track_a_pilot/runtime_llamacpp.yaml",
-    manifest: TrackAPilotManifest | None = None,
+    expected_commit: str | None = None, expected_hash: str | None = None,
+    pin_path: str | Path = "experiments/M1-Mac-Feasibility/DATASET_CONTENT_PIN.json",
+    output_dir: str | Path = "experiments/_runs/track-a-en-hint-pilot",
 ) -> RunToken:
-    """Return a :class:`RunToken` iff ALL THREE readiness layers pass. Otherwise raise
-    :class:`RunNotAuthorizedError` with every failure enumerated. Fail-closed."""
-    m = manifest or build_pilot_manifest(config_path)
+    """Sole issuer. Full read-only preflight plus all three generator readiness layers."""
+    from clsm.track_a_backend import backend_config_hash, load_llamacpp_runtime
+    from clsm.track_a_dataset_pin import load_pin
+    from clsm.track_a_plan import build_plan, spec_hash
+    from clsm.track_a_preflight import preflight
+
+    rep = preflight(config_path=config_path, runtime_path=runtime_path,
+                    expected_commit=expected_commit, expected_hash=expected_hash,
+                    pin_path=pin_path, output_dir=output_dir)
+    if not rep.ready:
+        raise RunNotAuthorizedError("Track-A run is NOT authorized:\n" + "\n".join(rep.blockers))
     cfg = load_experiment_config(config_path)
-    runtime = yaml.safe_load(Path(runtime_path).read_text())
-    expected_hash = scientific_config_hash(cfg, runtime)
-    rep = evaluate_readiness(m, config_path=config_path, runtime_path=runtime_path)
-
-    if not rep.all_pass:
-        lines = ["Track-A run is NOT authorized. Failing layers:"]
-        if not rep.methodology_frozen:
-            lines.append(f"  methodology: unresolved {rep.methodology_unresolved}")
-        if not rep.external_resources_cleared:
-            lines.append(f"  external resources: unresolved {rep.external_unresolved}")
-        if not rep.human_authorization_present:
-            lines.append(f"  human authorization: {rep.human_authorization_error}")
-        raise RunNotAuthorizedError("\n".join(lines))
-
-    human_ok, _, payload = _check_human_authorization(expected_hash)
-    assert human_ok and payload is not None
-    _log.warning(
-        "Track-A run AUTHORIZED for scientific_hash %s by %s (reviewed %s)",
-        expected_hash[:12], payload["reviewer"], payload["reviewed_utc"],
-    )
+    runtime = load_llamacpp_runtime(runtime_path)
+    pin = load_pin(pin_path, cfg.dataset, require_real=True)
+    current_hash = scientific_config_hash(cfg, yaml.safe_load(Path(runtime_path).read_text()))
+    if current_hash != rep.scientific_config_hash:
+        raise RunNotAuthorizedError("scientific configuration changed during preflight")
+    assert rep.scientific_config_hash is not None and rep.git_commit is not None
+    human_ok, _, payload = _check_human_authorization(rep.scientific_config_hash, bindings={
+        "stage": "generator", "git_commit": rep.git_commit,
+        "dataset_content_hash": pin.content_sha256, "output_dir": rep.output_dir,
+        "experiment_id": cfg.experiment_name,
+    })
+    if not human_ok or payload is None:
+        raise RunNotAuthorizedError("human authorization changed during preflight")
     return RunToken(
-        scientific_hash=expected_hash,
-        reviewer=payload["reviewer"],
+        scientific_hash=rep.scientific_config_hash, reviewer=payload["reviewer"],
         reviewed_utc=payload["reviewed_utc"],
-        manifest_status=m.status_summary(),
+        manifest_status=build_pilot_manifest(config_path).status_summary(),
+        stage=RunStage.GENERATOR, backend_hash=backend_config_hash(cfg.model, cfg.decoding, runtime),
+        git_commit=rep.git_commit, dataset_content_hash=pin.content_sha256,
+        output_dir=rep.output_dir, experiment_id=cfg.experiment_name,
+        allowed_spec_hashes=tuple(spec_hash(s) for s in build_plan(cfg, pin, cfg.experiment_name)),
         _guard=_RUNTOKEN_GUARD,
     )
 
@@ -350,6 +388,7 @@ class TrackARunProvenance(BaseModel):
     system_prompt: str | None
     samples_per_condition: int
     seeds: list[int]
+    conditions: list[str] = ["control", "treatment"]
 
     # intervention / prompt
     prompt_template_version: str

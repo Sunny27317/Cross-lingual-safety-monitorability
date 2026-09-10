@@ -249,3 +249,6 @@ __marimo__/
 *.pt
 *.pth
 
+
+# Track-A reviewed content pin is bundled into the future run, never scaffold data.
+/experiments/M1-Mac-Feasibility/DATASET_CONTENT_PIN.json

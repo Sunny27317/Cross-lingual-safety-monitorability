@@ -42,12 +42,12 @@ where trustworthy native ground truth is obtainable and which Onyame et al. omit
 - **Verdict:** YELLOW — proceed only with the narrowed contribution above. Re-affirmed
   2026-09-01 after independent verification of all core citations
   (`literature/DECISION_LOG.md` D-007).
-- **Current milestone:** **Milestone 0 — governance + validated research design.**
-  The Run-2 Deep Research blueprint has been imported, verified, and operationalized.
-  No experiments, model downloads, or compute have been run. No results exist.
-- **Next milestone:** **Milestone 1 — reproduce an English hint-faithfulness baseline**
-  (Turpin/Chen signature) on `DeepSeek-R1-Distill-Qwen-7B`, ~50 items, free compute —
-  gated on four blocking decisions (see `RESEARCH_PLAN.md` §28).
+- **Current engineering state:** Track-A English pre-run package prepared; scientific execution
+  remains blocked on content pinning, current identity checks and explicit human review.
+  Historical infrastructure downloads/smoke tests are recorded separately; no scientific outcomes exist.
+- **Next action:** use [the final Track-A checklist](experiments/M1-Mac-Feasibility/PRE_RUN_FINAL_CHECKLIST.md)
+  and [blocker matrix](experiments/M1-Mac-Feasibility/BLOCKER_MATRIX.md). No judge, human
+  annotation, Urdu or confirmatory execution follows automatically.
 
 Milestones: `0` governance → `1` English baseline → `2` multilingual pipeline + Urdu
 pilot → `3` native Urdu validation → `4` four-monitor experiments → `5` controls /
@@ -88,9 +88,9 @@ from Track A's small models are never assumed to generalize to frontier models. 
 | `literature/COMPETITOR_MATRIX.md` | Per-paper novelty audit + threat levels. |
 | `literature/DECISION_LOG.md` | Append-only record of major scientific decisions. |
 | `experiments/EXPERIMENT_SPEC.md` | Planned experimental matrix (planning only — nothing run). |
-| `experiments/M1-Mac-Feasibility/` | Track A (Apple Silicon / M5). Generator **locked** (`Qwen/Qwen3-1.7B` Q8_0) and runtime **locked** (llama.cpp `v0.4.0` pin, arm64). Infra gates A/B/C done; **no scientific dataset/inference/metric**; scientific pilot needs a frozen `PILOT_PREREGISTRATION.md`. |
+| `experiments/M1-Mac-Feasibility/` | Track A (Apple Silicon / M5). Generator **locked** (`Qwen/Qwen3-1.7B` Q8_0) and runtime **locked** (llama.cpp `v0.4.0` pin, arm64). Infra gates A/B/C done; **no scientific dataset/inference/metric**; scientific pilot requires the final checklist, content pin and explicit authorization. |
 | `experiments/M1-English-Baseline/` | Track B (original GPU design) — deferred replication target, unchanged. |
-| `configs/` `data/` `src/` `tests/` `results/` `figures/` `paper/` | Empty until the milestone that needs them; `results/` holds only real-run outputs. |
+| `configs/` `data/` `src/` `tests/` `results/` `figures/` `paper/` | Offline infrastructure/tests are implemented; `results/` remains reserved for real-run outputs. |
 
 ## Research-integrity commitment
 

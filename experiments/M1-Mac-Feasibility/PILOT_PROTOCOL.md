@@ -1,5 +1,13 @@
 # PILOT_PROTOCOL.md — Track-A English hint-faithfulness pilot
 
+> **PRE-OUTCOME operational amendment D-066–D-068 (after PR #17 merge):** use
+> `PRE_RUN_FINAL_CHECKLIST.md` and `SCIENTIFIC_RUN_PLAN.md` for execution. Generator
+> readiness is stage-specific: dataset content/identity, frozen methodology and explicit
+> human authorization are mandatory; judge/human-reference/ethics remain blocking for
+> their later stages. This supersedes older all-stage gate wording below, preserving
+> scientific definitions. The exact experiment ID is frozen and hashed; no dated-ID hints.
+
+
 **Status: methodology FROZEN (2026-09-10). Execution BLOCKED pending external
 resources. NOT a run authorization.** Machine-readable freeze:
 `clsm.track_a_manifest.build_pilot_manifest()`. Decisions: `DECISION_LOG.md`
