@@ -4,10 +4,7 @@
 cannot occur unless :func:`authorize_track_a_run` succeeds and hands back a
 :class:`RunToken`; the real backend (:class:`clsm.track_a_backend.LlamaCppBackend`)
 **always** requires a :class:`RunToken` and fails **closed** otherwise. There is no
-public boolean bypass. Synthetic unit tests use :meth:`RunToken.for_synthetic_test`,
-which is structurally incapable of authorizing a real run: a backend holding one MUST
-be given an injected fake invoker + fake version probe, so it can never drive the real
-``llama-cli`` or the real GGUF.
+public boolean bypass. Tests exercise data transformations without authorization.
 
 Three separable readiness layers (all must pass):
 
@@ -151,7 +148,7 @@ class RunNotAuthorizedError(UnresolvedProductionSettingError):
 
 
 # Module-private construction guard: a RunToken can ONLY come from
-# authorize_track_a_run() or RunToken.for_synthetic_test(). A bare RunToken(...) raises.
+# authorize_track_a_run(). A bare RunToken(...) raises.
 _RUNTOKEN_GUARD = object()
 
 
@@ -159,8 +156,7 @@ _RUNTOKEN_GUARD = object()
 class RunToken:
     """Proof that all three readiness layers passed for one exact scientific hash.
 
-    Constructable ONLY via :func:`authorize_track_a_run` (a real, authorized run) or
-    :meth:`for_synthetic_test` (a structurally-neutered token for synthetic unit tests).
+    Constructable ONLY via :func:`authorize_track_a_run`.
     A direct ``RunToken(...)`` raises :class:`RunNotAuthorizedError`.
     """
 
@@ -169,29 +165,13 @@ class RunToken:
     reviewed_utc: str
     manifest_status: dict[str, int]
     _guard: object = None
-    for_synthetic_test_only: bool = False
     authorized_utc: str = field(default_factory=lambda: _dt.datetime.now(_dt.UTC).isoformat())
 
     def __post_init__(self) -> None:
         if self._guard is not _RUNTOKEN_GUARD:
             raise RunNotAuthorizedError(
-                "RunToken may only be created by clsm.track_a_run.authorize_track_a_run() "
-                "or, for synthetic unit tests, RunToken.for_synthetic_test()."
+                "RunToken may only be created by clsm.track_a_run.authorize_track_a_run()."
             )
-
-    @classmethod
-    def for_synthetic_test(cls) -> RunToken:
-        """TEST-ONLY. A backend holding this token is structurally incapable of invoking
-        the real ``llama-cli`` or verifying the real runtime: it MUST be given an injected
-        fake invoker + fake version probe. It can NEVER authorize a scientific run."""
-        return cls(
-            scientific_hash="SYNTHETIC-TEST-ONLY-NOT-A-REAL-RUN",
-            reviewer="synthetic-test",
-            reviewed_utc="",
-            manifest_status={},
-            _guard=_RUNTOKEN_GUARD,
-            for_synthetic_test_only=True,
-        )
 
 
 @dataclass(frozen=True)
@@ -421,6 +401,37 @@ def capture_track_a_provenance(
     dataset_item_ids: list[str] | None = None,
     dataset_schema_verified: bool = False,
 ) -> TrackARunProvenance:
+    return provenance_from_config(
+        token_scientific_hash=token.scientific_hash,
+        token_reviewer=token.reviewer,
+        token_authorized_utc=token.authorized_utc,
+        experiment_id=experiment_id, config_path=config_path, runtime_path=runtime_path,
+        llama_cpp_version_string=llama_cpp_version_string, llama_cpp_build=llama_cpp_build,
+        gguf_sha256_verified=gguf_sha256_verified,
+        llama_cpp_identity_verified=llama_cpp_identity_verified,
+        datasets_library_version=datasets_library_version, dataset_content_hash=dataset_content_hash,
+        dataset_item_ids=dataset_item_ids, dataset_schema_verified=dataset_schema_verified,
+    )
+
+
+def provenance_from_config(
+    *,
+    token_scientific_hash: str,
+    token_reviewer: str,
+    token_authorized_utc: str,
+    experiment_id: str,
+    config_path: str | Path = "configs/track_a_pilot/pilot.yaml",
+    runtime_path: str | Path = "configs/track_a_pilot/runtime_llamacpp.yaml",
+    llama_cpp_version_string: str = "",
+    llama_cpp_build: str | None = None,
+    gguf_sha256_verified: bool = False,
+    llama_cpp_identity_verified: bool = False,
+    datasets_library_version: str | None = None,
+    dataset_content_hash: str | None = None,
+    dataset_item_ids: list[str] | None = None,
+    dataset_schema_verified: bool = False,
+) -> TrackARunProvenance:
+    """Assemble audit data only; the returned provenance cannot authorize a backend."""
     cfg = load_experiment_config(config_path)
     rt = yaml.safe_load(Path(runtime_path).read_text())
     d, dx, pr, mdl, rtc = (
@@ -432,9 +443,9 @@ def capture_track_a_provenance(
         experiment_id=experiment_id,
         git_commit=_git("rev-parse", "HEAD"),
         git_dirty=bool(porcelain),
-        run_token_scientific_hash=token.scientific_hash,
-        run_token_reviewer=token.reviewer,
-        run_token_authorized_utc=token.authorized_utc,
+        run_token_scientific_hash=token_scientific_hash,
+        run_token_reviewer=token_reviewer,
+        run_token_authorized_utc=token_authorized_utc,
         model_repo=cfg.model.id,
         model_revision=cfg.model.revision,
         tokenizer_revision=cfg.model.tokenizer_revision,

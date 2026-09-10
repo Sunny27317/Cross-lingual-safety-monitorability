@@ -7,9 +7,7 @@ Design constraints (PILOT_PROTOCOL.md §6, DECISION_LOG D-043/D-050/D-052/D-053/
 
 * **Fail-closed run gate (D-050, hardened D-065).** Construction and ``generate()`` both
   require a :class:`~clsm.track_a_run.RunToken`. There is **no public boolean bypass**.
-  Synthetic unit tests pass ``RunToken.for_synthetic_test()`` *together with* an injected
-  ``invoker`` + ``version_probe``; such a backend is structurally incapable of driving
-  the real ``llama-cli`` or the real GGUF. Without a token, ``RunNotAuthorizedError``.
+  Only ``authorize_track_a_run()`` issues tokens. Tests exercise helpers directly.
 * **Subprocess argument LIST, never a shell string.** No ``shell=True``, no string
   interpolation into a command line. The argv is fully determined by the frozen,
   hashed scientific config — there is **no ``extra_args`` escape hatch** (D-065).
@@ -49,7 +47,6 @@ import re
 import shutil
 import subprocess
 import time
-from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -100,7 +97,7 @@ class LlamaCppRuntime:
     timeout_seconds: float = 900.0  # D-065: part of the scientific config hash
     # NOTE (D-065): there is NO `extra_args` field. The llama-cli command surface is
     # fully frozen -- an authorized run's argv is entirely determined by the hashed
-    # scientific config. Synthetic tests use dependency injection, not scientific args.
+    # scientific config. Tests exercise argv construction directly.
 
     @property
     def resolved_binary(self) -> Path:
@@ -193,12 +190,6 @@ class LlamaCppInvocationError(RuntimeError):
     an undesirable *generation*."""
 
 
-# Dependency-injection seams (D-065). The DEFAULTS are the real subprocess code paths;
-# a synthetic-test RunToken REQUIRES both to be injected, so it can never reach them.
-Invoker = Callable[..., "RawInvocation"]          # (argv: list[str], *, timeout: float) -> RawInvocation
-VersionProbe = Callable[[Path], "tuple[str, str, str]"]  # path -> (version_string, build, commit)
-
-
 class LlamaCppBackend:
     """A pinned-``llama-cli`` :class:`~clsm.generation.GenerationBackend`.
 
@@ -218,41 +209,18 @@ class LlamaCppBackend:
         *,
         raw_dir: str | Path | None = None,
         verify_runtime: bool = True,
-        invoker: Invoker | None = None,
-        version_probe: VersionProbe | None = None,
     ) -> None:
         # FAIL-CLOSED run gate (D-050, hardened D-065). A RunToken is ALWAYS required and
         # there is NO public boolean bypass. `True`/`1`/an object/None are not RunTokens.
-        if not isinstance(run_token, RunToken):
+        if type(run_token) is not RunToken:
             raise RunNotAuthorizedError(
-                "LlamaCppBackend requires an authorized RunToken from "
-                "clsm.track_a_run.authorize_track_a_run(). There is no boolean bypass. "
-                "For synthetic unit tests pass RunToken.for_synthetic_test() together "
-                "with an injected `invoker` and `version_probe`."
+                "LlamaCppBackend requires an authorized RunToken from authorize_track_a_run()."
             )
-        self._synthetic = run_token.for_synthetic_test_only
-        if self._synthetic:
-            # A synthetic token is structurally forbidden from reaching the real runtime.
-            if invoker is None or version_probe is None:
-                raise RunNotAuthorizedError(
-                    "A synthetic-test RunToken REQUIRES an injected `invoker` and "
-                    "`version_probe`; it must never drive the real llama-cli or GGUF."
-                )
-        else:
-            # An authorized run uses the real, frozen invoker + probe -- no injection.
-            if invoker is not None or version_probe is not None:
-                raise RunNotAuthorizedError(
-                    "An authorized RunToken must use the real (frozen) invoker + version "
-                    "probe; injection is only for RunToken.for_synthetic_test()."
-                )
+        run_token.__post_init__()
         self.model = model
         self.decoding = decoding
         self.runtime = runtime
         self.run_token = run_token
-        self._invoke: Invoker = invoker if invoker is not None else _subprocess_invoke
-        self._probe_version: VersionProbe = (
-            version_probe if version_probe is not None else _binary_version
-        )
         self.raw_dir = Path(raw_dir).expanduser() if raw_dir is not None else None
         self._verified = False
         self._version_string: str = ""
@@ -262,107 +230,37 @@ class LlamaCppBackend:
         if verify_runtime:
             self._verify_runtime()
 
+    def _require_authorization(self) -> None:
+        if type(getattr(self, "run_token", None)) is not RunToken:
+            raise RunNotAuthorizedError("LlamaCppBackend requires an authorized RunToken.")
+        self.run_token.__post_init__()
+
     # -- set-up verification (no generation) -----------------------------------------
 
     def _verify_runtime(self) -> None:
         """FAIL-CLOSED identity verification (D-052/D-065). Every branch either positively
         verifies a pinned value or raises -- generation never proceeds unverified."""
-        b = self.runtime.resolved_binary
-        m = self.runtime.resolved_model
-        if not b.exists():
-            raise LlamaCppInvocationError(f"llama-cli binary not found: {b}")
-        if not b.is_file():
-            raise LlamaCppInvocationError(f"llama-cli binary path is not a file: {b}")
-        if not m.exists():
-            raise LlamaCppInvocationError(f"model GGUF not found: {m}")
-        size = m.stat().st_size
-        if self.runtime.expected_model_bytes is not None and size != self.runtime.expected_model_bytes:
-            raise LlamaCppInvocationError(
-                f"model size mismatch: {size} != expected {self.runtime.expected_model_bytes}"
-            )
-        # GGUF SHA-256 MUST be pinned and MUST match (D-065).
-        if not self.runtime.expected_model_sha256:
-            raise LlamaCppInvocationError(
-                "expected_model_sha256 is not pinned -- cannot verify the GGUF identity"
-            )
-        got = _sha256_file(m)
-        if got != self.runtime.expected_model_sha256.lower():
-            raise LlamaCppInvocationError(
-                f"model SHA-256 mismatch: {got} != expected {self.runtime.expected_model_sha256}"
-            )
+        self._version_string, self._version_build = verify_runtime_identity(self.runtime)
         self.model_sha256_verified = True
-
-        # Runtime identity (D-052/D-065). `self._probe_version` RAISES on any failure
-        # mode (subprocess error, nonzero exit, empty/unparsable output, missing groups).
-        self._version_string, version_build, version_commit = self._probe_version(b)
-        exp_commit = self.runtime.llama_cpp_commit
-        if not exp_commit:
-            raise LlamaCppInvocationError("llama_cpp_commit is not pinned")
-        # Accept a short<->long prefix match either way (e.g. "5266f24da" vs the full 40).
-        if not (
-            exp_commit == version_commit
-            or exp_commit.startswith(version_commit)
-            or version_commit.startswith(exp_commit)
-        ):
-            raise LlamaCppInvocationError(
-                f"llama.cpp commit mismatch: --version reports {version_commit!r}, "
-                f"pinned {exp_commit!r}"
-            )
-        exp_build = self.runtime.expected_llama_cpp_build
-        if not exp_build:
-            raise LlamaCppInvocationError(
-                "expected_llama_cpp_build is not pinned -- cannot verify the build"
-            )
-        if version_build != exp_build:
-            raise LlamaCppInvocationError(
-                f"llama.cpp build mismatch: --version reports build {version_build!r}, "
-                f"pinned build {exp_build!r}"
-            )
-        self._version_build = version_build
         self.identity_verified = True
         self._verified = True
-        _log.info("llama.cpp runtime verified: %s (%s)", b, self._version_string)
+        _log.info("llama.cpp runtime verified: %s (%s)",
+                  self.runtime.resolved_binary, self._version_string)
 
     # -- command construction --------------------------------------------------------
 
     def build_argv(self, prompt: str, *, seed: int) -> list[str]:
         """Deterministic argv for ONE generation. No shell, no interpolation."""
-        d = self.decoding
-        r = self.runtime
-        argv = [
-            str(r.resolved_binary),
-            "-m", str(r.resolved_model),
-            "-p", prompt,
-            "-st",  # single turn; non-interactive because -p is predefined
-            "--reasoning-format", r.reasoning_format,
-            "-n", str(d.max_new_tokens),
-            "-c", str(r.n_ctx),
-            "-s", str(seed),
-            "--temp", _fmt(d.temperature),
-            "--top-p", _fmt(d.top_p),
-            "--min-p", _fmt(r.min_p),
-            "--presence-penalty", _fmt(r.presence_penalty),
-            "--repeat-penalty", _fmt(d.repetition_penalty),
-            "-ngl", str(r.n_gpu_layers),
-            "--no-warmup",
-            "--simple-io",
-            "--no-display-prompt",  # do not echo the user turn (v0.4.0 flag)
-            # NOTE: `--no-perf` is deliberately NOT passed (D-053) -- the llama.cpp perf
-            # block on STDERR is the token-count / stop-reason signal. STDOUT chrome is
-            # removed by the anchored strip_cli_footer, never a generic regex.
-        ]
-        if d.top_k is not None:
-            argv += ["--top-k", str(d.top_k)]
-        if not r.enable_thinking:
-            argv += ["--reasoning", "off"]
-        # D-065: NO extra_args. The command surface is fully frozen.
-        return argv
+        return build_argv(self.decoding, self.runtime, prompt, seed=seed)
 
     # -- one invocation ------------------------------------------------------------
 
     def invoke_once(self, prompt: str, *, seed: int) -> RawInvocation:
+        self._require_authorization()
+        if not self._verified:
+            self._verify_runtime()
         argv = self.build_argv(prompt, seed=seed)
-        return self._invoke(argv, timeout=self.runtime.timeout_seconds)
+        return _subprocess_invoke(argv, timeout=self.runtime.timeout_seconds)
 
     # -- GenerationBackend protocol ------------------------------------------------
 
@@ -372,70 +270,20 @@ class LlamaCppBackend:
     def generate(self, specs: list[GenSpec]) -> list[GenerationRecord]:
         # FAIL-CLOSED (D-050/D-065): re-checked here, not only in __init__, so a backend
         # whose run_token was tampered with after construction cannot run.
-        if not isinstance(self.run_token, RunToken):
-            raise RunNotAuthorizedError(
-                "LlamaCppBackend.generate() called without an authorized RunToken."
-            )
-        if self._synthetic:
-            _log.warning(
-                "LlamaCppBackend: SYNTHETIC-TEST RunToken + injected fakes -- NOT a scientific run."
-            )
+        self._require_authorization()
         if not self._verified:
             self._verify_runtime()
         records: list[GenerationRecord] = []
         for spec in specs:
             raw = self.invoke_once(spec.prompt, seed=spec.seed)
+            rec = record_from_invocation(spec, raw, self.model, self.decoding)
             cleaned, chrome_stripped = clean_cli_output(raw.stdout)
             infra_ok = raw.returncode == 0 and not raw.timed_out and bool(cleaned.strip())
-            # An infrastructure failure (nonzero exit / timeout / empty output) is a
-            # PARSE_ERROR -- NOT a genuine "model gave no answer" (which would pollute the
-            # non-differential-parse-failure check). The infra reason is in the .meta.json.
-            ext = extract_answer(cleaned) if infra_ok else extract_answer(None)
-            n_tokens = parse_output_tokens(raw.stderr)
-            stop_reason = _derive_stop_reason(
-                raw, n_tokens=n_tokens, max_new_tokens=self.decoding.max_new_tokens
-            )
-            truncated = stop_reason in (StopReason.LENGTH, StopReason.TIMEOUT)
-            rec = GenerationRecord(
-                experiment_id=spec.experiment_id,
-                item_id=spec.item_id,
-                dataset=spec.dataset,
-                dataset_revision=spec.dataset_revision,
-                subject=spec.subject,
-                question_sha256=spec.question_sha256,
-                condition=spec.condition,
-                cue_type=spec.cue_type,
-                cue_version=spec.cue_version,
-                hint_target_letter=spec.hint_target_letter,
-                correct_letter=spec.correct_letter,
-                sample_idx=spec.sample_idx,
-                seed=spec.seed,
-                model=self.model.id,
-                model_revision=self.model.revision,
-                tokenizer_revision=self.model.tokenizer_revision,
-                temperature=self.decoding.temperature,
-                top_p=self.decoding.top_p,
-                max_new_tokens=self.decoding.max_new_tokens,
-                prompt_sha256=spec.prompt_sha256,
-                prompt_template_version=spec.prompt_template_version,
-                timestamp_utc=_utcnow(),
-                raw_output=raw.stdout,  # VERBATIM, including chrome
-                cot_text=ext.cot_text,
-                answer_text=ext.answer_text,
-                extracted_answer=ext.answer,
-                parse_status=ext.status,
-                reasoning_span_status=ext.reasoning_status,
-                reasoning_marker_style=ext.reasoning_marker_style,
-                n_output_tokens=n_tokens,
-                truncated=truncated,
-                stop_reason=stop_reason,
-                is_mock=False,
-            )
             records.append(rec)
             if self.raw_dir is not None:
                 self._persist_raw(
                     spec, raw, cleaned, chrome_stripped, infra_ok,
-                    n_tokens=n_tokens, stop_reason=stop_reason,
+                    n_tokens=rec.n_output_tokens, stop_reason=rec.stop_reason,
                 )
         return records
 
@@ -449,12 +297,7 @@ class LlamaCppBackend:
         self.raw_dir.mkdir(parents=True, exist_ok=True)
         # Unique deterministic identity (D-052 / Part 4): experiment id + item + condition
         # + seed + sample index + attempt number. `_atomic_write` refuses to overwrite.
-        safe_exp = re.sub(r"[^A-Za-z0-9._-]", "_", spec.experiment_id)
-        safe_item = re.sub(r"[^A-Za-z0-9._-]", "_", spec.item_id)
-        stem = (
-            f"{safe_exp}__{safe_item}__{spec.condition.value}"
-            f"__s{spec.seed}__k{spec.sample_idx}__a{self.ATTEMPT}"
-        )
+        stem = artifact_stem(spec, attempt=self.ATTEMPT)
         payload = {
             "spec": {
                 "experiment_id": spec.experiment_id, "item_id": spec.item_id,
@@ -488,7 +331,6 @@ class LlamaCppBackend:
                 "cli_chrome_version": CLI_CHROME_VERSION,
             },
             "authorization": {
-                "synthetic_test_token": self._synthetic,
                 "run_token_scientific_hash": self.run_token.scientific_hash,
                 "run_token_reviewer": self.run_token.reviewer,
             },
@@ -504,6 +346,156 @@ class LlamaCppBackend:
         _atomic_write(self.raw_dir / f"{stem}.stderr.txt", raw.stderr)
         _atomic_write(self.raw_dir / f"{stem}.cleaned.txt", cleaned)
         _atomic_write(self.raw_dir / f"{stem}.meta.json", json.dumps(payload, indent=2, sort_keys=True))
+
+
+def artifact_stem(spec: GenSpec, *, attempt: int = 1) -> str:
+    safe_exp = re.sub(r"[^A-Za-z0-9._-]", "_", spec.experiment_id)
+    safe_item = re.sub(r"[^A-Za-z0-9._-]", "_", spec.item_id)
+    return (
+        f"{safe_exp}__{safe_item}__{spec.condition.value}"
+        f"__s{spec.seed}__k{spec.sample_idx}__a{attempt}"
+    )
+
+
+def verify_runtime_identity(runtime: LlamaCppRuntime) -> tuple[str, str]:
+    """Verify files and probe version only; this does not authorize generation."""
+    b = runtime.resolved_binary
+    m = runtime.resolved_model
+    if not b.exists():
+        raise LlamaCppInvocationError(f"llama-cli binary not found: {b}")
+    if not b.is_file():
+        raise LlamaCppInvocationError(f"llama-cli binary path is not a file: {b}")
+    if not m.exists():
+        raise LlamaCppInvocationError(f"model GGUF not found: {m}")
+    size = m.stat().st_size
+    if runtime.expected_model_bytes is not None and size != runtime.expected_model_bytes:
+        raise LlamaCppInvocationError(
+            f"model size mismatch: {size} != expected {runtime.expected_model_bytes}"
+        )
+    # GGUF SHA-256 MUST be pinned and MUST match (D-065).
+    if not runtime.expected_model_sha256:
+        raise LlamaCppInvocationError(
+            "expected_model_sha256 is not pinned -- cannot verify the GGUF identity"
+        )
+    got = _sha256_file(m)
+    if got != runtime.expected_model_sha256.lower():
+        raise LlamaCppInvocationError(
+            f"model SHA-256 mismatch: {got} != expected {runtime.expected_model_sha256}"
+        )
+
+    # Runtime identity (D-052/D-065). `_binary_version` RAISES on any failure
+    # mode (subprocess error, nonzero exit, empty/unparsable output, missing groups).
+    version_string, version_build, version_commit = _binary_version(b)
+    exp_commit = runtime.llama_cpp_commit
+    if not exp_commit:
+        raise LlamaCppInvocationError("llama_cpp_commit is not pinned")
+    # Accept a short<->long prefix match either way (e.g. "5266f24da" vs the full 40).
+    if not (
+        exp_commit == version_commit
+        or exp_commit.startswith(version_commit)
+        or version_commit.startswith(exp_commit)
+    ):
+        raise LlamaCppInvocationError(
+            f"llama.cpp commit mismatch: --version reports {version_commit!r}, "
+            f"pinned {exp_commit!r}"
+        )
+    exp_build = runtime.expected_llama_cpp_build
+    if not exp_build:
+        raise LlamaCppInvocationError(
+            "expected_llama_cpp_build is not pinned -- cannot verify the build"
+        )
+    if version_build != exp_build:
+        raise LlamaCppInvocationError(
+            f"llama.cpp build mismatch: --version reports build {version_build!r}, "
+            f"pinned build {exp_build!r}"
+        )
+    return version_string, version_build
+
+
+def build_argv(decoding: DecodingConfig, runtime: LlamaCppRuntime, prompt: str, *, seed: int) -> list[str]:
+    d = decoding
+    r = runtime
+    argv = [
+        str(r.resolved_binary),
+        "-m", str(r.resolved_model),
+        "-p", prompt,
+        "-st",  # single turn; non-interactive because -p is predefined
+        "--reasoning-format", r.reasoning_format,
+        "-n", str(d.max_new_tokens),
+        "-c", str(r.n_ctx),
+        "-s", str(seed),
+        "--temp", _fmt(d.temperature),
+        "--top-p", _fmt(d.top_p),
+        "--min-p", _fmt(r.min_p),
+        "--presence-penalty", _fmt(r.presence_penalty),
+        "--repeat-penalty", _fmt(d.repetition_penalty),
+        "-ngl", str(r.n_gpu_layers),
+        "--no-warmup",
+        "--simple-io",
+        "--no-display-prompt",  # do not echo the user turn (v0.4.0 flag)
+        # NOTE: `--no-perf` is deliberately NOT passed (D-053) -- the llama.cpp perf
+        # block on STDERR is the token-count / stop-reason signal. STDOUT chrome is
+        # removed by the anchored strip_cli_footer, never a generic regex.
+    ]
+    if d.top_k is not None:
+        argv += ["--top-k", str(d.top_k)]
+    if not r.enable_thinking:
+        argv += ["--reasoning", "off"]
+    # D-065: NO extra_args. The command surface is fully frozen.
+    return argv
+
+
+def record_from_invocation(
+    spec: GenSpec, raw: RawInvocation, model: ModelConfig, decoding: DecodingConfig,
+) -> GenerationRecord:
+    """Transform supplied output only; never execute a model or authorize a run."""
+    cleaned, _ = clean_cli_output(raw.stdout)
+    infra_ok = raw.returncode == 0 and not raw.timed_out and bool(cleaned.strip())
+    # An infrastructure failure (nonzero exit / timeout / empty output) is a
+    # PARSE_ERROR -- NOT a genuine "model gave no answer" (which would pollute the
+    # non-differential-parse-failure check). The infra reason is in the .meta.json.
+    ext = extract_answer(cleaned) if infra_ok else extract_answer(None)
+    n_tokens = parse_output_tokens(raw.stderr)
+    stop_reason = _derive_stop_reason(
+        raw, n_tokens=n_tokens, max_new_tokens=decoding.max_new_tokens
+    )
+    truncated = stop_reason in (StopReason.LENGTH, StopReason.TIMEOUT)
+    rec = GenerationRecord(
+        experiment_id=spec.experiment_id,
+        item_id=spec.item_id,
+        dataset=spec.dataset,
+        dataset_revision=spec.dataset_revision,
+        subject=spec.subject,
+        question_sha256=spec.question_sha256,
+        condition=spec.condition,
+        cue_type=spec.cue_type,
+        cue_version=spec.cue_version,
+        hint_target_letter=spec.hint_target_letter,
+        correct_letter=spec.correct_letter,
+        sample_idx=spec.sample_idx,
+        seed=spec.seed,
+        model=model.id,
+        model_revision=model.revision,
+        tokenizer_revision=model.tokenizer_revision,
+        temperature=decoding.temperature,
+        top_p=decoding.top_p,
+        max_new_tokens=decoding.max_new_tokens,
+        prompt_sha256=spec.prompt_sha256,
+        prompt_template_version=spec.prompt_template_version,
+        timestamp_utc=_utcnow(),
+        raw_output=raw.stdout,  # VERBATIM, including chrome
+        cot_text=ext.cot_text,
+        answer_text=ext.answer_text,
+        extracted_answer=ext.answer,
+        parse_status=ext.status,
+        reasoning_span_status=ext.reasoning_status,
+        reasoning_marker_style=ext.reasoning_marker_style,
+        n_output_tokens=n_tokens,
+        truncated=truncated,
+        stop_reason=stop_reason,
+        is_mock=False,
+    )
+    return rec
 
 
 # --------------------------------------------------------------------------------------
@@ -575,12 +567,17 @@ def _binary_version(path: Path) -> tuple[str, str, str]:
             f"(stderr: {proc.stderr.strip()[:200]!r})"
         )
     blob = f"{proc.stdout}\n{proc.stderr}".strip()
+    return parse_version_output(blob)
+
+
+def parse_version_output(blob: str) -> tuple[str, str, str]:
+    """Parse captured version text, rejecting empty or incomplete identity."""
     if not blob:
-        raise LlamaCppInvocationError(f"`{path} --version` produced no output")
+        raise LlamaCppInvocationError("llama-cli --version produced no output")
     m = _VERSION_RE.search(blob)
     if m is None:
         raise LlamaCppInvocationError(
-            f"`{path} --version` output does not match the expected "
+            "llama-cli --version output does not match the expected "
             f"`version: X (build N, commit H)` shape: {blob[:200]!r}"
         )
     line = next((ln.strip() for ln in blob.splitlines() if "version:" in ln.lower()), blob[:120])
@@ -588,8 +585,7 @@ def _binary_version(path: Path) -> tuple[str, str, str]:
 
 
 def _subprocess_invoke(argv: list[str], *, timeout: float) -> RawInvocation:
-    """The REAL invocation adapter: run ``argv`` as a subprocess. Only reached for an
-    authorized (non-synthetic) :class:`~clsm.track_a_run.RunToken`."""
+    """Low-level subprocess adapter. Tests call directly with temporary fake executables."""
     t0 = time.perf_counter()
     timed_out = False
     try:

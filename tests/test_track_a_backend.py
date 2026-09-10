@@ -1,11 +1,6 @@
 """Track-A llama.cpp backend -- NO real model, NO real llama-cli.
 
-Architecture (DECISION_LOG D-065): the production ``LlamaCppBackend`` always requires a
-:class:`~clsm.track_a_run.RunToken` and has **no public boolean bypass**. Synthetic unit
-tests pass ``RunToken.for_synthetic_test()`` together with an injected fake ``invoker``
-and fake ``version_probe`` -- such a backend is structurally incapable of driving the
-real ``llama-cli`` or the real GGUF. The ``_binary_version`` parser (the REAL version
-probe) is unit-tested directly against a tiny synthetic ``--version``-only script.
+Tests exercise helpers directly, never an authorized production backend.
 
 Every string here is a SYNTHETIC FIXTURE, not a model output.
 """
@@ -15,7 +10,6 @@ from __future__ import annotations
 import dataclasses
 import hashlib
 import inspect
-import json
 import os
 import stat
 from pathlib import Path
@@ -30,10 +24,17 @@ from clsm.track_a_backend import (
     LlamaCppInvocationError,
     LlamaCppRuntime,
     RawInvocation,
+    _atomic_write,
     _binary_version,
+    _subprocess_invoke,
+    artifact_stem,
+    build_argv,
     clean_cli_output,
     load_llamacpp_runtime,
     parse_output_tokens,
+    parse_version_output,
+    record_from_invocation,
+    verify_runtime_identity,
 )
 from clsm.track_a_run import RunNotAuthorizedError, RunToken
 
@@ -121,39 +122,6 @@ class _FakeInvoker:
         return RawInvocation(argv, 0, stdout, stderr, 0.05, False)
 
 
-def _ok_probe(_binary: Path) -> tuple[str, str, str]:
-    return (
-        f"version: 0.4.0-dev (build {_PINNED_BUILD}, commit {_PINNED_COMMIT})",
-        _PINNED_BUILD,
-        _PINNED_COMMIT,
-    )
-
-
-def _probe_returning(vs: str, build: str, commit: str):
-    def p(_b: Path) -> tuple[str, str, str]:
-        return vs, build, commit
-    return p
-
-
-def _probe_raising(msg: str):
-    def p(_b: Path) -> tuple[str, str, str]:
-        raise LlamaCppInvocationError(msg)
-    return p
-
-
-def _backend(
-    model: ModelConfig, decoding: DecodingConfig, rt: LlamaCppRuntime, *,
-    invoker: _FakeInvoker | None = None, version_probe=None, **kw
-) -> LlamaCppBackend:
-    """A synthetic-test backend: RunToken.for_synthetic_test() + injected fakes."""
-    return LlamaCppBackend(
-        model, decoding, rt, RunToken.for_synthetic_test(),
-        invoker=invoker if invoker is not None else _FakeInvoker(),
-        version_probe=version_probe if version_probe is not None else _ok_probe,
-        **kw,
-    )
-
-
 def _spec(seed: int = 0, condition: Condition = Condition.CONTROL) -> GenSpec:
     return GenSpec(
         experiment_id="track-a-test", item_id="mmlu:sub:7", dataset="mmlu",
@@ -174,54 +142,32 @@ def test_no_public_boolean_bypass_flag_exists() -> None:
     assert not any("test" in p.lower() and params[p].annotation is bool for p in params)
 
 
-def test_construction_without_a_runtoken_fails(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    rt = _runtime(cli, model)
-    with pytest.raises(RunNotAuthorizedError, match="RunToken"):
-        LlamaCppBackend(_model(), _decoding(), rt, True)  # a bool is not a RunToken
-    with pytest.raises(RunNotAuthorizedError, match="RunToken"):
-        LlamaCppBackend(_model(), _decoding(), rt, object())  # arbitrary object
-
-
-def test_runtoken_cannot_be_constructed_directly() -> None:
-    with pytest.raises(RunNotAuthorizedError, match="only be created"):
-        RunToken(scientific_hash="x", reviewer="x", reviewed_utc="x", manifest_status={})
-
-
-def test_synthetic_token_requires_injected_fakes(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    rt = _runtime(cli, model)
-    with pytest.raises(RunNotAuthorizedError, match="injected"):
-        LlamaCppBackend(_model(), _decoding(), rt, RunToken.for_synthetic_test())
-    with pytest.raises(RunNotAuthorizedError, match="injected"):
-        LlamaCppBackend(
-            _model(), _decoding(), rt, RunToken.for_synthetic_test(), invoker=_FakeInvoker()
-        )  # probe still missing
-
-
-def test_generate_rechecks_the_gate_not_only_init(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model))
-    be.run_token = "not a token"  # tamper after construction
+@pytest.mark.parametrize("token", [None, True, False, 1, object(), "authorized"])
+def test_invalid_token_fails_before_io(tmp_path: Path, token) -> None:
+    rt = _runtime(tmp_path / "missing", tmp_path / "missing.gguf")
     with pytest.raises(RunNotAuthorizedError):
-        be.generate([_spec(0)])
+        LlamaCppBackend(_model(), _decoding(), rt, token)
 
 
-def test_behavior_only_specs_cannot_bypass_the_gate(tmp_path: Path) -> None:
-    """A backend cannot be pointed at the real runtime with behaviour-only specs: a
-    synthetic token forces injected fakes, and a real token cannot be forged."""
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    rt = _runtime(cli, model)
-    # cannot combine a (forged) plain object token with real execution
+def test_no_test_authorization_route() -> None:
+    assert not hasattr(RunToken, "for_synthetic_test")
+    assert "for_synthetic_test_only" not in RunToken.__dataclass_fields__
+    params = inspect.signature(LlamaCppBackend).parameters
+    for name in ("invoker", "version_probe", "test_mode", "skip_auth", "unsafe"):
+        assert name not in params
+
+
+@pytest.mark.parametrize("method", ["generate", "invoke_once"])
+@pytest.mark.parametrize("token", [None, True, False, 1, object(), "authorized"])
+def test_execution_rechecks_gate(method, token) -> None:
+    # Deliberately uninitialized object: rejection must precede all runtime access.
+    be = object.__new__(LlamaCppBackend)
+    be.run_token = token
     with pytest.raises(RunNotAuthorizedError):
-        LlamaCppBackend(_model(), _decoding(), rt, object(), invoker=_FakeInvoker())
-
-
-def test_synthetic_backend_generate_works_without_real_auth(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model))
-    recs = be.generate([_spec(0)])
-    assert len(recs) == 1 and recs[0].extracted_answer == "B" and recs[0].is_mock is False
+        if method == "generate":
+            be.generate([_spec()])
+        else:
+            be.invoke_once("synthetic", seed=0)
 
 
 def test_no_extra_args_escape_hatch() -> None:
@@ -289,69 +235,37 @@ def test_binary_version_missing_commit_raises(tmp_path: Path) -> None:
         _binary_version(p)
 
 
-def test_verify_runtime_fails_closed_when_probe_raises(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    with pytest.raises(LlamaCppInvocationError, match="boom-probe"):
-        _backend(_model(), _decoding(), _runtime(cli, model),
-                 version_probe=_probe_raising("boom-probe"))
-
-
-def test_verify_runtime_wrong_commit_raises(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    with pytest.raises(LlamaCppInvocationError, match="commit mismatch"):
-        _backend(_model(), _decoding(), _runtime(cli, model),
-                 version_probe=_probe_returning("v", _PINNED_BUILD, "deadbeefdeadbeef"))
-
-
-def test_verify_runtime_wrong_build_raises(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    with pytest.raises(LlamaCppInvocationError, match="build mismatch"):
-        _backend(_model(), _decoding(), _runtime(cli, model),
-                 version_probe=_probe_returning("v", "99999", _PINNED_COMMIT))
-
-
-def test_verify_runtime_requires_pinned_sha(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    rt = _runtime(cli, model, expected_model_sha256=None)
-    with pytest.raises(LlamaCppInvocationError, match="expected_model_sha256 is not pinned"):
-        _backend(_model(), _decoding(), rt)
-
-
-def test_verify_runtime_requires_pinned_build(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    rt = _runtime(cli, model, expected_llama_cpp_build=None)
-    with pytest.raises(LlamaCppInvocationError, match="expected_llama_cpp_build is not pinned"):
-        _backend(_model(), _decoding(), rt)
-
-
-def test_verify_runtime_valid_identity_passes(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model))
-    assert be.identity_verified is True and be.model_sha256_verified is True
-
-
-def test_missing_binary_raises(tmp_path: Path) -> None:
+@pytest.mark.parametrize("body, update, error", [
+    ('print("malformed")', {}, "does not match"),
+    ('pass', {}, "no output"),
+    ('sys.exit(2)', {}, "exited 2"),
+    ('print("version: 0.4.0 (build 10809, commit deadbeef)")', {}, "commit mismatch"),
+    ('print("version: 0.4.0 (build 999, commit 5266f24da)")', {}, "build mismatch"),
+    (None, {"expected_model_sha256": None}, "not pinned"),
+    (None, {"expected_model_sha256": "0" * 64}, "SHA-256 mismatch"),
+    (None, {"expected_llama_cpp_build": None}, "not pinned"),
+    (None, {"expected_model_bytes": 999}, "size mismatch"),
+])
+def test_verify_runtime_fails_closed(tmp_path, body, update, error) -> None:
+    cli = _version_script(tmp_path, body or
+        'print("version: 0.4.0 (build 10809, commit 5266f24da)")')
     model = _fake_model_file(tmp_path)
-    with pytest.raises(LlamaCppInvocationError, match="binary not found"):
-        _backend(_model(), _decoding(), _runtime(tmp_path / "nope", model))
+    with pytest.raises(LlamaCppInvocationError, match=error):
+        verify_runtime_identity(_runtime(cli, model, **update))
 
 
-def test_missing_model_raises(tmp_path: Path) -> None:
-    cli = _fake_binary(tmp_path)
-    with pytest.raises(LlamaCppInvocationError, match="model GGUF not found"):
-        _backend(_model(), _decoding(), _runtime(cli, tmp_path / "nope.gguf"))
+def test_verify_runtime_valid_identity_passes(tmp_path) -> None:
+    cli = _version_script(tmp_path,
+        'print("version: 0.4.0 (build 10809, commit 5266f24da)")')
+    assert verify_runtime_identity(_runtime(cli, _fake_model_file(tmp_path)))[1] == "10809"
 
 
-def test_model_size_mismatch_raises(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path, b"x" * 10)
-    with pytest.raises(LlamaCppInvocationError, match="size mismatch"):
-        _backend(_model(), _decoding(), _runtime(cli, model, expected_model_bytes=999))
-
-
-def test_model_sha256_mismatch_raises(tmp_path: Path) -> None:
+@pytest.mark.parametrize("missing", ["binary", "model"])
+def test_verify_missing_file(tmp_path, missing) -> None:
     cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    with pytest.raises(LlamaCppInvocationError, match="SHA-256 mismatch"):
-        _backend(_model(), _decoding(), _runtime(cli, model, expected_model_sha256="0" * 64))
+    (cli if missing == "binary" else model).unlink()
+    with pytest.raises(LlamaCppInvocationError, match="not found"):
+        verify_runtime_identity(_runtime(cli, model))
 
 
 # ---- command construction --------------------------------------------------------
@@ -359,8 +273,7 @@ def test_model_sha256_mismatch_raises(tmp_path: Path) -> None:
 
 def test_build_argv_has_every_explicit_knob(tmp_path: Path) -> None:
     cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model))
-    argv = be.build_argv("hello world", seed=42)
+    argv = build_argv(_decoding(), _runtime(cli, model), "hello world", seed=42)
     assert argv[0] == str(cli)
     for flag, val in [
         ("-m", str(model)), ("-p", "hello world"), ("-s", "42"),
@@ -379,134 +292,61 @@ def test_argv_paths_with_spaces_are_one_token(tmp_path: Path) -> None:
     d = tmp_path / "dir with spaces"
     d.mkdir()
     cli, model = _fake_binary(d), _fake_model_file(d)
-    be = _backend(_model(), _decoding(), _runtime(cli, model))
-    argv = be.build_argv("q", seed=0)
+    argv = build_argv(_decoding(), _runtime(cli, model), "q", seed=0)
     assert argv[argv.index("-m") + 1] == str(model)
 
 
 def test_enable_thinking_false_adds_reasoning_off(tmp_path: Path) -> None:
     cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model, enable_thinking=False))
-    argv = be.build_argv("q", seed=0)
+    argv = build_argv(_decoding(), _runtime(cli, model, enable_thinking=False), "q", seed=0)
     assert argv[argv.index("--reasoning") + 1] == "off"
 
 
 # ---- generation outcomes -------------------------------------------------------
 
 
-def test_generate_ok_produces_record_with_raw_preserved(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    raw_dir = tmp_path / "raw"
-    inv = _FakeInvoker("ok")
-    be = _backend(_model(), _decoding(), _runtime(cli, model), invoker=inv, raw_dir=raw_dir)
-    recs = be.generate([_spec(0), _spec(1)])
-    assert len(recs) == 2
-    r = recs[0]
-    assert r.is_mock is False
-    assert r.parse_status is ParseStatus.VALID and r.extracted_answer == "B"
-    assert r.reasoning_span_status is ReasoningSpanStatus.PRESENT
-    assert "[ Prompt:" in r.raw_output and "<think>" in r.raw_output
-    assert r.n_output_tokens == 37 and r.stop_reason is StopReason.EOS and r.truncated is False
-    # exactly one invocation per spec, no retry, no version-probe leak into the invoker
-    assert len(inv.calls) == 2
-    assert [c[c.index("-s") + 1] for c in inv.calls] == ["0", "1"]
-    metas = sorted(raw_dir.glob("*.meta.json"))
-    assert len(metas) == 2
-    meta = json.loads(metas[0].read_text())
-    assert meta["runtime"]["llama_cpp_commit"] == _PINNED_COMMIT
-    assert meta["invocation"]["returncode"] == 0
-    assert meta["spec"]["attempt"] == 1
-    assert meta["result"]["stop_reason"] == "EOS"
-    assert meta["result"]["retry_policy"] == "zero-retry/D-054"
-    assert meta["authorization"]["synthetic_test_token"] is True
-    assert not list(raw_dir.glob("*.tmp"))
-    assert any("track-a-test__mmlu_sub_7__control__s0__k0__a1" in m.name for m in metas)
+@pytest.mark.parametrize("mode, reason, status", [
+    ("ok", StopReason.EOS, ParseStatus.VALID),
+    ("length", StopReason.LENGTH, ParseStatus.VALID),
+    ("nonzero", StopReason.NONZERO_EXIT, ParseStatus.PARSE_ERROR),
+    ("empty", StopReason.UNKNOWN, ParseStatus.PARSE_ERROR),
+    ("malformed", StopReason.UNKNOWN, ParseStatus.NO_ANSWER),
+    ("timeout", StopReason.TIMEOUT, ParseStatus.PARSE_ERROR),
+])
+def test_record_from_synthetic_invocation(mode, reason, status) -> None:
+    raw = _FakeInvoker(mode)(["fixture", "-s", "0", "-n", "256"], timeout=1)
+    rec = record_from_invocation(_spec(), raw, _model(), _decoding())
+    assert rec.raw_output == raw.stdout
+    assert rec.stop_reason is reason and rec.parse_status is status
+    assert rec.truncated == (reason in (StopReason.LENGTH, StopReason.TIMEOUT))
+    if mode == "ok":
+        assert rec.extracted_answer == "B" and rec.n_output_tokens == 37
+        assert rec.reasoning_span_status is ReasoningSpanStatus.PRESENT
+    if mode == "malformed":
+        assert rec.reasoning_span_status is ReasoningSpanStatus.MALFORMED
 
 
-def test_generate_length_exhaustion_is_truncated(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model), invoker=_FakeInvoker("length"))
-    r = be.generate([_spec(0)])[0]
-    assert r.n_output_tokens == 256 and r.stop_reason is StopReason.LENGTH and r.truncated is True
+@pytest.mark.parametrize("body, code, timed_out", [
+    ('print("synthetic output"); sys.stderr.write("fixture error")', 0, False),
+    ('sys.exit(3)', 3, False),
+    ('import time; time.sleep(2)', -1, True),
+])
+def test_subprocess_directly_with_temporary_script(tmp_path, body, code, timed_out) -> None:
+    script = _version_script(tmp_path, body)
+    raw = _subprocess_invoke([str(script)], timeout=0.2 if timed_out else 10)
+    assert raw.returncode == code and raw.timed_out is timed_out
+    if code == 0:
+        assert raw.stdout == "synthetic output\n" and raw.stderr == "fixture error"
 
 
-def test_generate_nonzero_exit_is_recorded_not_raised(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model),
-                  invoker=_FakeInvoker("nonzero"), raw_dir=tmp_path / "raw")
-    r = be.generate([_spec(0)])[0]
-    assert r.parse_status is ParseStatus.PARSE_ERROR
-    assert r.stop_reason is StopReason.NONZERO_EXIT
-    assert "boom" in next((tmp_path / "raw").glob("*.stderr.txt")).read_text()
-
-
-def test_generate_empty_stdout_is_parse_error_and_unknown(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model), invoker=_FakeInvoker("empty"))
-    r = be.generate([_spec(0)])[0]
-    assert r.parse_status is ParseStatus.PARSE_ERROR
-    assert r.stop_reason is StopReason.UNKNOWN and r.truncated is False
-
-
-def test_generate_malformed_reasoning_is_flagged(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model), invoker=_FakeInvoker("malformed"))
-    r = be.generate([_spec(0)])[0]
-    assert r.reasoning_span_status is ReasoningSpanStatus.MALFORMED
-    assert r.parse_status is ParseStatus.NO_ANSWER
-    assert "cut off mid-thought" in r.raw_output
-    assert r.stop_reason is StopReason.UNKNOWN  # never inferred from a missing answer
-
-
-def test_generate_timeout_is_recorded(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    be = _backend(_model(), _decoding(), _runtime(cli, model, timeout_seconds=1.0),
-                  invoker=_FakeInvoker("timeout"))
-    r = be.generate([_spec(0)])[0]
-    assert r.truncated is True and r.stop_reason is StopReason.TIMEOUT
-    assert r.parse_status is ParseStatus.PARSE_ERROR
-
-
-def test_no_content_dependent_retry(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    inv = _FakeInvoker("malformed")
-    be = _backend(_model(), _decoding(), _runtime(cli, model), invoker=inv)
-    be.generate([_spec(0), _spec(1)])
-    assert len(inv.calls) == 2  # 2 specs -> 2 calls, no re-roll of the malformed output
-
-
-# ---- persistence: never overwrite ----------------------------------------------
-
-
-def test_persist_refuses_to_overwrite_a_differing_artifact(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    raw_dir = tmp_path / "raw"
-    be = _backend(_model(), _decoding(), _runtime(cli, model), raw_dir=raw_dir)
-    be.generate([_spec(0)])
-    next(raw_dir.glob("*.stdout.txt")).write_text("DIFFERENT", encoding="utf-8")
+def test_atomic_persistence_collision_and_replay(tmp_path) -> None:
+    path = tmp_path / "fixture.stdout.txt"
+    _atomic_write(path, "synthetic")
+    _atomic_write(path, "synthetic")
     with pytest.raises(LlamaCppInvocationError, match="refusing to overwrite"):
-        _backend(_model(), _decoding(), _runtime(cli, model), raw_dir=raw_dir).generate([_spec(0)])
-
-
-def test_persist_idempotent_replay_is_allowed(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    raw_dir = tmp_path / "raw"
-    _backend(_model(), _decoding(), _runtime(cli, model), raw_dir=raw_dir).generate([_spec(0)])
-    stdout_before = next(raw_dir.glob("*.stdout.txt")).read_text()
-    next(raw_dir.glob("*.meta.json")).unlink()  # timestamp would collide; isolate the check
-    _backend(_model(), _decoding(), _runtime(cli, model), raw_dir=raw_dir).generate([_spec(0)])
-    assert next(raw_dir.glob("*.stdout.txt")).read_text() == stdout_before
-
-
-def test_distinct_specs_get_distinct_filenames(tmp_path: Path) -> None:
-    cli, model = _fake_binary(tmp_path), _fake_model_file(tmp_path)
-    raw_dir = tmp_path / "raw"
-    be = _backend(_model(), _decoding(), _runtime(cli, model), raw_dir=raw_dir)
-    be.generate([
-        _spec(0, Condition.CONTROL), _spec(1, Condition.CONTROL), _spec(0, Condition.TREATMENT),
-    ])
-    stdouts = sorted(p.name for p in raw_dir.glob("*.stdout.txt"))
-    assert len(stdouts) == 3 and len(set(stdouts)) == 3
+        _atomic_write(path, "different")
+    assert path.read_text() == "synthetic"
+    assert not list(tmp_path.glob("*.tmp"))
 
 
 # ---- output cleaning (deterministic, anchored, versioned) -----------------------
@@ -565,3 +405,45 @@ def test_load_llamacpp_runtime_with_env(tmp_path: Path, monkeypatch) -> None:
     assert rt.reasoning_format == "none" and rt.enable_thinking is True
     assert rt.n_ctx == 32768 and rt.n_gpu_layers == 99
     assert rt.expected_model_sha256 == _GGUF_SHA
+
+
+def test_artifact_names_distinguish_specs() -> None:
+    specs = [_spec(0), _spec(1), _spec(0, Condition.TREATMENT)]
+    assert len({artifact_stem(spec) for spec in specs}) == 3
+    assert artifact_stem(specs[0]) == "track-a-test__mmlu_sub_7__control__s0__k0__a1"
+    assert artifact_stem(specs[0], attempt=2).endswith("__a2")
+
+
+@pytest.mark.parametrize("text", ["", "malformed", "version: 0.4.0 (build 10809)",
+    "version: 0.4.0 (commit 5266f24da)"])
+def test_version_parser_rejects_incomplete_identity(text) -> None:
+    with pytest.raises(LlamaCppInvocationError):
+        parse_version_output(text)
+
+
+def test_version_parser_accepts_pinned_identity() -> None:
+    text = f"version: 0.4.0 (build {_PINNED_BUILD}, commit {_PINNED_COMMIT})"
+    assert parse_version_output(text) == (text, _PINNED_BUILD, _PINNED_COMMIT)
+
+
+def test_uninitialized_token_and_subclass_cannot_authorize(tmp_path) -> None:
+    class PretendToken(RunToken):
+        pass
+
+    for token in (object.__new__(RunToken), object.__new__(PretendToken)):
+        with pytest.raises(RunNotAuthorizedError):
+            LlamaCppBackend(_model(), _decoding(),
+                _runtime(tmp_path / "missing", tmp_path / "missing.gguf"), token)
+
+
+def test_missing_token_argument_fails(tmp_path) -> None:
+    with pytest.raises(TypeError, match="run_token"):
+        LlamaCppBackend(_model(), _decoding(),
+            _runtime(tmp_path / "missing", tmp_path / "missing.gguf"))
+
+
+def test_runtime_verification_option_cannot_bypass_authorization(tmp_path) -> None:
+    with pytest.raises(RunNotAuthorizedError):
+        LlamaCppBackend(_model(), _decoding(),
+            _runtime(tmp_path / "missing", tmp_path / "missing.gguf"), None,
+            verify_runtime=False)
