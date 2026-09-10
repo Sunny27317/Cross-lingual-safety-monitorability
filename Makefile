@@ -43,3 +43,10 @@ reproduce:
 	@echo "  3. pip install -e '.[run]'  +  a GPU"
 	@echo "  4. explicit human authorization to download DeepSeek-R1-Distill-Qwen-7B + MMLU"
 	@exit 1
+
+.PHONY: track-a-fixture-check track-a-config-validate
+track-a-fixture-check:
+	python -m clsm.track_a_dataset_pin fixture-check
+
+track-a-config-validate:
+	python -c "from clsm.config import load_experiment_config; from clsm.track_a_manifest import build_pilot_manifest, RunStage; c=load_experiment_config('configs/track_a_pilot/pilot.yaml'); print(c.experiment_name, 'generator blockers:', build_pilot_manifest().stage_unresolved(RunStage.GENERATOR))"

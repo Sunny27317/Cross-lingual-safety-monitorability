@@ -47,7 +47,7 @@ import re
 import shutil
 import subprocess
 import time
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import yaml
@@ -190,6 +190,12 @@ class LlamaCppInvocationError(RuntimeError):
     an undesirable *generation*."""
 
 
+def backend_config_hash(model: ModelConfig, decoding: DecodingConfig, runtime: LlamaCppRuntime) -> str:
+    """Bind the issued credential to exact execution settings, including local paths."""
+    payload = {"model": model.model_dump(), "decoding": decoding.model_dump(), "runtime": asdict(runtime)}
+    return hashlib.sha256(json.dumps(payload, sort_keys=True).encode()).hexdigest()
+
+
 class LlamaCppBackend:
     """A pinned-``llama-cli`` :class:`~clsm.generation.GenerationBackend`.
 
@@ -222,6 +228,8 @@ class LlamaCppBackend:
         self.runtime = runtime
         self.run_token = run_token
         self.raw_dir = Path(raw_dir).expanduser() if raw_dir is not None else None
+        self._used_specs: set[str] = set()
+        self._require_authorization()
         self._verified = False
         self._version_string: str = ""
         self._version_build: str = ""
@@ -234,6 +242,15 @@ class LlamaCppBackend:
         if type(getattr(self, "run_token", None)) is not RunToken:
             raise RunNotAuthorizedError("LlamaCppBackend requires an authorized RunToken.")
         self.run_token.__post_init__()
+        from clsm.track_a_manifest import RunStage
+
+        if self.run_token.stage is not RunStage.GENERATOR:
+            raise RunNotAuthorizedError("only generator-stage tokens may drive LlamaCppBackend")
+        if backend_config_hash(self.model, self.decoding, self.runtime) != self.run_token.backend_hash:
+            raise RunNotAuthorizedError("backend scientific configuration differs from authorized settings")
+        if self.raw_dir is None or self.raw_dir.resolve() != Path(self.run_token.output_dir) / "raw":
+            raise RunNotAuthorizedError("raw directory differs from authorized output directory")
+
 
     # -- set-up verification (no generation) -----------------------------------------
 
@@ -255,8 +272,22 @@ class LlamaCppBackend:
 
     # -- one invocation ------------------------------------------------------------
 
-    def invoke_once(self, prompt: str, *, seed: int) -> RawInvocation:
+    def invoke_once(self, prompt: str, *, seed: int, spec: GenSpec | None = None) -> RawInvocation:
         self._require_authorization()
+        from clsm.track_a_plan import spec_hash
+        from clsm.track_a_preflight import ROOT, git_integrity
+
+        if spec is None or spec.prompt != prompt or spec.seed != seed:
+            raise RunNotAuthorizedError("invocation requires an exact authorized GenSpec")
+        identity = spec_hash(spec)
+        if identity not in self.run_token.allowed_spec_hashes or identity in self._used_specs:
+            raise RunNotAuthorizedError("unplanned or repeated generation specification")
+        git_integrity(ROOT, self.run_token.git_commit)
+        assert self.raw_dir is not None
+        if any(self.raw_dir.glob(artifact_stem(spec) + ".*")):
+            raise LlamaCppInvocationError("output collision before generation")
+        self._used_specs.add(identity)  # one attempt even when invocation fails
+
         if not self._verified:
             self._verify_runtime()
         argv = self.build_argv(prompt, seed=seed)
@@ -275,7 +306,7 @@ class LlamaCppBackend:
             self._verify_runtime()
         records: list[GenerationRecord] = []
         for spec in specs:
-            raw = self.invoke_once(spec.prompt, seed=spec.seed)
+            raw = self.invoke_once(spec.prompt, seed=spec.seed, spec=spec)
             rec = record_from_invocation(spec, raw, self.model, self.decoding)
             cleaned, chrome_stripped = clean_cli_output(raw.stdout)
             infra_ok = raw.returncode == 0 and not raw.timed_out and bool(cleaned.strip())
@@ -593,8 +624,11 @@ def _subprocess_invoke(argv: list[str], *, timeout: float) -> RawInvocation:
         stdout, stderr, rc = proc.stdout, proc.stderr, proc.returncode
     except subprocess.TimeoutExpired as exc:
         timed_out = True
-        stdout = exc.stdout if isinstance(exc.stdout, str) else ""
-        stderr = (exc.stderr if isinstance(exc.stderr, str) else "") + "\n[TIMEOUT]"
+        stdout = (exc.stdout.decode("utf-8", errors="replace")
+                  if isinstance(exc.stdout, bytes) else exc.stdout or "")
+        stderr = (exc.stderr.decode("utf-8", errors="replace")
+                  if isinstance(exc.stderr, bytes) else exc.stderr or "")
+        stderr += "\n[TIMEOUT]"
         rc = -1
     return RawInvocation(
         argv=argv, returncode=rc, stdout=stdout, stderr=stderr,
