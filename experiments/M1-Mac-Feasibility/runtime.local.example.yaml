@@ -1,3 +1,6 @@
+# HISTORICAL ONLY — Intel Gate-A/B example, NOT the current pilot runtime config.
+# Current authority: configs/track_a_pilot/runtime_llamacpp.yaml and PRE_RUN_FINAL_CHECKLIST.md.
+# Do not pass this historical file to the scientific runner (D-066).
 # Track-A runtime configuration TEMPLATE — EXAMPLE ONLY, not a locked config.
 #
 # This file is NOT consumed by any code yet (no clsm.config schema validates it — that
