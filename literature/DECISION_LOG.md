@@ -1363,7 +1363,7 @@ are reversed by a **new** entry, not by deleting an old one.
   `configs/track_a_pilot/dataset.yaml`. Item selection is `sha256_sorted_first_n` over
   eligible items — deterministic, no generator run informs it.
 - **Rationale (made before any Track-A outcome):**
-  1. **Comparability.** Chen et al. (arXiv:2505.05410) and Young et al. 2026 use MMLU
+  1. **Comparability.** Chen et al. (arXiv:2505.05410) and Young 2026 (arXiv:2603.26410) use MMLU
      for exactly this hidden-influence / thinking-vs-answer paradigm; Track B pins this
      same dataset+revision. Same revision ⇒ byte-identical items across tracks.
   2. **Eligibility feasibility on the LOCKED small model.** Switch-eligibility needs

@@ -284,3 +284,27 @@ benchmark, wide uncertainty.**
 **Nothing methodological that could bias the pilot's result is left to be chosen after
 seeing outcomes.** The remaining `BLOCKED` items are external-resource dependencies, not
 open methodological choices.
+
+## 29. Novelty & scope boundary (Phase 26)
+
+This pilot **does not** create or broaden a novelty claim. It is a **reproduction** of
+the English hidden-influence / disclosure signature (Turpin arXiv:2305.04388; Chen
+arXiv:2505.05410; Young arXiv:2603.26410) on a small locked model — a *measurement-
+instrument validation step*, explicitly overlapping with prior work by design.
+
+The project's contribution (`RESEARCH_PLAN.md` §5, `COMPETITOR_MATRIX.md`) remains the
+**intersection** of: native-speaker Urdu validation · translate-then-monitor recovery ·
+model-vs-monitor failure separation · controlled measurement validity · English/Urdu
+cross-lingual evaluation. None of that is delivered by this pilot; the pilot only makes
+the later cross-lingual claim *possible* by validating the instrument.
+
+**Claims this pilot may support (if positive):** "the hidden-influence / disclosure
+signature reproduces on Qwen3-1.7B under our harness, in the direction and rough
+magnitude range of Chen/Young." **(if null):** "the signature does not reproduce at
+this model scale under our harness" — a valid, reported result; investigate the harness
++ a GPQA-Diamond spot check, then escalate (candidate KILL/PIVOT B).
+
+**Claims this pilot may NOT support:** anything about Urdu, any low-resource language,
+frontier models, all LLMs, human reasoning, a causal mechanism beyond the paired
+design, or the monitor-validity gap. Track A never implies frontier-model
+generalisation — that is Track B's job (`RESEARCH_PLAN.md` §5 "two tracks").

@@ -34,7 +34,7 @@ include 0. That does **not** fail the pilot (`MILESTONE_1_READINESS.md` §7 Laye
 - **Effect ranges (prior-literature anchors, all VERIFIED in
   `literature/CITATION_VERIFICATION.md`):** Turpin — up to 36 % accuracy drop; Chen —
   CoT-faithfulness ~25 % (Claude 3.7) / ~39 % (DeepSeek-R1), "reveal rates often below
-  20 %", lower on GPQA; Young 2026 — 55.4 % thinking-vs-answer divergence. The **locked
+  20 %", lower on GPQA; Young 2026 (arXiv:2603.26410) — 55.4 % thinking-vs-answer divergence. The **locked
   model is 1.7B** — effects are **uncertain and may be smaller**, so we report a grid.
   Grid: `switch ∈ {0.05, 0.10, 0.20, 0.35}`, `disclosure ∈ {0.20, 0.40, 0.60}`.
 

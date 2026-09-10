@@ -1,14 +1,23 @@
 # M1-Mac-Feasibility — Resource-Constrained Track (overview)
 
-**Status (2026-09-10):** infrastructure gates A/B/C complete on the Apple M5 (`READINESS.md`
-§0). The generator is **locked** (`Qwen/Qwen3-1.7B` Q8_0, D-034) and its GGUF is
-byte-verified on the M5 (D-037); the pinned llama.cpp runtime is built for arm64 (D-036);
-one **synthetic infrastructure** Gate-C smoke has passed (D-040). **No scientific dataset
-has been downloaded. No scientific inference has been run. No scientific metric has been
-computed. No scientific pilot is authorized** — that requires a frozen
-`PILOT_PREREGISTRATION.md`. This directory documents a **separate experimental track**;
-it does not replace or edit `experiments/M1-English-Baseline/` (the GPU-based Milestone-1
-design), which remains the **deferred replication track** (Track B — see below).
+**Status (2026-09-10):**
+- **Infrastructure:** complete. Gates A/B/C done on the Apple M5 (`READINESS.md` §0);
+  generator locked (`Qwen/Qwen3-1.7B` Q8_0, D-034/D-037); pinned llama.cpp built for
+  arm64 (D-036); one synthetic infrastructure Gate-C smoke passed (D-040).
+- **Scientific protocol:** **methodology FROZEN, execution BLOCKED** (2026-09-10,
+  D-041…D-049). The Track-A English hint-faithfulness pilot is fully specified
+  (`PILOT_PROTOCOL.md`), power-analysed (`POWER_ANALYSIS.md`), and implemented +
+  mock-validated (`clsm.track_a_backend`, `clsm.track_a_manifest`, 30 new tests).
+  Every choice that could bias the result is frozen; the run is blocked only by
+  **external resources** — a disclosure judge, a blinded human audit, and an ethics
+  determination (`MONITOR_VALIDATION_PROTOCOL.md`, `PILOT_PREREGISTRATION.md`).
+- **Scientific data:** **none.** No dataset downloaded, no scientific generation, no
+  metric computed, no human annotation. **No run is authorized** — only the user
+  authorizes one, after review.
+
+This directory documents a **separate experimental track**; it does not replace or edit
+`experiments/M1-English-Baseline/` (the GPU-based Milestone-1 design), which remains the
+**deferred replication track** (Track B — see below).
 
 ---
 
