@@ -17,8 +17,8 @@ from clsm.track_a_run import (
     RunNotAuthorizedError,
     RunToken,
     authorize_track_a_run,
-    capture_track_a_provenance,
     evaluate_readiness,
+    provenance_from_config,
     scientific_config_dict,
     scientific_config_hash,
 )
@@ -201,8 +201,10 @@ def test_scientific_hash_ignores_prose_provenance_tag() -> None:
 
 
 def test_capture_provenance_has_the_track_a_fields() -> None:
-    tok = RunToken.for_synthetic_test()
-    prov = capture_track_a_provenance(tok, experiment_id="track-a-en-hint-pilot-test")
+    prov = provenance_from_config(
+        token_scientific_hash="fixture", token_reviewer="fixture", token_authorized_utc="",
+        experiment_id="track-a-en-hint-pilot-test",
+    )
     d = prov.model_dump()
     for key in (
         "scientific_config_hash", "git_commit", "git_dirty", "model_revision",
@@ -225,6 +227,6 @@ def test_runtoken_cannot_be_constructed_directly() -> None:
         RunToken(scientific_hash="x", reviewer="x", reviewed_utc="x", manifest_status={})
 
 
-def test_runtoken_for_synthetic_test_is_flagged() -> None:
-    tok = RunToken.for_synthetic_test()
-    assert tok.for_synthetic_test_only is True and "SYNTHETIC" in tok.scientific_hash
+def test_runtoken_has_no_testing_credential() -> None:
+    assert not hasattr(RunToken, "for_synthetic_test")
+    assert "for_synthetic_test_only" not in RunToken.__dataclass_fields__

@@ -181,10 +181,9 @@ git-ignored override (never committed).
   **and** `generate()` require an authorized `RunToken` from
   `clsm.track_a_run.authorize_track_a_run`; a bool / arbitrary object is rejected. There
   is **no** `for_testing_only` flag and no "authorized" toggle. `RunToken` is
-  constructable only by `authorize_track_a_run()` or `RunToken.for_synthetic_test()`;
-  a synthetic-test token is structurally neutered — a backend holding one **must** be
-  given injected fake `invoker` + `version_probe`, so it can never reach the real
-  `llama-cli` or GGUF. Unit tests use that injection, never a production path.
+  constructable only by `authorize_track_a_run()`. Testing uses pure data helpers and
+  direct low-level subprocess tests with temporary fake executables, without a testing
+  credential or production-backend execution injection.
 - **`[AMEND D-052/D-053/D-065]` Runtime identity verified FAIL-CLOSED.** Before the
   first generation: GGUF size + SHA-256 (both pinned, both must match) **and**
   `llama-cli --version` parsed with its build + commit compared to the pins. **Any**
