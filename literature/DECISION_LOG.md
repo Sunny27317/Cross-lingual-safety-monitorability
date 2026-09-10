@@ -1078,3 +1078,268 @@ are reversed by a **new** entry, not by deleting an old one.
   corrected).
 - **Status:** ACTIVE. No inference, no model/dataset download, no scientific metric
   computed. Documentation-only correction pass. **Gate C remains NOT AUTHORIZED.**
+
+## D-036 — Apple-Silicon runtime reconstruction: locked llama.cpp rebuilt natively for arm64 on a new Apple M5 machine (new-machine Gate A)
+- **Date:** 2026-09-08
+- **Decision:** Development moved from the previous Intel Mac (2019 MacBook Pro,
+  x86_64, 32 GB, AMD Radeon Pro 5300M) to an **Apple M5 MacBook Air** (`Mac17,3`,
+  arm64, 10 cores, 16 GB, macOS 26.6 build 25G72). Following explicit new-machine
+  Gate-A authorization (infrastructure only), the **already-locked** llama.cpp
+  revision `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` (tag `v0.4.0`) was cloned to
+  `~/tools/llama.cpp` (outside this repo) and **rebuilt natively for arm64**.
+  - **Build:** `cmake -B build -DCMAKE_BUILD_TYPE=Release` then
+    `cmake --build build --config Release -j 10`. Build succeeded (exit 0), no source
+    patched, pin unchanged.
+  - **Metal policy change (hardware adaptation, not a scientific decision):** the
+    pinned source defaults `GGML_METAL=ON` on Apple platforms
+    (`ggml/CMakeLists.txt:95-98, 236`). The Intel Gate A's machine-specific
+    `-DGGML_METAL=OFF` override (D-033 — justified there by that host's *discrete
+    AMD* GPU) was **not carried forward**. The M5's unified-memory GPU is exactly the
+    architecture llama.cpp's Metal backend targets, so the native default was used.
+  - **Verified build contents:** native arm64 `llama-cli`
+    (`0.4.0-dev`, build 10809, commit `5266f24da`, "for Darwin arm64") plus native
+    arm64 `libggml-metal` (links `Metal.framework` + `MetalKit.framework`),
+    `libggml-blas` and `libggml-cpu` (link `Accelerate.framework`), and
+    `libggml-base`. CMake cache: `GGML_METAL=ON`, `GGML_BLAS=ON` (vendor Apple),
+    `GGML_ACCELERATE=ON`, `GGML_NATIVE=ON`, `GGML_CUDA/VULKAN/OPENCL=OFF`. The Metal
+    shader library is *embedded as source* (`GGML_METAL_EMBED_LIBRARY=ON`,
+    40 `_ggml_metallib_*` symbols) — the machine has Command Line Tools only and
+    `xcrun metal` is unavailable, but the default embed path does not need it at
+    build time.
+- **Scope:** Infrastructure adaptation only. **Metal BUILD availability is verified;
+  Metal INFERENCE is NOT** — the embedded shaders are compiled by the Metal runtime
+  at first use, which has not been exercised and will not be until a separately
+  authorized inference gate.
+- **Explicitly unchanged by this entry:** generator-model lock (`Qwen/Qwen3-1.7B`),
+  GGUF artifact identity (`Qwen/Qwen3-1.7B-GGUF` @
+  `90862c4b9d2787eaed51d12237eafdfe7c5f6077`, `Qwen3-1.7B-Q8_0.gguf`,
+  1,834,426,016 bytes, sha256 `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`),
+  quantization Q8_0, llama.cpp pin `5266f24da…` / `v0.4.0`, prompts, decoding policy,
+  seeds, hypotheses, operational definitions (hint-effect, disclosure,
+  hidden-influence), datasets, metrics, and all of Track B. The D-034-era model
+  weights were **not** re-downloaded on this machine (Gate B restoration is a
+  separate, separately-authorized step).
+- **Historical record preserved:** the Intel Gate-A evidence
+  (`environment_checks/2026-09-06-llamacpp-gate-a.txt`) and D-033 are unchanged. The
+  Intel→M5 machine transition is itself recorded as provenance, not erased.
+- **Rationale:** this-turn new-machine Gate-A authorization; `CLAUDE.md` §2.7 (record
+  exact, independently-reproducible runtime provenance — repo URL, pinned commit,
+  build command, verified build output — before treating a runtime as usable).
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`
+  (full transcript: machine, toolchain, source pin, pinned-source Metal inspection,
+  configure + build output, `file` / `otool -L` / `nm` verification, non-fatal
+  warnings, integrity statement); `experiments/M1-Mac-Feasibility/READINESS.md`
+  (machine + §1.6 updated to distinguish the historical Intel and current
+  Apple-Silicon environments).
+- **Status:** ACTIVE. **New-machine Gate A: PASS.** No model weights downloaded, no
+  GGUF downloaded, no inference performed, no dataset downloaded, no scientific
+  metric computed, no commit pushed. **Next:** new-machine Gate B — restore and
+  byte-level-verify the already-locked Qwen GGUF artifact against its recorded size
+  and SHA-256; requires separate explicit authorization. Gate C and Gate D remain
+  NOT AUTHORIZED.
+
+## D-037 — New-machine Gate B: locked Qwen3-1.7B Q8_0 GGUF re-downloaded on the M5 and byte-verified (no selection, no inference)
+- **Date:** 2026-09-10
+- **Decision:** Following explicit authorization to *restore the already-locked model
+  artifact* on the Apple M5 machine (autonomous overnight session), the identical GGUF
+  file locked in D-034 was re-downloaded and re-verified byte-for-byte. **This is not a
+  model-selection decision** — no candidate was screened, compared, or chosen; the
+  generator remains `Qwen/Qwen3-1.7B` exactly as locked in D-034.
+  - **Source:** `Qwen/Qwen3-1.7B-GGUF` (official first-party, author "Qwen") @ pinned
+    revision `90862c4b9d2787eaed51d12237eafdfe7c5f6077`, file `Qwen3-1.7B-Q8_0.gguf`.
+  - **Download:** `curl -L --fail` from the revision-pinned HF `resolve/` URL (same
+    reproducible method as the Intel Gate B), to `~/models/clsm/Qwen3-1.7B/`
+    (outside the repo).
+  - **Verification (HARD-STOP gate):** `stat -f%z` → **1,834,426,016 bytes** — exact
+    match. `shasum -a 256` → **`061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`**
+    — exact match to the full locked hash. Bit-for-bit identical to the artifact
+    verified on the Intel machine 2026-09-06.
+  - **Metadata-only inspection (pinned llama.cpp v0.4.0 `llama-gguf`, plus the local
+    `gguf` Python reader via PYTHONPATH — no package installed, header parse only, NO
+    inference):** GGUF v3, 28 KV, 310 tensors, architecture `qwen3`; name
+    "Qwen3 1.7B Instruct"; `context_length` metadata = 40960 (the base model card says
+    32768 — discrepancy recorded, not resolved, same as the Intel Gate B); tokenizer
+    `gpt2`/`qwen2`-pre, bos 151643, eos 151645, `add_bos_token=false`; chat template
+    present (4100 chars, ChatML + literal `<think>`/`</think>` markers).
+- **Explicitly unchanged:** generator lock, GGUF identity/revision/hash, quantization
+  (Q8_0), llama.cpp pin (`5266f24da…` / `v0.4.0`), prompts, decoding, seeds,
+  hypotheses, operational definitions, datasets, metrics, and all of Track B. No
+  dataset was downloaded. No inference occurred during this step.
+- **Historical record preserved:** the Intel Gate-B record
+  (`environment_checks/2026-09-06-gate-b-model-download.txt`) and D-034/D-035 are
+  unchanged.
+- **Rationale:** the artifact must be present and byte-verified on the machine that
+  will run it; `CLAUDE.md` §2.7 (record exact model ID / revision / hash / download
+  provenance).
+- **Evidence:** `experiments/M1-Mac-Feasibility/environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`;
+  `experiments/M1-Mac-Feasibility/READINESS.md` (§0 gate table + §1.7 updated).
+- **Status:** ACTIVE. **New-machine Gate B: PASS (artifact restored + byte-verified).**
+  No model selected, no dataset downloaded, no inference performed, no scientific
+  metric computed. Gate C (single synthetic infrastructure smoke) and Gate D remain
+  separately gated.
+
+## D-038 — Reasoning-marker forensic audit: parser hardened to recognise both `<think>` and the llama-cli `[Start thinking]` presentation wrapper
+- **Date:** 2026-09-10
+- **Decision:** A source-driven, **no-inference** audit established where reasoning-span
+  markers come from, and the answer/reasoning parser was hardened accordingly. Full
+  write-up: `experiments/M1-Mac-Feasibility/REASONING_MARKER_FORENSICS.md`.
+- **Findings (primary sources only):**
+  1. The locked GGUF's embedded `tokenizer.chat_template` uses **literal
+     `<think>`/`</think>`**. The model's own output uses those tags. There is no
+     bracketed marker in the template.
+  2. `[Start thinking]` / `[End thinking]` exist **only in the pinned llama.cpp
+     v0.4.0 CLI presentation layer** (`tools/cli/cli-ui.h:205,214`,
+     `tools/cli/cli-context.cpp:638-640`). At this pin `llama-cli` is a chat client
+     that reads a server-parsed `reasoning_content` field and re-serialises it with
+     bracket markers, for both the terminal and the `--file` transcript.
+  3. `--reasoning-format none` keeps the raw `<think>…</think>` inline in `content`;
+     the default (`deepseek`/`auto`) extracts reasoning and thus produces the bracket
+     rendering.
+  - **Therefore:** the previous (uncommitted, non-evidentiary) Intel-laptop observation
+    of `[Start thinking]` is fully explained as a llama-cli presentation transform —
+    not model behaviour, not a template artefact.
+- **Parser changes (`src/clsm/extraction.py`, `src/clsm/schemas.py`,
+  `src/clsm/feasibility.py`, `src/clsm/generation.py`):**
+  - `split_think` now recognises **both** `<think>…</think>` and
+    `[Start thinking]…[End thinking]` (case-insensitive), reporting a `marker_style`.
+  - New enum `clsm.schemas.ReasoningSpanStatus` = `PRESENT` / `EMPTY` (well-formed but
+    blank, e.g. the `enable_thinking=false` wrapper) / `MALFORMED` (lone opening
+    marker — truncation) / `ABSENT`. Reported **separately** from the answer
+    `ParseStatus` and from disclosure.
+  - A `MALFORMED` span → `ParseStatus.NO_ANSWER` **with the format problem flagged**;
+    the untrusted boundary means no in-reasoning letter is harvested. This is an
+    infrastructure observation and is **never** to be read as the model disclosing
+    nothing (that remains a monitor's judgement on the reasoning text; `disclosure.py`
+    already maps an absent CoT to `label=None` → excluded-and-counted, unchanged).
+  - `raw_output` continues to be stored verbatim on every record — nothing dropped.
+  - `GenerationRecord` / `FeasibilityRecord` gain optional `reasoning_span_status` /
+    `reasoning_marker_style` fields (defaults preserve existing records).
+- **Not a methodology change:** hypotheses, operational definitions, metric formulae,
+  the disclosure-eligibility rule, tie policy, prompts, seeds, model lock, and Track B
+  are all unchanged. This is a parser robustness/diagnostics fix, done before any
+  scientific run per `CLAUDE.md` (no result-dependent parser edits).
+- **Tests:** `tests/test_extraction.py` +10, `tests/test_feasibility.py` +2 — all with
+  explicitly labelled **synthetic** parser fixtures (no fabricated model logs). Suite:
+  118 → 129 passing; ruff/mypy clean.
+- **Operational recommendation (to be frozen in the pilot pre-registration, not here):**
+  run generation with `--reasoning-format none`, or via `llama-server /completion` with
+  a pre-rendered prompt, or read the structured `reasoning_content` field — so the
+  literal reasoning span is captured. The parser now degrades a misconfiguration to a
+  *flagged* case rather than silent loss.
+- **Evidence:** `experiments/M1-Mac-Feasibility/REASONING_MARKER_FORENSICS.md`;
+  `src/clsm/extraction.py`, `src/clsm/schemas.py`, `src/clsm/feasibility.py`,
+  `src/clsm/generation.py`; `tests/test_extraction.py`, `tests/test_feasibility.py`.
+- **Status:** ACTIVE. No inference performed. Parser hardened and tested before Gate C.
+
+## D-039 — Remove outcome-dependent model selection: Criterion C / G5 made diagnostic-only; a scientific null is never an infrastructure failure
+- **Date:** 2026-09-10
+- **Problem:** `experiments/M1-Mac-Feasibility/EXPERIMENT_SPEC.md` (pre-this-entry) let
+  model **retention** depend on a **non-zero hint effect**: §3 Criterion C required
+  "measurable behavioral variation (`adoption_increase` distinguishably different from
+  0)" and said a candidate showing "no measurable hint effect (fails C) is excluded";
+  §4 step 4 said to "select the … candidate that clears A/B/D/E **and does not fail C
+  by having zero measurable effect**"; §5.4 G5 "weighed at selection". That is an
+  outcome-dependent / cherry-picking risk (`CLAUDE.md` §2.5) — it could bias the study
+  toward a model that happens to show a hint effect.
+- **Decision:** The Track-A generator is **locked** to `Qwen/Qwen3-1.7B` (Q8_0 GGUF)
+  per D-034, selected on neutral pre-scientific grounds before any inference existed.
+  - **Criterion C and G5 are now DIAGNOSTIC-ONLY.** Hint movement / answer switching /
+    `adoption_increase` is **recorded** (raw generations preserved) but is **never** a
+    pass/fail on the model and **never** a selection input.
+  - **No model may be chosen, rejected, or replaced on the basis of any behavioural or
+    scientific outcome:** hint-adoption magnitude, answer-switch rate, hidden influence,
+    disclosure rate/effect, task accuracy (incl. near-chance), cross-lingual gap,
+    Urdu-specific behaviour, monitor-validity gap, monitor detection/failure, or a
+    result being "interesting" / preferred / more publishable.
+  - **A scientific null is not an infrastructure failure.** Zero switches ≠ model
+    failure. No disclosure effect ≠ model failure. Urdu gap == 0 ≠ model failure. **All
+    nulls are retained and reported.**
+  - **Model replacement is permitted only after a neutral, pre-scientific
+    infrastructure failure**, each requiring its own dated decision-log entry: artifact
+    unavailable / integrity-check failure; artifact corruption / hash mismatch; runtime
+    incompatibility (pinned llama.cpp cannot load/execute); impossible resource
+    requirement; persistent crash across repeated calls; an unrecoverable parser/
+    output-format failure that cannot be resolved transparently (the D-038 hardening
+    already covers the known `<think>`/`[Start thinking]` case — a *flagged*
+    `MALFORMED`/`EMPTY` span is a diagnostic, not by itself unrecoverable);
+    license/access failure; inability to pin/reproduce the exact revision/quant/build.
+  - "Output usability" (Criterion B) can fail for one of those infrastructure reasons
+    **independently** of any scientific effect (e.g. the model systematically emits no
+    parseable answer). A model that answers cleanly but is unmoved by the hint has
+    **not** failed B or anything else.
+  - **Genuine intervention responsiveness** will be evaluated **only** in a separately
+    **pre-registered, adequately powered** pilot (Phase 11 / a future pilot-prereg
+    document) — never inferred from the tiny non-scientific screen, never a model gate.
+- **Scope:** documentation + wording correction, plus regression tests. No metric
+  formula, hypothesis, operational definition, prompt, seed, dataset pin, or Track-B
+  file changed. The model lock (D-034) and the GGUF identity (D-037) are unchanged.
+- **Files changed:** `experiments/M1-Mac-Feasibility/EXPERIMENT_SPEC.md` (§3 C, §3
+  exclusion box, §4, §5.2, §5.4 G5, §1 intro), `experiments/M1-Mac-Feasibility/READINESS.md`
+  (§0 + §4 Gate-D row), `src/clsm/feasibility.py` (module docstring),
+  `experiments/M1-Mac-Feasibility/run_feasibility.py` (Gate-D wording),
+  `tests/test_feasibility.py` (+3 regression tests: a zero-hint-effect responder
+  produces complete clean records with no verdict field; the record schema contains no
+  selection/rejection/switch-rate field; the module imports no `clsm.metrics`).
+- **The known Gate-D/model-selection integrity issue is now closed for the locked
+  model.** A broader methodology-integrity review (should the *original GPU Track-B*
+  screening docs carry any similar wording) is left as a **separate** future PR, not
+  mixed into this infrastructure-provenance work.
+- **Evidence:** the files above; suite 129 → 131 passing; ruff/mypy clean.
+- **Status:** ACTIVE. No inference performed. Outcome-dependent selection removed
+  before any scientific run.
+
+## D-040 — New-machine Gate C: ONE synthetic infrastructure smoke on the M5 — PASS; Metal runtime use verified
+- **Date:** 2026-09-10
+- **Decision:** Following explicit Gate-C authorization (autonomous overnight session),
+  a **synthetic, infrastructure-only** Gate-C smoke was run and recorded, and Metal
+  runtime use was verified. **None of this is scientific data.** Full record incl. the
+  complete model-invocation accounting:
+  `experiments/M1-Mac-Feasibility/environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`.
+- **Formal Gate-C trial:** one synthetic fixture item (`smoke-001`, "capital of
+  France"), **control** condition (no misleading hint), seed 42, temp 0, `-n 512`,
+  `-ngl 99`, `--reasoning-format none`. Model = locked `Qwen3-1.7B-Q8_0.gguf` (full
+  sha256 `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`); runtime =
+  pinned llama.cpp `5266f24da…` build `b10809`. **The verdict rests on this ONE
+  generation, with ZERO output re-rolls.**
+- **Result — PASS (infrastructure criteria only):** exit 0; 6.07 s wall; non-empty
+  1663-char generation; `ParseStatus.VALID` (answer "A" via the fallback regex);
+  `ReasoningSpanStatus.PRESENT`, marker `xml_think` (literal `<think>…</think>`
+  preserved by `--reasoning-format none`, 734-char span); deterministic recording to
+  JSONL/txt artifacts. Answer correctness is **not** a Gate-C criterion (noted
+  incidentally only).
+- **Full model-invocation accounting (so this cannot be read as "one generation
+  total"):** the formal trial (1 generation, n=512) was preceded by 1 **failed
+  pre-load** attempt (`-no-cnv` — not a valid flag at this pin; exit 1; **no model
+  loaded, no generation**; a CLI-argument correction, not an output re-roll) and
+  followed by 3 **infrastructure-only Metal-diagnostic generations** (n=8, n=8, n=4;
+  throwaway prompt "Q: 2+2? A:") plus 1 more **failed pre-load** (a broken
+  output-redirect) and 1 non-inference `--list-devices`. **The 3 diagnostic generations
+  did not use scientific data, were not Gate-C output re-rolls, did not alter the
+  Gate-C verdict, and were not used as model-selection or scientific evidence** — they
+  existed only to capture verbose runtime logs the `--simple-io` trial suppressed.
+- **Metal runtime validation (Phase 9 — distinct from the D-036 *compile* check;
+  evidence from diagnostic generation #6 + `--list-devices`):** runtime output shows
+  `ggml_metal_init: found device: Apple M5`, `using device MTL0 (Apple M5)`,
+  `offloaded 29/29 layers to GPU`, `MTL0_Mapped model buffer size = 1743.77 MiB`,
+  `MTL0 compute buffer size = 222.24 MiB`; `--list-devices` → `MTL0: Apple M5` +
+  `BLAS: Accelerate`. **Metal is initialized and actively used on the M5.** No
+  performance claim is made (~66 tok/s on the formal trial — an observation, not a
+  benchmark).
+- **What Gate C does NOT establish:** nothing scientific. No accuracy, hint effect,
+  switch rate, disclosure, hidden influence, Urdu behaviour, or cross-lingual quantity
+  was computed or may be inferred. The synthetic item is not a benchmark item.
+- **Raw artifacts:** `experiments/M1-Mac-Feasibility/feasibility_runs/m5-gate-c-smoke/`
+  (`stdout.txt`, `stderr.txt`, `result.json`, `metal-init.txt`) — under the
+  **gitignored** `feasibility_runs/` tree (`.gitignore:227`); key excerpts are quoted
+  verbatim in the committed environment-check file.
+- **Follow-up noted for the pilot pre-registration (not done here):** the raw
+  `llama-cli` stdout carries a banner + a `[ Prompt: … t/s ]` footer (CLI chrome, not
+  model tokens); a scientific run must strip that deterministically or use a cleaner
+  interface (`-o` output file, or the `llama-server /completion` API with a
+  pre-rendered prompt).
+- **Evidence:** the environment-check file above; `feasibility_runs/m5-gate-c-smoke/`;
+  `experiments/M1-Mac-Feasibility/READINESS.md` (§0 + §1.8 added).
+- **Status:** ACTIVE. **New-machine Gate C: PASS (infrastructure-only synthetic smoke).**
+  No scientific dataset downloaded, no scientific metric computed, no full experiment
+  run. Gate D is not a selection exercise (D-039); a scientific pilot requires a frozen
+  pre-registration (separate) before any scientific generation.

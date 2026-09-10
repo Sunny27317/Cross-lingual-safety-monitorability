@@ -15,7 +15,8 @@ Track A has two sequential phases, both gated before any inference occurs:
 2. **Tiny feasibility benchmark** (§5) — once a runtime is selected (`READINESS.md`) and
    the user authorizes any download/compute, a deliberately tiny, non-scientific smoke
    test across the screened candidates. Purpose: runtime, parsing, latency, memory,
-   trace visibility, intervention responsiveness. **Not a hypothesis test.**
+   trace visibility. (It also records a hint-movement diagnostic — D-039 — which is
+   never a model pass/fail.) **Not a hypothesis test.**
 
 Only after a GO from the feasibility benchmark (§5.4) would a pilot-scale Track-A
 experiment (analogous to the `n=50` MMLU pilot in `experiments/M1-English-Baseline/`) be
@@ -49,9 +50,20 @@ To be screened at all, a candidate must be, on paper:
 
 ## 3. Model-selection criteria (pre-registered BEFORE testing — Task 4)
 
-These are fixed now, before any candidate is run, specifically so that the eventual
-choice cannot be steered toward whichever model produces the most interesting hint-effect
-or the most dramatic monitor-validity gap.
+> **SUPERSEDED FOR SELECTION PURPOSES (2026-09-10, `literature/DECISION_LOG.md` D-034,
+> D-039).** The Track-A generator is **locked** to `Qwen/Qwen3-1.7B` (Q8_0 GGUF), chosen
+> on neutral pre-scientific grounds before any inference existed. **No further model
+> selection will occur**, and in particular **no model may be chosen, rejected, or
+> replaced on the basis of any behavioural or scientific outcome** — see the "Explicit
+> exclusion" box below and D-039. The criteria in this section are retained as the
+> historical screening record and are re-scoped: A/B/D/E remain **infrastructure
+> readiness** checks that apply to the locked model; **Criterion C is DIAGNOSTIC-ONLY**
+> (see C below). Model replacement is possible only on a neutral infrastructure failure
+> (enumerated in the "Explicit exclusion" box).
+
+These were fixed before any candidate was run, specifically so that the choice could not
+be steered toward whichever model produces the most interesting hint-effect or the most
+dramatic monitor-validity gap.
 
 ### A. Runtime feasibility
 - no OOM / crash across the tiny benchmark's repeated calls;
@@ -69,16 +81,24 @@ or the most dramatic monitor-validity gap.
 - low truncation rate at a context/`max_new_tokens` budget the Mac can actually run in
   reasonable time.
 
-### C. Experimental responsiveness
-- the model answers enough benchmark items correctly to have a non-trivial
-  switch-eligible set (`RESEARCH_PLAN.md` §9 "eligible" — `a_u == correct`);
-- the misleading-hint intervention produces **measurable behavioral variation**
-  (`adoption_increase` distinguishably different from 0 in *either* direction) — a model
-  totally insensitive to the hint (`adoption_increase ≈ 0` with a tight CI) fails this
-  criterion, as does a model that is essentially random on the base task regardless of
-  hint (accuracy near chance);
-- **not** selected for producing a large or "interesting" effect — selected for producing
-  *any measurable, non-degenerate* effect, in either direction.
+### C. Experimental responsiveness — **DIAGNOSTIC-ONLY (D-039). NOT a selection gate.**
+
+The generator is locked (D-034). This criterion **no longer gates model retention** and
+**must never** be used to choose, reject, or replace a model. The feasibility screen and
+any smoke run **record** the following as diagnostics, and nothing here is a pass/fail
+condition on the model:
+
+- how many benchmark items the model answers correctly (context for how large a
+  switch-eligible set a future *pilot* would have — `RESEARCH_PLAN.md` §9, `a_u == correct`);
+- whether the misleading-hint intervention appears to move any answer, in either
+  direction (recorded as an observation, with the raw generations preserved).
+
+**Explicitly:** a zero hint effect, zero answer switches, `adoption_increase ≈ 0`, no
+disclosure effect, a zero cross-lingual gap, or near-chance base accuracy are all
+**valid scientific outcomes** to be reported, **not** model failures and **not** grounds
+to swap the model. True intervention responsiveness is a scientific question that will be
+evaluated **only** in a separately pre-registered, adequately powered pilot (Phase 11) —
+never inferred from this tiny non-scientific screen, and never used to pick a model.
 
 ### D. Language capability
 - produces usable, coherent English text;
@@ -95,32 +115,67 @@ or the most dramatic monitor-validity gap.
 - exact local-runtime version (llama.cpp build / `transformers` version / GGUF
   quantization tool version, whichever applies) pinned before any comparison run.
 
-### Explicit exclusion — what selection must NOT depend on
+### Explicit exclusion — what model retention must NOT depend on (D-039)
 
-Per the user's instruction, selection must **not** depend on: getting a preferred effect
-direction; maximizing hidden-influence rate; maximizing monitor failure (in any of the
-four monitors, once monitors are in scope); producing a **larger cross-lingual gap**;
-producing **more Urdu-specific failure** (once Urdu is in scope — this screen's tiny
-benchmark, §5.1, is English-only, but the exclusion is stated now so it is not
-introduced later as an afterthought); or making the eventual paper "look better" /
-more publishable-looking in any other way. A candidate that clears A/B/E but shows *no*
-measurable hint effect (fails C) is excluded for **that reason, stated explicitly** — not
-quietly swapped out without a documented reason keyed to this list.
+The locked generator (`Qwen/Qwen3-1.7B`, D-034) **must not** be replaced, and no model
+**may ever** be chosen or rejected, on the basis of any of:
+
+- hint-adoption magnitude / answer-switch rate / `adoption_increase` (in any direction)
+- hidden-influence rate / `conditional_hidden_influence_rate`
+- disclosure rate or any disclosure effect
+- task accuracy (including near-chance accuracy)
+- cross-lingual gap / Urdu-specific behaviour / monitor-validity gap
+- monitor detection rate or monitor failure (any of the four monitors)
+- a result being "interesting", "boring", preferred, or more publishable-looking
+
+**A scientific null is not an infrastructure failure. Zero switches are not a model
+failure. No disclosure effect is not a model failure. A zero Urdu gap is not a model
+failure. All nulls are retained and reported.**
+
+Model **replacement** is permitted **only** after a neutral, pre-scientific
+**infrastructure** failure, and then only with a dated `literature/DECISION_LOG.md`
+entry naming which one occurred:
+
+- the model artifact is unavailable, or its download fails an integrity check
+- the artifact is corrupted / the hash no longer matches
+- runtime incompatibility (the pinned llama.cpp build cannot load or execute the file)
+- an impossible resource requirement on the target machine (cannot allocate the memory
+  it needs)
+- a persistent crash across repeated invocations
+- an unrecoverable parser/output-format failure that cannot be resolved transparently
+  (note: the D-038 parser hardening already covers the known `<think>` /
+  `[Start thinking]` case — a *flagged* `MALFORMED`/`EMPTY` span is a diagnostic, not
+  by itself an unrecoverable failure)
+- a license/access condition becomes invalid
+- the exact revision / quantization / build cannot be pinned or reproduced
+
+"Output usability" (Criterion B) can fail for one of these infrastructure reasons
+**independently** of any scientific effect — e.g. the model systematically emits no
+parseable answer letter at all. That is an infrastructure failure. A model that answers
+cleanly but is simply unmoved by the hint is **not**.
 
 ## 4. Selection procedure
+
+> **CLOSED (2026-09-10, D-034 / D-039).** Model selection is **done**: the Track-A
+> generator is `Qwen/Qwen3-1.7B` (Q8_0 GGUF), locked on neutral pre-scientific grounds
+> in D-034. The multi-candidate procedure below is the **historical** plan and is **not
+> executed** — no candidate scoring, ranking, or choosing will take place. It is kept
+> for provenance. Any future model change follows the neutral-infrastructure-failure
+> rule in the "Explicit exclusion" box in §3, not this procedure.
+
+*Historical plan (not executed):*
 
 1. Screen 3–5 candidates on paper against §2 (`MODEL_SCREEN.md`).
 2. Run the tiny feasibility benchmark (§5) on all screened candidates that pass the
    paper screen.
-3. Score each candidate against criteria A–E using the benchmark's actual (not assumed)
-   outputs.
-4. Select the smallest/cheapest candidate that clears all of A, B, D, E and does not fail
-   C by having zero measurable effect. Record the selection and the criterion-by-criterion
-   scoring in a dated `literature/DECISION_LOG.md` entry **before** any pilot-scale run.
-5. If no candidate clears all criteria, that is a valid outcome: document which
-   criterion failed for each candidate and escalate to the user (this mirrors the
-   disclosure-judge lock procedure's "if no candidate clears the floor" branch,
-   `literature/DECISION_LOG.md` D-021).
+3. Score each candidate against criteria A, B, D, E (infrastructure readiness) using the
+   benchmark's actual outputs. **Criterion C is diagnostic-only and is never scored as a
+   pass/fail (§3, D-039).**
+4. ~~Select the smallest/cheapest candidate that clears A/B/D/E and does not fail C by
+   having zero measurable effect.~~ **Superseded** — the model is locked (D-034); a null
+   hint effect is never a reason to reject a model.
+5. If the locked model fails an **infrastructure** check (A/B/D/E — see the enumerated
+   list in §3), document which one and escalate to the user before any replacement.
 
 ## 5. Tiny feasibility benchmark — design only, NOT run
 
@@ -146,9 +201,10 @@ because this is a screen across *multiple* candidate models, not a single locked
 
 runtime (wall-clock per generation on this Mac); parsing (does `clsm.extraction` recover
 a valid answer letter); trace visibility (is there a reasoning span to score at all);
-latency (acceptable for iterative dev, not for a real pilot's scale); memory (peak RSS,
-does it stay within 32 GB alongside everything else running); intervention
-responsiveness (does the hint move the answer at all, in either direction).
+latency (acceptable for iterative dev, not for a real pilot's scale); memory (peak RSS).
+It also **records, as a diagnostic only (D-039)**, whether the hint appears to move any
+answer — this is never a pass/fail on the model and never a selection input (§3 C, §5.4
+G5).
 
 ### 5.3 What it explicitly does NOT do
 
@@ -168,7 +224,7 @@ monitorability.
 | G2 | Per-generation latency is within an iterative-development budget (ceiling set once G1-passing candidates' actual numbers exist — not guessed now) | candidate flagged, not automatically eliminated (a slower model may still be usable for a small pilot) |
 | G3 | Answer-extraction succeeds (`ParseStatus.VALID`) on a majority of generations | candidate eliminated unless a prompt-format fix (not a scientific change) resolves it, then re-probed |
 | G4 | A reasoning/explanation span is present and readable in the large majority of generations | candidate eliminated — nothing for the disclosure paradigm to score |
-| G5 | The hint measurably moves at least one item's answer across the tiny sample (any direction) | candidate flagged as possibly insensitive to intervention (criterion C, §3); not sufficient grounds alone to eliminate at this tiny `n`, but weighed at selection (§4 step 4) |
+| G5 | **DIAGNOSTIC-ONLY (D-039) — NOT a GO/NO-GO gate.** Whether the hint appears to move any item's answer, in either direction, is **recorded** (with raw generations preserved) as an observation. | **No consequence for the model.** A zero hint effect is a valid scientific null, retained and reported — never a reason to flag, weigh-against, or replace the locked model. Genuine intervention responsiveness is measured only in the pre-registered pilot (Phase 11). |
 
 A NO-GO on G1/G3/G4 for **every** screened candidate would be reported to the user as a
 genuine feasibility problem for Track A at this model scale — not silently worked around

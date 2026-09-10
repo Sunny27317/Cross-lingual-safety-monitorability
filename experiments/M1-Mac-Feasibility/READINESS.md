@@ -1,14 +1,24 @@
 # READINESS.md — Track A Mac runtime architecture
 
-**Status (current, as of 2026-09-06):** Gate A — runtime installation — is **complete**
-(§1.6: llama.cpp built from a pinned commit and locally verified). Gate B — model
-download — is also **complete** (§1.7): exactly one model, `Qwen/Qwen3-1.7B`, GGUF
-`Qwen3-1.7B-Q8_0.gguf`, has been downloaded and verified. **No dataset has been
-downloaded. No real-model inference has occurred. No scientific metric of any kind has
-been computed.** Gate C (single-model smoke inference run) and Gate D (multi-candidate
-feasibility screen) are both **NOT AUTHORIZED**. This document also documents runtime
-*options* for the machine actually available, including the historical record of what
-each gate looked like before it was authorized (§1.6, §1.7):
+**Status (current, as of 2026-09-10):**
+
+- **Gate A** (runtime install/build) — **complete**. Intel: §1.6, 2026-09-06. Apple M5
+  arm64 native rebuild: §1.6.2, 2026-09-08, `DECISION_LOG.md` D-036.
+- **Gate B** (model-weight download of the ONE locked model) — **complete**. Intel:
+  §1.7, D-034. Same artifact re-downloaded + byte-verified on the M5: §1.7.1, 2026-09-10,
+  D-037 (size + full SHA-256 exact match).
+- **Gate C** (ONE **synthetic infrastructure** smoke — not scientific data) — **PASS on
+  the M5**: §1.8, 2026-09-10, D-040. Metal runtime use verified.
+- **Gate D** — **not a model-selection exercise** (D-039); the generator is locked
+  (D-034) and no model will be chosen or rejected on any behavioural/scientific outcome.
+
+**No scientific dataset (MMLU/GPQA/…) has been downloaded. No scientific inference has
+been run. No scientific metric of any kind — accuracy, answer-switch rate, disclosure,
+hidden influence, Urdu behaviour, cross-lingual gap — has been computed. A scientific
+pilot requires a frozen pre-registration first.** This document also documents runtime
+*options* and the historical record of each gate (§1.6, §1.7).
+
+### Historical Intel environment (Gate A originally performed here, 2026-09-06)
 
 | Property | Value |
 |---|---|
@@ -17,17 +27,35 @@ each gate looked like before it was authorized (§1.6, §1.7):
 | RAM | 32 GB |
 | GPU | AMD Radeon Pro 5300M, 4 GB VRAM |
 | Architecture | **x86_64 (Intel), not Apple Silicon (ARM64)** |
-| OS | macOS (Darwin) |
+| OS | macOS (Darwin) 26.3.1 |
 | CUDA | none |
+| llama.cpp build | pinned `5266f24da…` / `v0.4.0`, **`-DGGML_METAL=OFF`** (forced CPU-only; discrete AMD GPU), Accelerate/CPU only |
 
-**This is an Intel Mac. Every recommendation below is qualified by that fact — nothing
-here assumes Apple Silicon.** This distinction matters because several popular
-"run LLMs on your Mac" toolchains (most notably Apple's own MLX) are Apple-Silicon-only
-and do not run at all on this machine.
+On that machine every "run LLMs on your Mac" recommendation was qualified by the Intel
+fact — most notably Apple's own MLX is Apple-Silicon-only and does not run on it at all.
+Observed-machine facts are archived in
+`environment_checks/2026-09-06-intel-mac-runtime-preflight.txt` (read-only preflight) and
+`environment_checks/2026-09-06-llamacpp-gate-a.txt` (Gate A transcript).
 
-Observed-machine facts (confirmed, not assumed) are archived in
-`environment_checks/2026-09-06-intel-mac-runtime-preflight.txt` — a non-destructive,
-read-only preflight (no install, no download).
+### Current Apple-Silicon environment (active as of 2026-09-08)
+
+| Property | Value |
+|---|---|
+| Model | MacBook Air (`Mac17,3`) |
+| Chip | Apple M5 |
+| CPU | 10 cores (4 performance + 6 efficiency) |
+| RAM | 16 GB |
+| GPU | Apple M5 integrated (unified memory) — Metal's target architecture |
+| Architecture | **arm64 (Apple Silicon)** |
+| OS | macOS 26.6 (build 25G72) |
+| CUDA | none |
+| llama.cpp build | pinned `5266f24da…` / `v0.4.0`, **Metal ON** (pinned source default on Apple), **Accelerate/BLAS ON**, **CPU ON**, native arm64 |
+
+Metal **build** availability has been verified on this machine (native `libggml-metal`
+linked against `Metal.framework`/`MetalKit.framework`). Metal **inference** has **not**
+been verified — that requires a separately authorized inference gate. Do not collapse
+those two claims. Observed-machine facts and the full build transcript are archived in
+`environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`.
 
 ## 0. Authorization gates (sequential — do not skip ahead)
 
@@ -36,28 +64,28 @@ Each gate below is a distinct, separately-authorized step:
 
 | Gate | What it authorizes | Status |
 |---|---|---|
-| **Gate A** | Runtime installation (build/verify llama.cpp locally) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — see §1.6 below and `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
-| **Gate B** | Model-weight download (exactly ONE model, selected on neutral criteria) | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — `Qwen/Qwen3-1.7B-GGUF` (Q8_0), see `environment_checks/2026-09-06-gate-b-model-download.txt` |
-| **Gate C** | A single-model tiny smoke run (infrastructure plumbing check on ONE real candidate, analogous to Track B's Stage-A smoke, `M1-English-Baseline/PRE_RUN_READINESS.md` §3.0) | **NOT AUTHORIZED** |
-| **Gate D** | The multi-candidate tiny feasibility screen (`EXPERIMENT_SPEC.md` §5, G1–G5) across all screened candidates | **NOT AUTHORIZED** |
+| **Gate A** | Runtime installation (build/verify llama.cpp locally) | **✅ COMPLETE** — Intel 2026-09-06 (§1.6, `environment_checks/2026-09-06-llamacpp-gate-a.txt`); **rebuilt natively for arm64 on the Apple M5, 2026-09-08 (§1.6.2, `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`, D-036)** |
+| **Gate B** | Model-weight download (exactly ONE model, selected on neutral criteria) | **✅ COMPLETE** — Intel 2026-09-06 (`environment_checks/2026-09-06-gate-b-model-download.txt`, D-034); **same artifact re-downloaded + byte-verified on the M5, 2026-09-10 (`environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`, D-037)** — `Qwen/Qwen3-1.7B-GGUF` (Q8_0), size + full SHA-256 exact match |
+| **Gate C** | A single **synthetic** infrastructure smoke (ONE fixture item, ONE seed; checks exit/non-empty/answer-extractable/reasoning-span-extractable/deterministic-recording only — **never** accuracy/hint/disclosure/Urdu/cross-lingual) | **✅ COMPLETE on the Apple M5, 2026-09-10 (§1.8, `environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`, D-040)** — PASS; Metal runtime use verified |
+| **Gate D** | ~~multi-candidate feasibility screen for model selection~~ — **CLOSED for selection (D-039).** Generator is locked (D-034); no candidate scoring/choosing. Criterion C / G5 are diagnostic-only. | not a selection exercise |
 
-**Gates A and B are complete; Gates C and D remain unauthorized and unreached.** A
-runtime **implementation** exists (built and locally verified — §1.6), and exactly ONE
-model has been downloaded and verified (Qwen3-1.7B, Q8_0 GGUF — selected on neutral,
-pre-scientific hardware/methodology/provenance criteria, with no inference having
-occurred on any candidate before selection). This does **not** mean the scientific
-study is "ready": no quantization *comparison* has occurred, and — critically — no
-inference of any kind has occurred with this or any model. The feasibility *runner*
-(`experiments/M1-Mac-Feasibility/run_feasibility.py`, `src/clsm/feasibility.py`) has
-been written and self-tested end-to-end against `MockFeasibilityBackend` only — a
-deterministic, TEST-ONLY canned responder — so that the plumbing (prompt rendering,
-control/treatment pairing, answer extraction, JSONL output) is proven correct *before*
-any real model is involved. `src/clsm/feasibility.py` also now includes
-`discover_llamacpp_binary` (a runtime-discovery guard: binary-exists + `--version`
-check ONLY, never a model path), so the harness can confirm a configured runtime binary
-is usable without risking an accidental inference call. No real generation backend is
-implemented yet; `run_feasibility.py --real` refuses unconditionally until Gates B–D
-pass.
+**Gates A, B, and C (synthetic smoke) are complete on the M5; Gate D is not a
+model-selection exercise (D-039).** A runtime implementation is built and verified
+(§1.6.2), the ONE locked model is byte-verified (§1.7.1), and one synthetic
+infrastructure smoke has passed (§1.8). This does **not** mean the scientific study is
+"ready": no scientific dataset exists locally, and — critically — no
+*scientific* inference has occurred — no scientific dataset item, no misleading-hint
+treatment, no metric. The only real generation to date is the ONE **synthetic**
+Gate-C smoke (§1.8, D-040), run directly via the pinned `llama-cli` (not through the
+`clsm.feasibility` runner). The feasibility *runner*
+(`experiments/M1-Mac-Feasibility/run_feasibility.py`, `src/clsm/feasibility.py`) is
+still self-tested against `MockFeasibilityBackend` only — a deterministic, TEST-ONLY
+canned responder — proving the plumbing (prompt rendering, control/treatment pairing,
+answer extraction, JSONL output) before a real backend is wired in.
+`src/clsm/feasibility.py` also includes `discover_llamacpp_binary` (a runtime-discovery
+guard: binary-exists + `--version` check ONLY, never a model path). No real generation
+backend is wired into the runner yet; `run_feasibility.py --real` still refuses
+unconditionally.
 
 ---
 
@@ -76,7 +104,11 @@ pass.
 | Seeded generation supported? | Yes — llama.cpp exposes an explicit `--seed` and standard sampling parameters (temperature, top-p, top-k), comparable in spirit to the vLLM decoding config already used for Track B. |
 | Expected tradeoffs | Best-documented, most widely used pure-CPU-inference path for this exact hardware class; quantization is close to mandatory for larger candidates to run at acceptable speed; ecosystem moves fast, so version pinning needs active attention. |
 
-### 1.6 Gate A — COMPLETE: llama.cpp installed, built, and locally verified (2026-09-06)
+### 1.6 Gate A (HISTORICAL — Intel machine) — llama.cpp installed, built, and locally verified (2026-09-06)
+
+> **This subsection is the historical record of Gate A as performed on the 2019 Intel
+> MacBook Pro.** It is preserved unchanged as provenance. The runtime in active use is
+> now the Apple M5 arm64 rebuild — see **§1.6.2** below and `DECISION_LOG.md` D-036.
 
 **BEFORE (candidate, this document's earlier state):** llama.cpp was a *recommended*
 runtime option, nothing installed.
@@ -108,12 +140,50 @@ testing), the build forces genuine CPU-only execution
 is made about whether Metal-via-AMD would have worked — it was not attempted, and
 remains out of scope.
 
-**What Gate A does NOT mean:** no inference of any kind has occurred; the scientific
-study is not "ready" merely because a runtime compiles and reports its version. (Gate B
-— exactly one model, Qwen3-1.7B Q8_0 — has since been authorized and completed; see
-§0 and §1.7 below. Gate C inference remains **NOT AUTHORIZED**.)
+**What Gate A does NOT mean (as it stood on 2026-09-06):** no inference of any kind had
+occurred; the scientific study is not "ready" merely because a runtime compiles and
+reports its version. (Since then, on the M5: Gate B completed — §1.7.1 — and a synthetic
+infrastructure Gate-C smoke passed — §1.8, D-040. **No *scientific* inference has
+occurred on either machine.**)
 
-### 1.7 Gate B — COMPLETE: Qwen3-1.7B (Q8_0 GGUF) downloaded and verified (2026-09-06)
+### 1.6.2 Gate A (CURRENT — Apple M5 machine) — locked llama.cpp rebuilt natively for arm64 (2026-09-08)
+
+Development moved to an Apple M5 MacBook Air (`Mac17,3`, arm64, 16 GB, macOS 26.6). The
+**same locked revision** was rebuilt natively — the Intel x86_64 build cannot and must
+not be reused. Full raw transcript: `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`.
+Decision record: `DECISION_LOG.md` D-036. Summary:
+
+| Field | Value |
+|---|---|
+| Repository | `https://github.com/ggml-org/llama.cpp.git` (official; unchanged) |
+| Pinned commit | `5266f24da75dc449bd56cbed7addb9c8e4a6a73e` — **unchanged**, not re-pinned for the migration |
+| Tag | `v0.4.0` |
+| Clone location | `~/tools/llama.cpp` (outside this repo; not vendored) |
+| Build prerequisites | `cmake` 4.4.3, `git` 2.50.1, Apple clang 21.0.0 — all via Homebrew 6.0.22 / Command Line Tools (no full Xcode; `xcrun metal` unavailable) |
+| Build command | `cmake -B build -DCMAKE_BUILD_TYPE=Release` then `cmake --build build --config Release -j 10` — **`-DGGML_METAL=OFF` NOT carried forward** |
+| Build result | **SUCCESS** — all targets built, incl. `llama-cli`; exit 0; no source patched |
+| Backends built | **Metal ON** (pinned source's Apple default), **Accelerate/BLAS ON** (vendor Apple), **CPU ON** (`-mcpu=native+dotprod+i8mm+nosve+sme`). `GGML_CUDA/VULKAN/OPENCL=OFF`. `GGML_SYSTEM_ARCH: ARM`. |
+| Metal evidence | native arm64 `libggml-metal.0.23.0.dylib` links `Metal.framework` + `MetalKit.framework` + `Foundation`; embedded shader library (`GGML_METAL_EMBED_LIBRARY=ON`, 40 `_ggml_metallib_*` symbols) — no build-time `metal` compiler needed |
+| Accelerate evidence | `libggml-blas` and `libggml-cpu` link `Accelerate.framework` (current version 4.0.0) |
+| Binary verified | `~/tools/llama.cpp/build/bin/llama-cli` — `file`: **Mach-O 64-bit executable arm64**; `--version` → `0.4.0-dev (build 10809, commit 5266f24da) … for Darwin arm64`; `--help` exit 0; **no model path ever passed** |
+| Model/dataset downloads | **None.** `~/models` does not exist; no HF cache. The 19 `ggml-vocab-*.gguf` under `~/tools/llama.cpp/models/` are the upstream repo's git-tracked tokenizer-vocab test fixtures, not weights. |
+
+**Why the Intel `-DGGML_METAL=OFF` was not carried forward:** that override was
+justified *specifically* by the Intel host's discrete AMD Radeon GPU (§1.6, D-033). The
+M5's unified-memory GPU is exactly the architecture llama.cpp's Metal backend is built
+and tested for, and the pinned source defaults `GGML_METAL=ON` on Apple platforms
+(`ggml/CMakeLists.txt:95-98, 236`). This is a hardware adaptation only; it changes no
+model, quantization, prompt, seed, hypothesis, dataset, metric, or Track-B artifact.
+
+**What §1.6.2 established (as of 2026-09-08):** Metal **build** availability verified;
+Metal **inference** not yet exercised; Gate B weights not yet restored on the M5; Gate C
+not yet run. **Update (2026-09-10):** the M5 Gate-C synthetic smoke (§1.8, D-040) has
+since exercised the Metal runtime — `ggml_metal_init` on Apple M5, 29/29 layers
+offloaded to the GPU — so Metal **inference** on this machine is now verified for an
+infrastructure-only synthetic prompt. Gate B was restored (§1.7.1). **No *scientific*
+inference has occurred.**
+
+### 1.7 Gate B — COMPLETE (on the Intel machine): Qwen3-1.7B (Q8_0 GGUF) downloaded and verified (2026-09-06)
 
 Full record: `environment_checks/2026-09-06-gate-b-model-download.txt`. Summary:
 
@@ -131,7 +201,52 @@ Full record: `environment_checks/2026-09-06-gate-b-model-download.txt`. Summary:
 
 **What Gate B does NOT mean:** no inference has occurred; no control or treatment
 prompt has been evaluated; no reasoning trace has been generated; the scientific study
-is not "ready." **Gate C (single-model smoke inference run) remains NOT AUTHORIZED.**
+is not "ready."
+
+### 1.7.1 Gate B (CURRENT — Apple M5 machine) — identical artifact restored + byte-verified (2026-09-10)
+
+The Intel-machine download (§1.7) does not carry to the new machine. The **same
+locked artifact** was re-downloaded on the M5 and re-verified. This is **not** a new
+selection. Full record: `environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`.
+Decision record: `DECISION_LOG.md` D-037.
+
+| Field | Value |
+|---|---|
+| Model / GGUF repo / revision | `Qwen/Qwen3-1.7B` · `Qwen/Qwen3-1.7B-GGUF` @ `90862c4b9d2787eaed51d12237eafdfe7c5f6077` — **unchanged** from D-034 |
+| File / quantization | `Qwen3-1.7B-Q8_0.gguf` · Q8_0 — **unchanged** |
+| Download method | `curl -L --fail` from the revision-pinned HF `resolve/` URL (same as Intel Gate B) |
+| Size check | `stat -f%z` → **1,834,426,016 bytes** — EXACT MATCH |
+| SHA-256 check | `shasum -a 256` → **`061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`** — EXACT MATCH (full 64-char value) — bit-for-bit identical to the Intel-verified file |
+| Local storage | `~/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf` — **outside** the repo (`.gitignore:240` `*.gguf`) |
+| Metadata-only inspection | pinned `llama-gguf` + local `gguf` reader (PYTHONPATH only, no install): GGUF v3, 28 KV, 310 tensors, arch `qwen3`, name "Qwen3 1.7B Instruct", ctx_len metadata 40960 (card says 32768 — recorded, not resolved), tokenizer gpt2/qwen2-pre, chat template present (ChatML + `<think>`/`</think>`). **No inference.** |
+
+**What §1.7.1 does NOT mean:** no *scientific* inference has occurred on the M5; no
+scientific dataset item has been evaluated; no scientific metric has been computed.
+
+### 1.8 Gate C (CURRENT — Apple M5) — synthetic infrastructure smoke — PASS (2026-09-10)
+
+The **formal Gate-C trial** is one **synthetic, infrastructure-only** generation. **Not
+scientific data.** Full record incl. the complete model-invocation accounting:
+`environment_checks/2026-09-10-m5-gate-c-synthetic-smoke.txt`. Decision:
+`DECISION_LOG.md` D-040.
+
+| Field | Value |
+|---|---|
+| Item | `smoke-001` (SYNTHETIC — "capital of France"), **control** condition (no hint) |
+| Command | `llama-cli -m <locked gguf> -p '<one synthetic item>' -st --reasoning-format none -n 512 -s 42 --temp 0 -ngl 99 --no-warmup --simple-io` |
+| Model / runtime | locked `Qwen3-1.7B-Q8_0.gguf` (full sha `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`) · pinned llama.cpp `5266f24da…` build `b10809` |
+| Exit / wall | 0 / 6.07 s |
+| Generation | non-empty, 1663 chars |
+| `parse_status` | `VALID` (answer "A", fallback regex) — *answer correctness is not a Gate-C criterion* |
+| `reasoning_span_status` | `PRESENT`, marker `xml_think` (literal `<think>…</think>` — preserved by `--reasoning-format none`, D-038) |
+| Formal Gate-C output re-rolls | **ZERO** — the verdict rests on this ONE generation |
+| Model-invocation accounting | 1 formal Gate-C generation (n=512) + **3 infrastructure-only Metal-diagnostic generations** (n=8, n=8, n=4; throwaway prompt "Q: 2+2? A:") + 2 failed pre-load attempts (`-no-cnv`; a broken output-redirect) + 1 `--list-devices`. The diagnostics used no scientific data, were **not** Gate-C re-rolls, did **not** alter the verdict, and were **not** model-selection/scientific evidence. Full table in the env-check file. |
+| Metal (Phase 9) | from diagnostic gen #6 + `--list-devices`: `ggml_metal_init: found device: Apple M5`, `offloaded 29/29 layers to GPU`, `MTL0_Mapped model buffer 1743.77 MiB`; `MTL0: Apple M5` + `BLAS: Accelerate`. **Metal initialised and used.** ~66 tok/s on the formal trial (not a benchmark). |
+
+**What §1.8 does NOT establish:** anything scientific. No accuracy, hint effect, switch
+rate, disclosure, hidden influence, Urdu, or cross-lingual quantity — none computed,
+none inferable. A scientific pilot needs a frozen pre-registration first. **Gate D is
+not a model-selection exercise (D-039).**
 
 ### 1.2 MLX
 
@@ -223,8 +338,20 @@ merely a recommendation.**
 
 **UPDATE — Gate B complete (§1.7):** exactly one model (`Qwen/Qwen3-1.7B`, GGUF
 `Qwen3-1.7B-Q8_0.gguf`) has since been selected on neutral criteria, downloaded, and
-verified — see §1.7 for the full record. **Gate C (inference) remains NOT
-AUTHORIZED.**
+verified — see §1.7 (Intel) and §1.7.1 (M5). **A synthetic infrastructure Gate-C smoke
+has since passed on the M5 (§1.8, D-040). No *scientific* inference has been run;
+Gate D is not a model-selection exercise (D-039).**
+
+**UPDATE — Apple M5 machine migration (§1.6.2, 2026-09-08, `DECISION_LOG.md` D-036):**
+development moved off the Intel host. The tables in §2 above discuss "Intel Mac
+compatibility" and "this 6-core 2019 laptop" — those columns are the *historical*
+selection context and are left intact as provenance. On the current arm64 machine:
+`transformers`-CPU and Ollama remain available; **MLX is now Apple-Silicon-compatible**
+(it was excluded only as Intel-incompatible in §1.2, not on reproducibility grounds) but
+is **not** adopted — the reproducibility case for driving llama.cpp directly is
+unchanged. llama.cpp (direct, GGUF) remains the locked runtime. The locked llama.cpp
+revision was rebuilt natively for arm64 with Metal enabled (§1.6.2); the pin itself did
+not change.
 
 ## 3. Track-A quantization — Q8_0 selected for the Gate-B/C smoke test (Step 7)
 
@@ -317,15 +444,17 @@ benchmark:
 | Step | Gate | Status |
 |---|---|---|
 | Model screen | ≥1 candidate in `MODEL_SCREEN.md` clears the license + candidate-class checks on a primary-source re-read | **done** (2026-09-06 revision) — all 5 candidates checked directly against their HF model cards; none removed; Candidate 5's identity corrected from a tentative guess to a verified repo |
-| Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE (2026-09-06)** — §1.6; `environment_checks/2026-09-06-llamacpp-gate-a.txt` |
+| Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE** — Intel: 2026-09-06, §1.6, `environment_checks/2026-09-06-llamacpp-gate-a.txt`. **Apple M5 (arm64) rebuild: 2026-09-08, §1.6.2, `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`, D-036** |
 | Smoke-test model selection | one candidate locked on neutral hardware/methodology/provenance criteria (not the full Gate-D criteria A–E scoring, which is a multi-candidate exercise) | **✅ DONE (2026-09-06)** — Qwen3-1.7B; §1.7 |
 | Smoke-test quantization | a level selected for the locked smoke-test model | **✅ DONE (2026-09-06)** — Q8_0; §1.7, §3 |
-| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ AUTHORIZED AND COMPLETE (2026-09-06)** — `environment_checks/2026-09-06-gate-b-model-download.txt` |
-| Single-model smoke run (Gate C) | one real candidate exercised through the runner, infra-only | **NOT AUTHORIZED** |
-| Multi-candidate feasibility benchmark (Gate D) | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers, criteria A–E scored for all 5 candidates | **NOT AUTHORIZED** |
+| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ DONE** — Intel 2026-09-06 (`environment_checks/2026-09-06-gate-b-model-download.txt`); **same artifact re-downloaded + byte-verified on the M5, 2026-09-10 (`environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`, D-037)** |
+| Single-model smoke run (Gate C) | one real candidate exercised through the runner, **infrastructure-only** (process exit, non-empty generation, answer + reasoning-span *extractability*; **never** accuracy / hint effect / disclosure / Urdu / cross-lingual) | separately gated |
+| Multi-candidate feasibility benchmark (Gate D) | **CLOSED for model selection (D-034/D-039).** The generator is locked; no candidate scoring or choosing will occur. Any A/B/D/E infrastructure check applies to the locked model only. **Criterion C / G5 are diagnostic-only, never a selection gate.** | not a selection exercise |
 
-**Gates A and B are done; Gates C and D are unreached.** Downloading and verifying one
-model's GGUF file is an infrastructure milestone, not a scientific-readiness milestone
-— no inference of any kind has occurred, and the other four screened candidates remain
-undownloaded. This document, `MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`, and
-`runtime.local.example.yaml` are the complete state of Track A as of this writing.
+**Gates A and B are done on both machines; Gate C is separately gated; Gate D is not a
+model-selection exercise (D-039).** Downloading and verifying the GGUF file is an
+infrastructure milestone, not a scientific-readiness milestone — the generator is locked
+(D-034), no scientific inference has occurred, and no model will be chosen or rejected on
+any behavioural outcome. This document, `MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`,
+`REASONING_MARKER_FORENSICS.md`, and `runtime.local.example.yaml` are the complete state
+of Track A as of this writing.

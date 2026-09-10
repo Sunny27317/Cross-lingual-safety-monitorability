@@ -1,0 +1,249 @@
+Track A — Gate A (NEW MACHINE): llama.cpp runtime reconstruction on Apple M5, arm64
+Date (UTC): 2026-09-08T16:10:15Z
+Branch: research/m5-gate-a-provenance
+Research repo HEAD at time of this Gate-A run: 9793fb5a890600abcce8929666bdd1b1ad03bb8e
+
+Authorization: NEW-MAC GATE A explicitly authorized by the user (INFRASTRUCTURE ONLY —
+runtime rebuild + local build/runtime verification). Qwen download, GGUF download,
+Gate B execution, Gate C, Gate D, datasets, and scientific metrics all remain NOT
+AUTHORIZED.
+
+Purpose: INFRASTRUCTURE PROVENANCE. This is NOT a scientific result. No model was
+downloaded or loaded. No inference occurred. No scientific metric was computed. This
+file records what was built and how, on the new machine, so the exact runtime can be
+reproduced.
+
+RELATIONSHIP TO THE PRIOR INTEL GATE A:
+This does NOT replace or rewrite `2026-09-06-llamacpp-gate-a.txt`. That file remains the
+historical record of Gate A as originally performed on the 2019 Intel MacBook Pro
+(x86_64, 32 GB RAM, AMD Radeon Pro 5300M, `-DGGML_METAL=OFF`, CPU/Accelerate only). The
+machine transition from that Intel host to this Apple M5 host is itself part of the
+project's provenance chain. Both records are kept.
+
+================================================================================
+1. Machine (new — confirmed, not assumed)
+================================================================================
+
+Model Name:          MacBook Air
+Model Identifier:    Mac17,3
+Chip:                Apple M5
+Total Number of Cores: 10 (4 performance ["Super"] + 6 efficiency)
+Architecture:        arm64 (Apple Silicon)  [uname -m -> arm64]
+RAM:                 17179869184 bytes (16 GB)
+macOS version:       26.6 (build 25G72)
+Kernel:              Darwin 25.6.0 (RELEASE_ARM64_T8142)
+
+Contrast with the historical Intel Gate-A machine:
+  2019 MacBook Pro / Intel Core i7-9750H (6c/12t) / 32 GB / AMD Radeon Pro 5300M /
+  x86_64 / macOS 26.3.1. See `2026-09-06-llamacpp-gate-a.txt`.
+
+This is a materially different runtime environment: arm64 vs x86_64, Apple-Silicon
+unified-memory GPU (Metal's target architecture) vs a discrete AMD GPU, and 16 GB vs
+32 GB RAM.
+
+================================================================================
+2. Build toolchain (confirmed)
+================================================================================
+
+Apple clang:         Apple clang version 21.0.0 (clang-2100.1.1.101),
+                     Target: arm64-apple-darwin25.6.0
+cmake:               cmake version 4.4.3 (installed this session via Homebrew 6.0.22;
+                     `cmake` was absent on the new machine before this session)
+git:                 git version 2.50.1 (Apple Git-155)
+Xcode CLI tools:     /Library/Developer/CommandLineTools  (Command Line Tools only —
+                     full Xcode.app is NOT installed)
+macOS SDK:           MacOSX 26.5  (xcrun --sdk macosx --show-sdk-version)
+
+Command Line Tools observation:
+  $ xcrun --sdk macosx --find metal
+  xcrun: error: unable to find utility "metal", not a developer tool or in PATH
+  -> The Metal shader compiler (`xcrun metal` / `xcrun metallib`) is NOT available.
+     Those utilities ship with full Xcode.app (+ the Metal Toolchain component), not
+     with Command Line Tools.
+
+  This did NOT prevent the Gate-A build (see §5): the pinned revision's default
+  `GGML_METAL_EMBED_LIBRARY=ON` path embeds the .metal kernel SOURCE text into
+  libggml-metal via the assembler (.incbin) and defers shader compilation to the
+  Metal runtime. Only the non-default `GGML_METAL_EMBED_LIBRARY=OFF` path invokes
+  `xcrun metal` at build time.
+
+================================================================================
+3. llama.cpp source
+================================================================================
+
+Official origin:     https://github.com/ggml-org/llama.cpp.git  (fetch + push)
+Clone location:      ~/tools/llama.cpp   (OUTSIDE the research repo; not vendored)
+Exact revision:      5266f24da75dc449bd56cbed7addb9c8e4a6a73e   (detached HEAD)
+git describe --tags: v0.4.0
+Pinned commit:       "llama.cpp : bump version to 0.4.0 (#28386)", 2026-09-04 15:22:38 +0300
+Working tree:        clean (git status --short empty)
+
+This is the SAME revision locked for the Intel Gate A (DECISION_LOG D-033). The pin was
+NOT changed for the machine migration.
+
+================================================================================
+4. Pinned-source Metal configuration (inspected in this exact checkout)
+================================================================================
+
+ggml/CMakeLists.txt:95-98
+    if (APPLE)
+        set(GGML_METAL_DEFAULT ON)
+        set(GGML_BLAS_DEFAULT ON)
+        set(GGML_BLAS_VENDOR_DEFAULT "Apple")
+
+ggml/CMakeLists.txt:236
+    option(GGML_METAL "ggml: use Metal" ${GGML_METAL_DEFAULT})
+ggml/CMakeLists.txt:239
+    option(GGML_METAL_EMBED_LIBRARY "ggml: embed Metal library" ${GGML_METAL})
+ggml/CMakeLists.txt:193
+    option(GGML_ACCELERATE "ggml: enable Accelerate framework" ON)
+
+-> On an Apple platform, the pinned source defaults GGML_METAL = ON and
+   GGML_METAL_EMBED_LIBRARY = ON. GGML_NATIVE also defaults ON (not cross-compiling).
+
+The previous Intel-specific override `-DGGML_METAL=OFF` (justified there by the
+discrete AMD GPU) was NOT carried forward. This build used the pinned source's native
+Apple-Silicon default.
+
+================================================================================
+5. Configure + build
+================================================================================
+
+Configure command (run from ~/tools/llama.cpp):
+    rm -rf build
+    cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+  (no -DGGML_METAL=OFF; no speculative optimization flags)
+
+Selected configure output (verified):
+    -- llama.cpp version: 0.4.0-dev
+    -- CMAKE_SYSTEM_PROCESSOR: arm64
+    -- GGML_SYSTEM_ARCH: ARM
+    -- Including CPU backend
+    -- Accelerate framework found
+    -- ARM detected
+    -- Adding CPU backend variant ggml-cpu: -U__ARM_FEATURE_SVE;-mcpu=native+dotprod+i8mm+nosve+sme
+    -- Found BLAS: .../CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/Accelerate.framework
+    -- Including BLAS backend
+    -- Metal framework found
+    -- Including METAL backend
+    -- ggml version: 0.23.0
+    -- ggml commit:  5266f24da
+    -- Configuring done (29.0s)
+    -- Generating done (0.4s)
+
+Verified CMakeCache values (build/CMakeCache.txt):
+    CMAKE_BUILD_TYPE            = Release
+    GGML_METAL                  = ON
+    GGML_METAL_EMBED_LIBRARY    = ON
+    GGML_BLAS                   = ON
+    GGML_BLAS_VENDOR            = Apple
+    GGML_ACCELERATE             = ON
+    GGML_NATIVE                 = ON
+    GGML_CUDA                   = OFF
+    GGML_VULKAN                 = OFF
+    GGML_OPENCL                 = OFF
+
+Build command:
+    cmake --build build --config Release -j 10
+
+Build result: SUCCESS. Reached 100%; all targets built including llama-cli. Exit 0
+(a second invocation also exited 0 with no work to do). No source file was modified.
+
+================================================================================
+6. Built binary + backend libraries (verified)
+================================================================================
+
+llama-cli --version:
+    version: 0.4.0-dev (build 10809, commit 5266f24da)
+    built with AppleClang 21.0.0.21000101 for Darwin arm64
+
+Architecture of build artifacts (`file`):
+    build/bin/llama-cli                     Mach-O 64-bit executable arm64
+    build/bin/libggml-metal.0.23.0.dylib    Mach-O 64-bit dynamically linked shared library arm64
+    build/bin/libggml-cpu.0.23.0.dylib      Mach-O 64-bit dynamically linked shared library arm64
+    build/bin/libggml-blas.0.23.0.dylib     Mach-O 64-bit dynamically linked shared library arm64
+    build/bin/libggml-base.0.23.0.dylib     Mach-O 64-bit dynamically linked shared library arm64
+    build/bin/libllama.0.dylib              Mach-O 64-bit dynamically linked shared library arm64
+
+`otool -L build/bin/llama-cli` links (among others):
+    @rpath/libggml-cpu.0.dylib
+    @rpath/libggml-blas.0.dylib
+    @rpath/libggml-metal.0.dylib
+    @rpath/libggml-base.0.dylib
+    @rpath/libllama.0.dylib
+  -> CPU, BLAS, and Metal ggml backends are all present and linked.
+
+`otool -L build/bin/libggml-metal.0.23.0.dylib` links:
+    /System/Library/Frameworks/Foundation.framework/.../Foundation
+    /System/Library/Frameworks/Metal.framework/.../Metal          (current version 373.2.0)
+    /System/Library/Frameworks/MetalKit.framework/.../MetalKit     (current version 173.7.0)
+    /System/Library/Frameworks/CoreFoundation.framework/.../CoreFoundation
+  -> Metal backend genuinely compiled and linked against the Metal frameworks.
+
+`otool -L` on libggml-blas.0.23.0.dylib and libggml-cpu.0.23.0.dylib both link:
+    /System/Library/Frameworks/Accelerate.framework/.../Accelerate (current version 4.0.0)
+  -> Accelerate framework linked (BLAS vendor = Apple).
+
+Embedded Metal library (confirms the EMBED_LIBRARY path, no build-time metal compiler):
+    `nm build/bin/libggml-metal.0.23.0.dylib | grep ggml_metallib`  -> 40 symbols
+    e.g. _ggml_metallib_fa_start / _ggml_metallib_fa_end,
+         _ggml_metallib_mul_mm_start, _ggml_metallib_argsort_start,
+         _ggml_metallib_binbcast_start, _ggml_metallib_conv_start,
+         _ggml_metallib_gated_delta_net_start ...
+  -> The .metal kernel sources are embedded as __DATA,__ggml_metallib sections.
+
+================================================================================
+7. Non-fatal warnings observed during configure (recorded verbatim intent)
+================================================================================
+
+The following were emitted during `cmake -B build` and did NOT prevent the Gate-A
+build from completing successfully. They are recorded for provenance; no claim is made
+here about their significance for any later stage:
+
+  - "Warning: ccache not found" — build cache absent; affects compile speed only.
+  - "OpenMP not found" (x3: OpenMP_C, OpenMP_CXX, OpenMP) — the ggml CPU backend uses
+    its own threading / Grand Central Dispatch instead.
+  - "OpenSSL not found ... HTTPS support disabled" (vendor/cpp-httplib) — affects only
+    the bundled llama-server's HTTPS listener; not relevant to llama-cli.
+  - "Performing Test GGML_COMPILER_SUPPORTS_FP16_FORMAT_I3E - Failed" — a compiler
+    capability probe; the build proceeds via the alternate FP16 path.
+  - "ARM -march/-mcpu not found, -mcpu=native will be used" — native CPU targeting
+    was selected instead of an explicit -march.
+  - "GGML_MACHINE_SUPPORTS_sve - Failed" / "nosve - Success" — this CPU does not
+    implement ARM SVE (SME IS supported and was enabled: -mcpu=native+...+sme).
+
+================================================================================
+8. What this Gate A does and does NOT establish
+================================================================================
+
+ESTABLISHED (verified above):
+  - The locked llama.cpp revision (5266f24d... / v0.4.0) builds cleanly and natively
+    for arm64 on this Apple M5 / macOS 26.6 machine.
+  - The resulting build CONTAINS native arm64 Metal, Accelerate/BLAS, and CPU ggml
+    backends, correctly linked.
+  - llama-cli launches and reports its version/help (exit 0).
+
+NOT ESTABLISHED (out of scope; requires a separately authorized inference gate):
+  - That Metal-accelerated model INFERENCE works on this machine. The embedded Metal
+    shaders are compiled by the Metal runtime at first use; that has NOT been
+    exercised. "Metal BUILD availability verified" != "Metal INFERENCE verified".
+  - Any latency, memory, stability, or output-quality property of any model.
+  - Anything about a specific model, quantization, prompt, seed, dataset, or metric.
+
+================================================================================
+9. Integrity statement for this Gate-A step
+================================================================================
+
+  - No model weights were downloaded (~/models does not exist; no HF cache).
+  - No GGUF model artifact was downloaded. (The 19 `ggml-vocab-*.gguf` files under
+    ~/tools/llama.cpp/models/ are the upstream repo's own git-tracked tokenizer-
+    vocabulary TEST FIXTURES, 0.6-15.8 MB, no weight tensors — same as noted for the
+    Intel Gate A.)
+  - No prompt was submitted; no token was generated; no inference of any kind ran.
+  - No dataset was downloaded. No scientific metric was computed.
+  - The llama.cpp pin was not changed. No llama.cpp source was patched.
+  - The research repository's tracked scientific content was not modified by the
+    build (this provenance PR records the result; it changes no methodology).
+  - Track B (configs/milestone1/, experiments/M1-English-Baseline/,
+    experiments/MILESTONE_1_READINESS.md) is byte-unchanged.

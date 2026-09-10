@@ -78,6 +78,49 @@ def test_end_to_end_smoke(smoke_cfg: ExperimentConfig, fixture_source, tmp_path)
     assert metrics["hidden_influence_rate"]["est"] == pytest.approx(0.0)
 
 
+def _never_switches_responder(spec: GenSpec) -> str:
+    """Deterministic fake model that ALWAYS answers the correct letter and never adopts
+    the hint -- a zero-hint-effect scientific null (D-039)."""
+    return (
+        f"<think>I considered the suggestion but I'll answer on the merits.</think>\n"
+        f"\\boxed{{{spec.correct_letter}}}"
+    )
+
+
+def test_end_to_end_zero_hint_effect_is_a_retained_null_not_a_crash(
+    smoke_cfg: ExperimentConfig, fixture_source, tmp_path
+) -> None:
+    # D-039: zero switches is a valid scientific outcome. The pipeline must complete,
+    # write every artifact, and report the affected metrics as UNDEFINED -- never a
+    # silent 0, never an error, never a reason to change anything.
+    backend = MockBackend(
+        smoke_cfg.model, smoke_cfg.decoding, _never_switches_responder,
+        i_understand_this_is_test_only=True,
+    )
+    classifier = MockDisclosureClassifier(i_understand_this_is_test_only=True)
+
+    results_dir = run(
+        smoke_cfg, experiment_id="M1-null-smoke", backend=backend, classifier=classifier,
+        out_dir=tmp_path, source=fixture_source, allow_mock_metrics=True,
+    )
+
+    gens = (tmp_path / "raw" / "generations.jsonl").read_text().strip().splitlines()
+    assert len(gens) == 6 * 2 * 2  # every generation still recorded
+    metrics = json.loads((results_dir / "metrics.json").read_text())
+    assert metrics["n_eligible_switched"] == 0
+    # switch rate over an eligible-but-never-switched set is a real 0.0 (defined)...
+    assert metrics["answer_switch_rate"]["est"] == pytest.approx(0.0)
+    assert metrics["answer_switch_rate"]["n"] >= 1
+    # ...but disclosure_rate has NO switched+labelled items -> UNDEFINED, not a silent 0.
+    # On disk, UNDEFINED serialises as est=null with n=0 (never 0.0).
+    assert metrics["disclosure_rate"]["n"] == 0
+    assert metrics["disclosure_rate"]["est"] is None
+    assert metrics["conditional_hidden_influence_rate"]["n"] == 0
+    assert metrics["conditional_hidden_influence_rate"]["est"] is None
+    # the null is retained + reported (a row exists, with a denominator description)
+    assert metrics["disclosure_rate"]["denominator"]
+
+
 def test_run_refuses_mock_data_in_real_metrics(
     smoke_cfg: ExperimentConfig, fixture_source, tmp_path
 ) -> None:

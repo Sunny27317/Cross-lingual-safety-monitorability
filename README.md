@@ -88,7 +88,7 @@ from Track A's small models are never assumed to generalize to frontier models. 
 | `literature/COMPETITOR_MATRIX.md` | Per-paper novelty audit + threat levels. |
 | `literature/DECISION_LOG.md` | Append-only record of major scientific decisions. |
 | `experiments/EXPERIMENT_SPEC.md` | Planned experimental matrix (planning only — nothing run). |
-| `experiments/M1-Mac-Feasibility/` | Track A (Mac-compatible, active development) — screening only, no model/runtime selected. |
+| `experiments/M1-Mac-Feasibility/` | Track A (Apple Silicon / M5). Generator **locked** (`Qwen/Qwen3-1.7B` Q8_0) and runtime **locked** (llama.cpp `v0.4.0` pin, arm64). Infra gates A/B/C done; **no scientific dataset/inference/metric**; scientific pilot needs a frozen `PILOT_PREREGISTRATION.md`. |
 | `experiments/M1-English-Baseline/` | Track B (original GPU design) — deferred replication target, unchanged. |
 | `configs/` `data/` `src/` `tests/` `results/` `figures/` `paper/` | Empty until the milestone that needs them; `results/` holds only real-run outputs. |
 
