@@ -2,11 +2,14 @@
 
 NON-SCIENTIFIC. This module exists to run the tiny, non-scientific Track-A feasibility
 benchmark (`experiments/M1-Mac-Feasibility/EXPERIMENT_SPEC.md` §5): runtime, parsing,
-trace-visibility, latency, memory, and intervention-responsiveness checks on candidate
-small models on the user's Intel Mac. It never computes, and does not import, any
-`clsm.metrics` quantity (``answer_switch_rate``, ``disclosure_rate``,
-``hidden_influence_rate``, ``conditional_hidden_influence_rate``) -- see
-:func:`assert_feasibility_mode` and the path guard in :func:`write_feasibility_records`.
+trace-visibility, latency, and memory checks on the locked Track-A model. A hint-movement
+observation may be *recorded* as a diagnostic, but this module NEVER scores it, gates on
+it, or uses any behavioural/scientific outcome to accept or reject a model
+(`literature/DECISION_LOG.md` D-039 -- the generator is locked, D-034). It never
+computes, and does not import, any `clsm.metrics` quantity (``answer_switch_rate``,
+``disclosure_rate``, ``hidden_influence_rate``, ``conditional_hidden_influence_rate``) --
+see :func:`assert_feasibility_mode` and the path guard in
+:func:`write_feasibility_records`.
 
 ``FeasibilityRecord`` is a deliberately DISTINCT type from
 ``clsm.schemas.GenerationRecord`` -- not a subclass, not structurally compatible -- so it

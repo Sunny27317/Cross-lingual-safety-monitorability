@@ -1230,3 +1230,60 @@ are reversed by a **new** entry, not by deleting an old one.
   `src/clsm/extraction.py`, `src/clsm/schemas.py`, `src/clsm/feasibility.py`,
   `src/clsm/generation.py`; `tests/test_extraction.py`, `tests/test_feasibility.py`.
 - **Status:** ACTIVE. No inference performed. Parser hardened and tested before Gate C.
+
+## D-039 — Remove outcome-dependent model selection: Criterion C / G5 made diagnostic-only; a scientific null is never an infrastructure failure
+- **Date:** 2026-09-10
+- **Problem:** `experiments/M1-Mac-Feasibility/EXPERIMENT_SPEC.md` (pre-this-entry) let
+  model **retention** depend on a **non-zero hint effect**: §3 Criterion C required
+  "measurable behavioral variation (`adoption_increase` distinguishably different from
+  0)" and said a candidate showing "no measurable hint effect (fails C) is excluded";
+  §4 step 4 said to "select the … candidate that clears A/B/D/E **and does not fail C
+  by having zero measurable effect**"; §5.4 G5 "weighed at selection". That is an
+  outcome-dependent / cherry-picking risk (`CLAUDE.md` §2.5) — it could bias the study
+  toward a model that happens to show a hint effect.
+- **Decision:** The Track-A generator is **locked** to `Qwen/Qwen3-1.7B` (Q8_0 GGUF)
+  per D-034, selected on neutral pre-scientific grounds before any inference existed.
+  - **Criterion C and G5 are now DIAGNOSTIC-ONLY.** Hint movement / answer switching /
+    `adoption_increase` is **recorded** (raw generations preserved) but is **never** a
+    pass/fail on the model and **never** a selection input.
+  - **No model may be chosen, rejected, or replaced on the basis of any behavioural or
+    scientific outcome:** hint-adoption magnitude, answer-switch rate, hidden influence,
+    disclosure rate/effect, task accuracy (incl. near-chance), cross-lingual gap,
+    Urdu-specific behaviour, monitor-validity gap, monitor detection/failure, or a
+    result being "interesting" / preferred / more publishable.
+  - **A scientific null is not an infrastructure failure.** Zero switches ≠ model
+    failure. No disclosure effect ≠ model failure. Urdu gap == 0 ≠ model failure. **All
+    nulls are retained and reported.**
+  - **Model replacement is permitted only after a neutral, pre-scientific
+    infrastructure failure**, each requiring its own dated decision-log entry: artifact
+    unavailable / integrity-check failure; artifact corruption / hash mismatch; runtime
+    incompatibility (pinned llama.cpp cannot load/execute); impossible resource
+    requirement; persistent crash across repeated calls; an unrecoverable parser/
+    output-format failure that cannot be resolved transparently (the D-038 hardening
+    already covers the known `<think>`/`[Start thinking]` case — a *flagged*
+    `MALFORMED`/`EMPTY` span is a diagnostic, not by itself unrecoverable);
+    license/access failure; inability to pin/reproduce the exact revision/quant/build.
+  - "Output usability" (Criterion B) can fail for one of those infrastructure reasons
+    **independently** of any scientific effect (e.g. the model systematically emits no
+    parseable answer). A model that answers cleanly but is unmoved by the hint has
+    **not** failed B or anything else.
+  - **Genuine intervention responsiveness** will be evaluated **only** in a separately
+    **pre-registered, adequately powered** pilot (Phase 11 / a future pilot-prereg
+    document) — never inferred from the tiny non-scientific screen, never a model gate.
+- **Scope:** documentation + wording correction, plus regression tests. No metric
+  formula, hypothesis, operational definition, prompt, seed, dataset pin, or Track-B
+  file changed. The model lock (D-034) and the GGUF identity (D-037) are unchanged.
+- **Files changed:** `experiments/M1-Mac-Feasibility/EXPERIMENT_SPEC.md` (§3 C, §3
+  exclusion box, §4, §5.2, §5.4 G5, §1 intro), `experiments/M1-Mac-Feasibility/READINESS.md`
+  (§0 + §4 Gate-D row), `src/clsm/feasibility.py` (module docstring),
+  `experiments/M1-Mac-Feasibility/run_feasibility.py` (Gate-D wording),
+  `tests/test_feasibility.py` (+3 regression tests: a zero-hint-effect responder
+  produces complete clean records with no verdict field; the record schema contains no
+  selection/rejection/switch-rate field; the module imports no `clsm.metrics`).
+- **The known Gate-D/model-selection integrity issue is now closed for the locked
+  model.** A broader methodology-integrity review (should the *original GPU Track-B*
+  screening docs carry any similar wording) is left as a **separate** future PR, not
+  mixed into this infrastructure-provenance work.
+- **Evidence:** the files above; suite 129 → 131 passing; ruff/mypy clean.
+- **Status:** ACTIVE. No inference performed. Outcome-dependent selection removed
+  before any scientific run.

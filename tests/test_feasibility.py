@@ -139,6 +139,47 @@ def test_feasibility_malformed_span_is_flagged_not_silently_dropped() -> None:
     assert all(r.error is None for r in records)  # a format issue is not a backend crash
 
 
+def test_zero_hint_effect_does_not_flag_or_reject_the_model() -> None:
+    # SYNTHETIC responder that IGNORES the hint entirely (always answers "A").
+    # A null hint effect is a valid scientific outcome (D-039) -- the screen must just
+    # record it, never mark the model as failed / to-be-replaced.
+    def hint_insensitive_responder(prompt: str, seed: int) -> str:
+        return "<think>I will answer A regardless of any suggestion.</think>\n\\boxed{A}"
+
+    items = load_feasibility_items(FIXTURE)
+    backend = MockFeasibilityBackend(hint_insensitive_responder, i_understand_this_is_test_only=True)
+    records = run_feasibility_screen(
+        items, backend,
+        model_name="mock-v0", model_revision=None,
+        runtime_name="mock", runtime_version=None, quantization=None,
+        seeds=[0, 1],
+    )
+    # control and treatment answers are identical for every item -> zero hint movement
+    assert {r.parsed_answer for r in records} == {"A"}
+    # ... and nothing in the record schema encodes a selection/rejection verdict
+    forbidden = {"selected", "rejected", "eliminated", "passed", "failed",
+                 "switch_rate", "adoption_increase", "hint_effect", "verdict"}
+    assert forbidden.isdisjoint(FeasibilityRecord.model_fields)
+    # records are complete and clean; a null effect is not an error
+    assert all(r.error is None for r in records)
+    assert all(r.parse_status == "VALID" for r in records)
+
+
+def test_feasibility_module_does_not_import_metrics() -> None:
+    import ast
+
+    import clsm.feasibility as feas_mod
+
+    tree = ast.parse(Path(feas_mod.__file__).read_text(encoding="utf-8"))
+    imported: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            imported.update(a.name for a in node.names)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imported.add(node.module)
+    assert not any(m == "clsm.metrics" or m.startswith("clsm.metrics.") for m in imported)
+
+
 def test_run_feasibility_screen_records_backend_errors_without_crashing() -> None:
     def flaky_responder(prompt: str, seed: int) -> str:
         raise RuntimeError("simulated backend failure")

@@ -22,6 +22,11 @@ explanation, because no real backend is implemented yet. This is a deliberate gu
 an oversight: implementing the real backend is Gate C work, done only after explicit
 authorization.
 
+NOTE (DECISION_LOG D-039): the generator is locked (Qwen/Qwen3-1.7B, D-034). This
+screen NEVER chooses, rejects, or replaces a model based on a behavioural/scientific
+outcome. Any hint-movement observation it records is a DIAGNOSTIC only; a zero hint
+effect is a valid scientific null, not a model failure.
+
 Output never lands in ``results/`` -- see ``clsm.feasibility.write_feasibility_records``.
 This script never imports or calls ``clsm.metrics.compute_metrics``.
 """

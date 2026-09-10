@@ -414,12 +414,14 @@ benchmark:
 | Runtime installation (Gate A) | llama.cpp built from a pinned commit and locally verified (binary launches, no model loaded) | **✅ DONE** — Intel: 2026-09-06, §1.6, `environment_checks/2026-09-06-llamacpp-gate-a.txt`. **Apple M5 (arm64) rebuild: 2026-09-08, §1.6.2, `environment_checks/2026-09-08-m5-llamacpp-gate-a.txt`, D-036** |
 | Smoke-test model selection | one candidate locked on neutral hardware/methodology/provenance criteria (not the full Gate-D criteria A–E scoring, which is a multi-candidate exercise) | **✅ DONE (2026-09-06)** — Qwen3-1.7B; §1.7 |
 | Smoke-test quantization | a level selected for the locked smoke-test model | **✅ DONE (2026-09-06)** — Q8_0; §1.7, §3 |
-| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ DONE on the Intel machine (2026-09-06)** — `environment_checks/2026-09-06-gate-b-model-download.txt`. **Not yet restored on the Apple M5 machine** — new-machine Gate B (byte-level re-verification of the same locked artifact) needs separate authorization |
-| Single-model smoke run (Gate C) | one real candidate exercised through the runner, infra-only | **NOT AUTHORIZED** |
-| Multi-candidate feasibility benchmark (Gate D) | run per `EXPERIMENT_SPEC.md` §5; G1–G5 evaluated with real numbers, criteria A–E scored for all 5 candidates | **NOT AUTHORIZED** |
+| Model-download authorization (Gate B) | user explicitly authorizes downloading a specific model weight | **✅ DONE** — Intel 2026-09-06 (`environment_checks/2026-09-06-gate-b-model-download.txt`); **same artifact re-downloaded + byte-verified on the M5, 2026-09-10 (`environment_checks/2026-09-10-m5-gate-b-artifact-restoration.txt`, D-037)** |
+| Single-model smoke run (Gate C) | one real candidate exercised through the runner, **infrastructure-only** (process exit, non-empty generation, answer + reasoning-span *extractability*; **never** accuracy / hint effect / disclosure / Urdu / cross-lingual) | separately gated |
+| Multi-candidate feasibility benchmark (Gate D) | **CLOSED for model selection (D-034/D-039).** The generator is locked; no candidate scoring or choosing will occur. Any A/B/D/E infrastructure check applies to the locked model only. **Criterion C / G5 are diagnostic-only, never a selection gate.** | not a selection exercise |
 
-**Gates A and B are done; Gates C and D are unreached.** Downloading and verifying one
-model's GGUF file is an infrastructure milestone, not a scientific-readiness milestone
-— no inference of any kind has occurred, and the other four screened candidates remain
-undownloaded. This document, `MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`, and
-`runtime.local.example.yaml` are the complete state of Track A as of this writing.
+**Gates A and B are done on both machines; Gate C is separately gated; Gate D is not a
+model-selection exercise (D-039).** Downloading and verifying the GGUF file is an
+infrastructure milestone, not a scientific-readiness milestone — the generator is locked
+(D-034), no scientific inference has occurred, and no model will be chosen or rejected on
+any behavioural outcome. This document, `MODEL_SCREEN.md`, `EXPERIMENT_SPEC.md`,
+`REASONING_MARKER_FORENSICS.md`, and `runtime.local.example.yaml` are the complete state
+of Track A as of this writing.
