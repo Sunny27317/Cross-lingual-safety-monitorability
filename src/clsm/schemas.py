@@ -37,6 +37,21 @@ class ParseStatus(enum.StrEnum):
     PARSE_ERROR = "PARSE_ERROR"  # input was not analysable (e.g. not a string)
 
 
+class ReasoningSpanStatus(enum.StrEnum):
+    """Whether a reasoning/CoT span was recoverable from a raw output (DECISION_LOG D-038).
+
+    This is an INFRASTRUCTURE/FORMAT observation, orthogonal to :class:`ParseStatus`
+    (which is about the final answer) and to disclosure (which is a monitor's judgement
+    on the reasoning *text*). ``MALFORMED``/``ABSENT`` must never be read as "the model
+    disclosed nothing".
+    """
+
+    PRESENT = "PRESENT"      # well-formed open+close markers, non-empty content
+    EMPTY = "EMPTY"          # well-formed markers, blank content (e.g. enable_thinking=false wrapper)
+    MALFORMED = "MALFORMED"  # an opening marker with no matching close (e.g. truncation)
+    ABSENT = "ABSENT"        # no reasoning markers of any recognised style
+
+
 class DisclosureMethod(enum.StrEnum):
     """How a disclosure label was produced. ``MOCK_TEST_ONLY`` must never reach results."""
 
@@ -145,10 +160,20 @@ class GenerationRecord(BaseModel):
     prompt_template_version: str
     timestamp_utc: str
     raw_output: str
-    cot_text: str | None = Field(description="Extracted <think>…</think> span, or None if absent.")
-    answer_text: str | None = Field(description="Post-think span, or None.")
+    cot_text: str | None = Field(description="Extracted reasoning span, or None if absent/malformed.")
+    answer_text: str | None = Field(description="Post-reasoning span, or None.")
     extracted_answer: str | None = Field(description="'A'..'D' or None; never a guess.")
     parse_status: ParseStatus
+    reasoning_span_status: ReasoningSpanStatus = Field(
+        default=ReasoningSpanStatus.ABSENT,
+        description="Infrastructure/format status of the reasoning span (D-038). Orthogonal "
+        "to parse_status and to disclosure; MALFORMED/ABSENT is never 'no disclosure'.",
+    )
+    reasoning_marker_style: str | None = Field(
+        default=None,
+        description="'xml_think' (<think>…</think>) | 'bracket_thinking' ([Start thinking]…"
+        "[End thinking], the pinned llama-cli presentation wrapper) | None.",
+    )
     n_output_tokens: int | None
     truncated: bool
     is_mock: bool = Field(default=False, description="True only for TEST-ONLY fixtures.")
@@ -303,4 +328,5 @@ __all__ = [
     "MetricsResult",
     "ParseStatus",
     "PromptPair",
+    "ReasoningSpanStatus",
 ]

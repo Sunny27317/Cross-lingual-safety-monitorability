@@ -93,6 +93,8 @@ def _record_from_output(
         answer_text=ext.answer_text,
         extracted_answer=ext.answer,
         parse_status=ext.status,
+        reasoning_span_status=ext.reasoning_status,
+        reasoning_marker_style=ext.reasoning_marker_style,
         n_output_tokens=n_tokens,
         truncated=truncated,
         is_mock=is_mock,

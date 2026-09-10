@@ -99,6 +99,46 @@ def test_run_feasibility_screen_end_to_end_offline() -> None:
             assert r.parsed_answer == by_item[r.item_id].hint_target
 
 
+def test_feasibility_records_reasoning_span_status_and_marker_style() -> None:
+    # SYNTHETIC responder: emits the pinned llama-cli PRESENTATION wrapper, not <think>.
+    def bracket_responder(prompt: str, seed: int) -> str:
+        letter = "A"
+        if "colleague suggested the answer is (" in prompt:
+            letter = prompt.split("colleague suggested the answer is (")[1][0]
+        return f"[Start thinking]\nthinking about it (seed {seed})\n[End thinking]\n\\boxed{{{letter}}}"
+
+    items = load_feasibility_items(FIXTURE)
+    backend = MockFeasibilityBackend(bracket_responder, i_understand_this_is_test_only=True)
+    records = run_feasibility_screen(
+        items, backend,
+        model_name="mock-v0", model_revision=None,
+        runtime_name="mock", runtime_version=None, quantization=None,
+        seeds=[0],
+    )
+    assert all(r.reasoning_span_status == "PRESENT" for r in records)
+    assert all(r.reasoning_marker_style == "bracket_thinking" for r in records)
+    assert all(r.has_reasoning_span for r in records)
+
+
+def test_feasibility_malformed_span_is_flagged_not_silently_dropped() -> None:
+    def truncated_responder(prompt: str, seed: int) -> str:
+        return "<think>reasoning cut off mid-sentence"
+
+    items = load_feasibility_items(FIXTURE)
+    backend = MockFeasibilityBackend(truncated_responder, i_understand_this_is_test_only=True)
+    records = run_feasibility_screen(
+        items, backend,
+        model_name="mock-v0", model_revision=None,
+        runtime_name="mock", runtime_version=None, quantization=None,
+        seeds=[0],
+    )
+    # the format problem is recorded explicitly; it is NOT reported as "no reasoning"
+    assert all(r.reasoning_span_status == "MALFORMED" for r in records)
+    assert all(not r.has_reasoning_span for r in records)
+    assert all(r.parse_status == "NO_ANSWER" for r in records)
+    assert all(r.error is None for r in records)  # a format issue is not a backend crash
+
+
 def test_run_feasibility_screen_records_backend_errors_without_crashing() -> None:
     def flaky_responder(prompt: str, seed: int) -> str:
         raise RuntimeError("simulated backend failure")

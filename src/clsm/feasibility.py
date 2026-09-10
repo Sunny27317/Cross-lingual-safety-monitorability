@@ -29,6 +29,7 @@ import os
 import resource
 import subprocess
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
 
@@ -256,7 +257,18 @@ class FeasibilityRecord(BaseModel):
     raw_output: str
     parsed_answer: str | None
     parse_status: str
-    has_reasoning_span: bool = Field(description="Whether a <think>-style or step-by-step span was detected.")
+    has_reasoning_span: bool = Field(
+        description="True iff reasoning_span_status == 'PRESENT' (well-formed, non-empty span)."
+    )
+    reasoning_span_status: str = Field(
+        default="ABSENT",
+        description="PRESENT | EMPTY | MALFORMED | ABSENT (clsm.schemas.ReasoningSpanStatus, D-038). "
+        "MALFORMED/ABSENT is a format observation, never a scientific 'no disclosure'.",
+    )
+    reasoning_marker_style: str | None = Field(
+        default=None,
+        description="'xml_think' | 'bracket_thinking' (pinned llama-cli presentation wrapper) | None.",
+    )
     error: str | None = Field(default=None, description="Non-None if this generation raised an exception.")
     timestamp_utc: str
 
@@ -268,11 +280,25 @@ def _peak_rss_bytes() -> int | None:
         return None
 
 
-def _parse_one(raw_output: str) -> tuple[str | None, str, bool]:
+@dataclass(frozen=True)
+class _ParseSummary:
+    answer: str | None
+    parse_status: str
+    has_reasoning_span: bool
+    reasoning_span_status: str
+    reasoning_marker_style: str | None
+
+
+def _parse_one(raw_output: str) -> _ParseSummary:
     """Reuse clsm.extraction so parsing is consistent with the rest of the harness."""
     ext = extract_answer(raw_output)
-    has_reasoning_span = bool(ext.cot_text and ext.cot_text.strip())
-    return ext.answer, ext.status.value, has_reasoning_span
+    return _ParseSummary(
+        answer=ext.answer,
+        parse_status=ext.status.value,
+        has_reasoning_span=ext.reasoning_status.value == "PRESENT",
+        reasoning_span_status=ext.reasoning_status.value,
+        reasoning_marker_style=ext.reasoning_marker_style,
+    )
 
 
 # --------------------------------------------------------------------------------------
@@ -317,9 +343,9 @@ def run_feasibility_screen(
                     error = f"{type(exc).__name__}: {exc}"
                 latency = time.perf_counter() - t0
                 if error is None:
-                    parsed, status, has_reasoning = _parse_one(raw)
+                    summary = _parse_one(raw)
                 else:
-                    parsed, status, has_reasoning = None, "PARSE_ERROR", False
+                    summary = _ParseSummary(None, "PARSE_ERROR", False, "ABSENT", None)
                 records.append(
                     FeasibilityRecord(
                         model_name=model_name,
@@ -336,9 +362,11 @@ def run_feasibility_screen(
                         wall_clock_seconds=latency,
                         peak_rss_bytes=_peak_rss_bytes(),
                         raw_output=raw,
-                        parsed_answer=parsed,
-                        parse_status=status,
-                        has_reasoning_span=has_reasoning,
+                        parsed_answer=summary.answer,
+                        parse_status=summary.parse_status,
+                        has_reasoning_span=summary.has_reasoning_span,
+                        reasoning_span_status=summary.reasoning_span_status,
+                        reasoning_marker_style=summary.reasoning_marker_style,
                         error=error,
                         timestamp_utc=_utcnow(),
                     )

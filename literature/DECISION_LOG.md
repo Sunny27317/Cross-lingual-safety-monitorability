@@ -1177,3 +1177,56 @@ are reversed by a **new** entry, not by deleting an old one.
   No model selected, no dataset downloaded, no inference performed, no scientific
   metric computed. Gate C (single synthetic infrastructure smoke) and Gate D remain
   separately gated.
+
+## D-038 — Reasoning-marker forensic audit: parser hardened to recognise both `<think>` and the llama-cli `[Start thinking]` presentation wrapper
+- **Date:** 2026-09-10
+- **Decision:** A source-driven, **no-inference** audit established where reasoning-span
+  markers come from, and the answer/reasoning parser was hardened accordingly. Full
+  write-up: `experiments/M1-Mac-Feasibility/REASONING_MARKER_FORENSICS.md`.
+- **Findings (primary sources only):**
+  1. The locked GGUF's embedded `tokenizer.chat_template` uses **literal
+     `<think>`/`</think>`**. The model's own output uses those tags. There is no
+     bracketed marker in the template.
+  2. `[Start thinking]` / `[End thinking]` exist **only in the pinned llama.cpp
+     v0.4.0 CLI presentation layer** (`tools/cli/cli-ui.h:205,214`,
+     `tools/cli/cli-context.cpp:638-640`). At this pin `llama-cli` is a chat client
+     that reads a server-parsed `reasoning_content` field and re-serialises it with
+     bracket markers, for both the terminal and the `--file` transcript.
+  3. `--reasoning-format none` keeps the raw `<think>…</think>` inline in `content`;
+     the default (`deepseek`/`auto`) extracts reasoning and thus produces the bracket
+     rendering.
+  - **Therefore:** the previous (uncommitted, non-evidentiary) Intel-laptop observation
+    of `[Start thinking]` is fully explained as a llama-cli presentation transform —
+    not model behaviour, not a template artefact.
+- **Parser changes (`src/clsm/extraction.py`, `src/clsm/schemas.py`,
+  `src/clsm/feasibility.py`, `src/clsm/generation.py`):**
+  - `split_think` now recognises **both** `<think>…</think>` and
+    `[Start thinking]…[End thinking]` (case-insensitive), reporting a `marker_style`.
+  - New enum `clsm.schemas.ReasoningSpanStatus` = `PRESENT` / `EMPTY` (well-formed but
+    blank, e.g. the `enable_thinking=false` wrapper) / `MALFORMED` (lone opening
+    marker — truncation) / `ABSENT`. Reported **separately** from the answer
+    `ParseStatus` and from disclosure.
+  - A `MALFORMED` span → `ParseStatus.NO_ANSWER` **with the format problem flagged**;
+    the untrusted boundary means no in-reasoning letter is harvested. This is an
+    infrastructure observation and is **never** to be read as the model disclosing
+    nothing (that remains a monitor's judgement on the reasoning text; `disclosure.py`
+    already maps an absent CoT to `label=None` → excluded-and-counted, unchanged).
+  - `raw_output` continues to be stored verbatim on every record — nothing dropped.
+  - `GenerationRecord` / `FeasibilityRecord` gain optional `reasoning_span_status` /
+    `reasoning_marker_style` fields (defaults preserve existing records).
+- **Not a methodology change:** hypotheses, operational definitions, metric formulae,
+  the disclosure-eligibility rule, tie policy, prompts, seeds, model lock, and Track B
+  are all unchanged. This is a parser robustness/diagnostics fix, done before any
+  scientific run per `CLAUDE.md` (no result-dependent parser edits).
+- **Tests:** `tests/test_extraction.py` +10, `tests/test_feasibility.py` +2 — all with
+  explicitly labelled **synthetic** parser fixtures (no fabricated model logs). Suite:
+  118 → 129 passing; ruff/mypy clean.
+- **Operational recommendation (to be frozen in the pilot pre-registration, not here):**
+  run generation with `--reasoning-format none`, or via `llama-server /completion` with
+  a pre-rendered prompt, or read the structured `reasoning_content` field — so the
+  literal reasoning span is captured. The parser now degrades a misconfiguration to a
+  *flagged* case rather than silent loss.
+- **Evidence:** `experiments/M1-Mac-Feasibility/REASONING_MARKER_FORENSICS.md`;
+  `src/clsm/extraction.py`, `src/clsm/schemas.py`, `src/clsm/feasibility.py`,
+  `src/clsm/generation.py`; `tests/test_extraction.py`, `tests/test_feasibility.py`.
+- **Status:** ACTIVE. No inference performed. Parser hardened and tested before Gate C.
