@@ -14,7 +14,7 @@ there is a result to hand off yet.
 - The **only** remaining generator blocker is the human authorization token. No
   scientific inference has occurred. `experiments/_runs/` does not exist.
 - One instrumentation limitation was found and documented pre-outcome (DECISION_LOG
-  D-069): `stop_reason` will read `UNKNOWN` rather than `EOS` for ordinary successful
+  D-073): `stop_reason` will read `UNKNOWN` rather than `EOS` for ordinary successful
   generations with the current (unmodified) CLI invocation. This does not block the
   pilot and does not affect the primary behavioural estimands.
 

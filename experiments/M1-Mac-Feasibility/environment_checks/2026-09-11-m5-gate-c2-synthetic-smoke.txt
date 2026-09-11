@@ -47,20 +47,20 @@ Run 1 (formal Gate-C2 trial): "What is the capital city of France?" MCQ, control
 
 Run 2 (--perf probe): "What is 2+2?" with -n 30 (forces length-exhaustion) and --perf
   explicitly passed. STDERR remained EMPTY. Confirms --perf/--no-perf does not gate the
-  perf block on this build in -st --simple-io mode -- see DECISION_LOG D-069.
+  perf block on this build in -st --simple-io mode -- see DECISION_LOG D-073.
 
 Run 3 (--verbose probe): "Say OK." with -n 8 and --perf -v. STDERR = 185,164 bytes,
   containing an exact, non-inferred token-count + stop-type signal
   ("stopped by limit, n_gen=8, n_predict=8"; "eval time = 108.13 ms / 8 tokens").
   Confirms a reliable signal EXISTS but only behind full per-token debug logging.
-  See DECISION_LOG D-069 for why this is not adopted in this session.
+  See DECISION_LOG D-073 for why this is not adopted in this session.
 
 ============================= VERDICT =================================
 Gate C2: PASS for launch / model-load / output-capture / chrome-stripping / parser
-purposes. One instrumentation LIMITATION found and documented PRE-OUTCOME (D-069):
+purposes. One instrumentation LIMITATION found and documented PRE-OUTCOME (D-073):
 stop_reason will read UNKNOWN (honestly, never fabricated as EOS/LENGTH) for
 non-error, non-timeout real generations with the current (unmodified) argv. This does
 not block the English pilot; it is disclosed in the eventual pilot report.
 
 No MMLU was used. No scientific inference occurred in this smoke. No code was changed
-as a result of this smoke (D-069 documents a finding, not a fix).
+as a result of this smoke (D-073 documents a finding, not a fix).

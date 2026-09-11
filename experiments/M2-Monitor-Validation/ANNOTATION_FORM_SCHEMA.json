@@ -1,0 +1,206 @@
+{
+  "$defs": {
+    "DataKind": {
+      "enum": [
+        "synthetic",
+        "scientific"
+      ],
+      "title": "DataKind",
+      "type": "string"
+    },
+    "DisclosureLabel": {
+      "enum": [
+        "disclosed",
+        "not_disclosed",
+        "partial",
+        "cannot_tell",
+        "abstain"
+      ],
+      "title": "DisclosureLabel",
+      "type": "string"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "analysis_version": {
+          "const": "downstream/1",
+          "default": "downstream/1",
+          "title": "Analysis Version",
+          "type": "string"
+        },
+        "config_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Config Hash",
+          "type": "string"
+        },
+        "created_utc": {
+          "title": "Created Utc",
+          "type": "string"
+        },
+        "data_kind": {
+          "$ref": "#/$defs/DataKind"
+        },
+        "dataset_hash": {
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Dataset Hash",
+          "type": "string"
+        },
+        "git_sha": {
+          "pattern": "^[0-9a-f]{40}$",
+          "title": "Git Sha",
+          "type": "string"
+        },
+        "random_seed": {
+          "minimum": 0,
+          "title": "Random Seed",
+          "type": "integer"
+        },
+        "schema_version": {
+          "const": "downstream-provenance/1",
+          "default": "downstream-provenance/1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "software_versions": {
+          "items": {
+            "$ref": "#/$defs/SoftwareVersion"
+          },
+          "title": "Software Versions",
+          "type": "array"
+        },
+        "source_artifact_hashes": {
+          "items": {
+            "pattern": "^[0-9a-f]{64}$",
+            "type": "string"
+          },
+          "title": "Source Artifact Hashes",
+          "type": "array"
+        }
+      },
+      "required": [
+        "git_sha",
+        "config_hash",
+        "dataset_hash",
+        "random_seed",
+        "data_kind",
+        "created_utc",
+        "source_artifact_hashes",
+        "software_versions"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "SoftwareVersion": {
+      "additionalProperties": false,
+      "properties": {
+        "package": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Package",
+          "type": "string"
+        },
+        "version": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "package",
+        "version"
+      ],
+      "title": "SoftwareVersion",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "adjudication_status": {
+      "enum": [
+        "independent",
+        "referred",
+        "adjudicated"
+      ],
+      "title": "Adjudication Status",
+      "type": "string"
+    },
+    "annotation_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Annotation Id",
+      "type": "string"
+    },
+    "annotator_pseudonym": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Annotator Pseudonym",
+      "type": "string"
+    },
+    "blind_id": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Blind Id",
+      "type": "string"
+    },
+    "confidence": {
+      "anyOf": [
+        {
+          "maximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Confidence"
+    },
+    "label": {
+      "$ref": "#/$defs/DisclosureLabel"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "rationale": {
+      "title": "Rationale",
+      "type": "string"
+    },
+    "round_id": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Round Id",
+      "type": "string"
+    },
+    "rubric_version": {
+      "minLength": 1,
+      "pattern": "\\S",
+      "title": "Rubric Version",
+      "type": "string"
+    },
+    "text_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Text Hash",
+      "type": "string"
+    },
+    "uncertain": {
+      "title": "Uncertain",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "annotation_id",
+    "blind_id",
+    "text_hash",
+    "annotator_pseudonym",
+    "round_id",
+    "rubric_version",
+    "label",
+    "confidence",
+    "uncertain",
+    "rationale",
+    "adjudication_status",
+    "provenance"
+  ],
+  "title": "Annotation",
+  "type": "object"
+}

@@ -1,15 +1,25 @@
 # Track-A pre-run snapshot — 2026-09-11
 
-**PRE-OUTCOME. NOT AUTHORIZED TO RUN.** Generator preflight passes every check it can
-check without a human. The **sole remaining blocker is the human authorization token**
-(`CLSM_TRACK_A_RUN_AUTHORIZED`). This agent did not set it, forge a token, or call
-`authorize_track_a_run()` for real — see "Why authorization was not self-issued" below.
+**PRE-OUTCOME. AUTHORIZED TO RUN: NO.** This branch incorporates current main
+`9ce491f7b6fb4dd4426168499a09b3c0b7e6f758` (PR #20) through the conflict-resolution
+merge. PR #20 retains D-069–D-072; the PR #19 llama.cpp stop-reason decision is now
+**D-073**. Scientific parameters and the scientific config hash are unchanged.
 
-This snapshot is the Phase-8 pre-run record: everything a human reviewer needs to make
-the authorization decision, gathered on the actual target machine, independently
-verified where a claim could be independently verified.
+**Current-clone preflight is NOT revalidated.** The real dataset pin is absent and
+runtime/model local paths are not configured in this clone. The attempted read-only
+check refused execution for these prerequisites, the unfinished merge's dirty tree,
+and missing human authorization. Human authorization is **not** the sole current
+blocker. No dataset/runtime verification or human review is asserted for the merged
+HEAD; no authorization payload or RunToken was created.
 
-## Repository / commit
+The sections below preserve the prior target-machine snapshot as **historical evidence**
+at its recorded commit. Its hashes, runtime observations, preflight JSON and unfilled
+historical authorization example are not fresh verification or authorization of the
+merged branch. Before any future execution, the actual pin/runtime must be available,
+the final exact commit independently reviewed, and all gates rechecked. The old example
+must not be used to authorize the new HEAD.
+
+## Historical repository / commit
 
 - Branch: `research/track-a-english-pilot-execution`
 - **Reviewed commit (this snapshot's basis):** `3b5deeb8aa2684d161b100e731704cd7d450d0c6`
@@ -66,7 +76,7 @@ Three synthetic, non-MMLU prompts run through the real pinned binary + real pinn
 model (never through the authorization-gated backend class — no token exists).
 Confirmed: clean launch/exit, output capture, correct anchored CLI-chrome stripping on
 **real** (not fixture) output for the first time, usable reasoning-span + answer
-parsing. **One instrumentation finding, documented as DECISION_LOG D-069, not fixed
+parsing. **One instrumentation finding, documented as DECISION_LOG D-073, not fixed
 mid-flight:** this build does not expose a parseable token-count signal by default;
 `stop_reason` will read `UNKNOWN` (honestly, never fabricated) rather than `EOS` for
 ordinary successful generations. `TIMEOUT` and `NONZERO_EXIT` remain reliable. The
@@ -78,7 +88,7 @@ primary behavioural estimands do not depend on `stop_reason`.
 Preflight's own independent recomputation (`build_plan` + `validate_pilot_workload`
 against the real pin) confirms `planned_generations: 800`.
 
-## Full generator preflight result
+## Historical generator preflight result
 
 ```json
 {
@@ -101,7 +111,8 @@ against the real pin) confirms `planned_generations: 800`.
 }
 ```
 
-**Every generator gate passes except the human authorization token.**
+**At the historical target-machine check, every generator gate passed except human
+authorization. This does not describe current-clone readiness.**
 
 ## Why authorization was not self-issued
 
@@ -121,7 +132,7 @@ refusal to make the frozen pilot run — every other gate is prepared and verifi
 below — it is a refusal to counterfeit the one signature the design reserves for a
 human.
 
-## Ready-to-authorize template (fill in the two human-only fields, nothing else)
+## Historical unfilled authorization example — stale, DO NOT USE for merged HEAD
 
 ```json
 {
@@ -143,7 +154,8 @@ If the reviewed commit advances past `3b5deeb8aa2684d161b100e731704cd7d450d0c6`
 payload authorizes **only** this exact commit + hash + pin + output directory
 combination, by design.
 
-Once set, run exactly:
+Historical command recipe (not run during merge resolution; requires fresh review and
+revalidation of the final commit and local artifacts before use):
 
 ```sh
 python -m clsm.track_a_preflight --stage generator \
