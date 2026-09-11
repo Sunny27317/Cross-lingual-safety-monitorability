@@ -1,0 +1,66 @@
+Track A — Gate C2: pre-pilot synthetic infrastructure smoke (English pilot execution)
+Date (UTC): 2026-09-11T02:27-02:35Z
+Branch: research/track-a-english-pilot-execution
+Research repo HEAD at time of this step: cc6e835 (PR #18 merge)
+
+============================ WHAT THIS IS ============================
+INFRASTRUCTURE-ONLY SYNTHETIC SMOKE, run via the code path in
+src/clsm/track_a_backend.py (build_argv / _subprocess_invoke / clean_cli_output /
+parse_output_tokens / verify_runtime_identity), NOT through the authorization-gated
+LlamaCppBackend class (no RunToken exists yet). NOT SCIENTIFIC DATA: prompts are
+synthetic ("What is the capital city of France?", "Say OK.", "What is 2+2?"), never
+MMLU, never a frozen pilot item. Purpose: confirm (a) the real pinned binary + real
+pinned model launch and exit cleanly, (b) output is captured, (c) the anchored
+CLI-chrome stripper behaves correctly on real (not synthetic-fixture) llama-cli output,
+(d) the reasoning-span + answer parser receive usable real output, (e) raw stdout/
+stderr are captured verbatim.
+
+======================= PRECONDITIONS =======================
+A. model SHA-256 matches locked value ...... PASS (061b54da…6590cb1a, independently
+                                                  reverified via `shasum -a 256`)
+B. llama.cpp commit/build matches .......... PASS (5266f24da75dc449bd56cbed7addb9c8e4a6a73e,
+                                                  build 10809; `git -C ~/tools/llama.cpp
+                                                  rev-parse HEAD` clean, matches exactly)
+C. clsm.track_a_backend.verify_runtime_identity() PASS (committed fail-closed check, run
+                                                  directly against the real binary/model)
+D. repository tests clean .................. PASS (299 passed, ruff/mypy clean, on
+                                                  origin/main @ cc6e835)
+E. no scientific dataset used in this smoke . PASS (three synthetic non-MMLU prompts only)
+F. raw output preserved ..................... PASS (stdout/stderr/result.json under
+                                                  /tmp/gate_c_smoke/ and /tmp/perf_test_*,
+                                                  /tmp/verbose_*  -- scratch, non-scientific,
+                                                  NOT committed)
+G. authorization gate untouched ............. PASS (LlamaCppBackend was never
+                                                  instantiated; only its free helper
+                                                  functions were called directly, exactly
+                                                  as the repo's own test suite does)
+
+============================= THE RUNS ================================
+Run 1 (formal Gate-C2 trial): "What is the capital city of France?" MCQ, control
+  framing, seed=42, temp=0.6/top_p=0.95/top_k=20/min_p=0, max_new_tokens=16384 (the
+  actual frozen pilot decoding config, loaded from configs/track_a_pilot/pilot.yaml).
+  Result: returncode=0, timed_out=False, wall_clock=6.18s, reasoning_span_status=PRESENT,
+  parse_status=VALID, extracted_answer="B" (incidental only, NOT a Gate-C criterion).
+  Anchored CLI-chrome stripper correctly removed the real startup banner + the real
+  "[ Prompt: … t/s | Generation: … t/s ]" / "Exiting..." footer, verified against actual
+  (not fixture) output for the first time.
+
+Run 2 (--perf probe): "What is 2+2?" with -n 30 (forces length-exhaustion) and --perf
+  explicitly passed. STDERR remained EMPTY. Confirms --perf/--no-perf does not gate the
+  perf block on this build in -st --simple-io mode -- see DECISION_LOG D-073.
+
+Run 3 (--verbose probe): "Say OK." with -n 8 and --perf -v. STDERR = 185,164 bytes,
+  containing an exact, non-inferred token-count + stop-type signal
+  ("stopped by limit, n_gen=8, n_predict=8"; "eval time = 108.13 ms / 8 tokens").
+  Confirms a reliable signal EXISTS but only behind full per-token debug logging.
+  See DECISION_LOG D-073 for why this is not adopted in this session.
+
+============================= VERDICT =================================
+Gate C2: PASS for launch / model-load / output-capture / chrome-stripping / parser
+purposes. One instrumentation LIMITATION found and documented PRE-OUTCOME (D-073):
+stop_reason will read UNKNOWN (honestly, never fabricated as EOS/LENGTH) for
+non-error, non-timeout real generations with the current (unmodified) argv. This does
+not block the English pilot; it is disclosed in the eventual pilot report.
+
+No MMLU was used. No scientific inference occurred in this smoke. No code was changed
+as a result of this smoke (D-073 documents a finding, not a fix).

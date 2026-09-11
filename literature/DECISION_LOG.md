@@ -2248,3 +2248,56 @@ are reversed by a **new** entry, not by deleting an old one.
   remain private. Schemas/hashes do not establish competence, consent or permission.
 - **STOP:** engineering and synthetic validation only. Downstream scientific stages
   remain unauthorized; this PR must not be merged by the infrastructure agent.
+
+---
+
+## D-073 — Real-environment smoke finding: llama.cpp v0.4.0 (build b10809) does not expose a parseable default token-count signal; STOP-REASON stays honestly UNKNOWN, not fixed mid-flight
+- **Date:** 2026-09-11. **PRE-OUTCOME.** Found during the Phase-5 non-scientific runtime
+  smoke (synthetic prompt, "What is the capital city of France?" / a tiny "Say OK."
+  probe — NOT MMLU, NOT a scientific item) on the actual pinned runtime
+  (`5266f24da75dc449bd56cbed7addb9c8e4a6a73e`, build 10809) and the actual pinned model
+  (`Qwen3-1.7B-Q8_0.gguf`, verified SHA-256) on the target M5 machine. No scientific
+  outcome was observed or used to make this decision.
+- **Finding:** `parse_output_tokens()` (D-053) assumed the llama.cpp perf block
+  (`eval time = X ms / N tokens`) appears on STDERR whenever `--no-perf` is omitted.
+  Empirically, on this pinned build's `-st --simple-io` CLI mode, STDERR is **empty**
+  regardless of `--perf`/`--no-perf`; STDOUT carries only a throughput summary
+  (`[ Prompt: X t/s | Generation: Y t/s ]`) with **no token count**. Passing
+  `-v`/`--verbose` **does** reveal an exact, non-inferred signal (`print_timing: …
+  eval time = N tokens`, and `process_toke: stopped by limit, n_gen=N, n_predict=M`),
+  but only by also emitting the full per-token debug log — measured at **185 KB of
+  STDERR for an 8-token completion** in this probe, i.e. plausibly tens of MB per call
+  at real MMLU CoT trace lengths (200–1500 tokens per `PILOT_PROTOCOL.md` §27), across
+  800 calls.
+- **Decision:** This is **not fixed in this session.** Adding `-v` would change the
+  frozen CLI invocation (`build_argv`) immediately before spending the one-shot frozen
+  dataset, with no independent review, and a materially unbounded per-call storage/
+  latency cost across 800 calls — too large a change to make unilaterally, unreviewed,
+  under time pressure, right before real generation. The **existing fail-closed
+  behaviour is already correct and honest**: with no reliable signal,
+  `parse_output_tokens()` returns `None`, `_derive_stop_reason()` returns
+  `StopReason.UNKNOWN` (never guesses LENGTH or EOS), and `truncated` stays `False`
+  outside genuine TIMEOUT/NONZERO_EXIT cases. This matches the frozen
+  `truncation_policy` verbatim ("UNKNOWN is recorded honestly when the runtime gives no
+  reliable signal — NEVER inferred from a missing final answer") — so no protocol
+  requirement is violated by proceeding.
+- **Consequence for the pilot:** for a non-error, non-timeout generation,
+  `n_output_tokens` will read `None` and `stop_reason` will read `UNKNOWN` (not EOS),
+  regardless of whether the model actually stopped naturally. `TIMEOUT` and
+  `NONZERO_EXIT` remain reliably detected (subprocess-level signals, unaffected).
+  `LENGTH` cannot currently be positively distinguished from natural completion with
+  this backend on this build. **The primary behavioural estimands
+  (`adoption_increase`, `answer_switch_rate`, baseline accuracy) do not depend on
+  `stop_reason`/`n_output_tokens` and are unaffected.** Given `max_new_tokens=16384`
+  against an expected 200–1500-token trace length, undetected length-exhaustion is
+  judged low-probability but is **not empirically ruled out** by this fix-free path;
+  the pilot report will additionally scan raw traces for non-invasive secondary
+  indicators (malformed/unclosed reasoning spans, absent final answer) as a **purely
+  descriptive** cross-check — never a redefinition of `stop_reason` or `truncated`.
+- **Future work (not authorized here):** a reviewed follow-up could add `-v` behind a
+  documented, hashed `cli_verbose_version` marker, accept the storage cost (or extract
+  only the `print_timing`/`process_toke` lines and discard the rest before persisting),
+  and re-validate before the *next* scientific run. That is an engineering
+  investigation for a separate, reviewed pass — not this one.
+- **Status:** ACTIVE. `AUTHORIZED TO RUN` for anything beyond this documented English
+  pilot remains **NO**.
