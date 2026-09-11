@@ -50,19 +50,21 @@ def _valid_payload(scientific_hash: str) -> str:
 # ---- readiness gate: fail-closed (Part 2) ----------------------------------------
 
 
-def test_readiness_fails_closed_with_no_env(monkeypatch) -> None:
+def test_readiness_fails_closed_with_no_env(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv(ENV_AUTH, raising=False)
-    rep = evaluate_readiness(config_path=CFG, runtime_path=RT)
+    # Hermetic: point at a pin path that is guaranteed absent, regardless of whether a
+    # real (locally created) DATASET_CONTENT_PIN.json exists in the ambient working copy.
+    rep = evaluate_readiness(config_path=CFG, runtime_path=RT, pin_path=tmp_path / "no-pin.json")
     assert rep.methodology_frozen is True          # methodology IS frozen
     assert rep.external_resources_cleared is False  # dataset pin + judge + audit + ethics
     assert rep.human_authorization_present is False
     assert rep.all_pass is False
 
 
-def test_authorize_raises_when_not_ready(monkeypatch) -> None:
+def test_authorize_raises_when_not_ready(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv(ENV_AUTH, raising=False)
     with pytest.raises(RunNotAuthorizedError) as ei:
-        authorize_track_a_run(config_path=CFG, runtime_path=RT)
+        authorize_track_a_run(config_path=CFG, runtime_path=RT, pin_path=tmp_path / "no-pin.json")
     msg = str(ei.value)
     assert "external resources" in msg and "human authorization" in msg
 
@@ -94,17 +96,18 @@ def test_human_auth_needs_verbatim_assertion(monkeypatch) -> None:
     assert "assertion" in (rep.human_authorization_error or "")
 
 
-def test_human_auth_present_but_still_blocked_by_external_resources(monkeypatch) -> None:
+def test_human_auth_present_but_still_blocked_by_external_resources(monkeypatch, tmp_path) -> None:
     """Even a perfectly-formed human token does NOT authorize a run while the dataset
     content pin / judge / audit / ethics remain unresolved. Fail-closed."""
     cfg = load_experiment_config(CFG)
     h = scientific_config_hash(cfg, _runtime_dict())
     monkeypatch.setenv(ENV_AUTH, _valid_payload(h))
-    rep = evaluate_readiness(config_path=CFG, runtime_path=RT)
+    no_pin = tmp_path / "no-pin.json"
+    rep = evaluate_readiness(config_path=CFG, runtime_path=RT, pin_path=no_pin)
     assert rep.human_authorization_present is True
     assert rep.all_pass is False  # external resources still block
     with pytest.raises(RunNotAuthorizedError):
-        authorize_track_a_run(config_path=CFG, runtime_path=RT)
+        authorize_track_a_run(config_path=CFG, runtime_path=RT, pin_path=no_pin)
 
 
 # ---- scientific-config hash (Part 6) --------------------------------------------
