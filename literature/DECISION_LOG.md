@@ -2159,3 +2159,92 @@ are reversed by a **new** entry, not by deleting an old one.
 - **STOP:** English traces plus descriptive report end this package's execution scope.
   Judge/reference validation, Urdu, translation and confirmatory evidence each require
   separate prospective human scientific decisions. `AUTHORIZED TO RUN` remains **NO**.
+
+## D-069 — Independent downstream infrastructure after merged PR #18
+- **Date:** 2026-09-11. **PRE-OUTCOME for this downstream design work.** PR #18 head
+  `ac6cdb5f1d594be75484dae92f7f1d9344769f64` is an ancestor of starting main
+  `cc6e83599e27aafa2daaa456d9be3b95d9ecefb3`. Work uses a new
+  `research/downstream-final-readiness` branch, not a pilot execution branch.
+- **Independence:** this package's author did not inspect English pilot outputs,
+  execution branches, accuracy, parse rates, switching, effect direction or failures.
+  A separate researcher may be collecting/reviewing English data; this statement is
+  about access by the downstream author, not a claim that no outcomes exist elsewhere.
+- **Preserved:** Track-A generator design/config, singular authorization and Track B.
+  No new token factory, test authorization or scientific judge/translator/Urdu executor.
+  No real scientific generation, judge, translation experiment or human annotation here.
+- **FROZEN engineering:** strict versioned offline record contracts, metadata-blinded
+  packets, source-linked reference locks, candidate comparison, same-trace analysis,
+  deterministic artifact hashing and explicit synthetic/scientific provenance.
+- **UNRESOLVED / HUMAN REQUIRED:** scientific stage permissions, judge/translator
+  selection, human staffing/rubric/acceptance, Urdu material equivalence, institutional
+  determination, confirmatory N/SESOI and nuisance assumptions. Synthetic fixtures do
+  not resolve any of these. D-061's heuristic retractions remain in force.
+
+## D-070 — Prospective judge/reference infrastructure and measurement interpretation
+- **Date:** 2026-09-11. **PRE-OUTCOME; independent of English pilot result access.**
+- **FROZEN engineering:** raw disclosure categories are preserved; an investigator
+  must explicitly supply partial-label binarization. Cannot-tell/abstain remain missing.
+  No arbitrary model-size, BA/F1/PABAK/kappa threshold or automatic candidate winner.
+  Candidate/reference/trace/policy hashes, reported lock timing and disjoint calibration/
+  heldout source items/text are checked. Reports show both each candidate's coverage
+  and the common complete set. Original annotations survive adjudication through hashes.
+- **PROPOSED:** M2 rubric wording, annotation/adjudication procedures and scientific
+  acceptance designs require human approval before use. Engineering category schemas
+  and draft templates are not a validated human instrument or an approved rater count.
+- **Preserved estimands:** D-059 native-human minus direct automated detection for
+  the gap; translated minus direct automated detection for recovery. The historical
+  monitor arms are M3−M1 and M4−M1; in-language M2 is a distinct diagnostic, not a silent
+  replacement comparator. Direct/translated outputs must use the same judge spec.
+- **Clarification:** recovery uses a common native/direct/translated triple set;
+  human-agreement recovery is reported separately. A zero marginal detection gap can
+  hide cancelling errors. Lack of recovery does not prove generation lost information:
+  translation quality, monitor error and uncertainty remain alternatives. The older
+  research-plan hypothesis table's shorthand is not a sufficient causal inference.
+  This clarifies interpretation without changing the primary question or estimand signs.
+- **UNRESOLVED:** final populations, uncertainty/acceptance policies, native qualifications,
+  human reference evidence and measurement-error propagation require prospective review.
+
+## D-071 — Offline Urdu/translation contracts; no source or translator selection
+- **Date:** 2026-09-11. **PRE-OUTCOME; no English pilot results inspected.**
+- **FROZEN engineering:** four-choice adapters preserve exact order, explicit answer
+  mapping, stable IDs, language/revision/provenance and canonical content hashes.
+  Existing Latin A–D extraction remains primary; boxed Perso-Arabic mapping is an
+  explicitly separate exploratory output and cannot repair the primary parse (D-060).
+- **Preserved design:** MMLU primary; UrduBench OpenBookQA secondary robustness only
+  where compatible. UrduMMLU is still an unverified candidate, not an adopted source.
+  No real datasets were downloaded or translated by this work.
+- **FROZEN engineering:** translator-agnostic spec/record/source/output/parent hashes,
+  context accounting and explicit truncation/errors. Urdu→English, English paraphrase,
+  backtranslation lineage and native/bilingual audit structures remain separate controls.
+  Unusable translations cannot silently enter paired recovery; audit counts never
+  certify equivalence. No scientific translation executor is introduced.
+- **UNRESOLVED / HUMAN REQUIRED:** exact translator/model/provider, immutable identity
+  evidence, capacity and calibration/audit acceptance procedure; aligned Urdu prompt/cue/
+  dataset equivalence, native reviewers and governance. No NLLB choice, model scale or
+  numeric context threshold is adopted. Translation is a diagnostic, not an established
+  mitigation. Synthetic Urdu strings are not verified linguistic equivalence evidence.
+
+## D-072 — Prospective power, reporting and governance scaffolds
+- **Date:** 2026-09-11. **PRE-OUTCOME; independent downstream work only.**
+- **FROZEN engineering:** power functions require explicit investigator SESOI, joint
+  probabilities, alpha/target power, nuisance justification, missingness and clustering.
+  Exact paired-binary power refuses clustered inputs; an item-cluster simulation makes
+  its Dirichlet-multinomial, MCAR and exchangeability assumptions explicit. Sensitivity
+  grids report all supplied scenarios without selecting N. Synthetic test constants
+  are arithmetic fixtures, not scientific choices or empirical power assumptions.
+- **PROPOSED / HUMAN REQUIRED:** confirmatory population/test, SESOI/N, multiplicity,
+  nuisance/ICC/missingness assumptions and statistical review. No preregistration is
+  claimed completed; templates have pending scientific fields.
+- **FROZEN reporting structure:** M2/M3 reports, M4 decision/preregistration templates,
+  master blocker matrix and paper scaffold are written without scientific findings.
+  The paper uses only previously verified repository citations, makes no priority
+  claim and leaves Results/Discussion/Conclusion pending.
+- **Governance:** checklist identifies public benchmark/model-output/human involvement,
+  consent/compensation, privacy/storage/release and harmful-content escalation. No legal
+  or IRB conclusion is asserted. Institutional determinations remain HUMAN REQUIRED.
+- **Reproducibility:** git/config/dataset/trace, judge/translator version, rubric/human
+  source lineage, analysis version, exact installed core-library versions, seeds and
+  artifact hashes are retained. Blinding maps/keys and personal operational records
+  remain private. Schemas/hashes do not establish competence, consent or permission.
+- **STOP:** engineering and synthetic validation only. Downstream scientific stages
+  remain unauthorized; this PR must not be merged by the infrastructure agent.

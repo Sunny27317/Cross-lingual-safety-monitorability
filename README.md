@@ -39,6 +39,14 @@ where trustworthy native ground truth is obtainable and which Onyame et al. omit
 
 ## Current status
 
+Downstream prospective infrastructure is available in the
+[API/reproducibility guide](docs/DOWNSTREAM_INFRASTRUCTURE.md) and
+[master blocker matrix](docs/DOWNSTREAM_BLOCKER_MATRIX.md). Judge/reference validation,
+Urdu adapters, translation controls, paired gap/recovery analysis, power tooling and
+paper/report templates are prepared using synthetic fixtures only. Their author did not
+inspect English pilot outputs. Judge/translator selection, human scientific decisions
+and downstream authorization remain unresolved.
+
 - **Verdict:** YELLOW — proceed only with the narrowed contribution above. Re-affirmed
   2026-09-01 after independent verification of all core citations
   (`literature/DECISION_LOG.md` D-007).
