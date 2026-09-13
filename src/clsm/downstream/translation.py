@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection, Mapping
 from enum import StrEnum
 from typing import Literal, Self
 
 from pydantic import Field, field_validator, model_validator
 
+from clsm.downstream.annotation import AnnotationPacket
 from clsm.downstream.contracts import (
     SHA,
     Contract,
@@ -138,6 +140,53 @@ def validate_translation(
         or record.measured_input_units + record.reserved_output_units > expected.context_limit
     ):
         raise ValueError("translation unusable: truncation/error/context overflow")
+
+
+def validate_english_paraphrase_control(
+    packet: AnnotationPacket,
+    translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...],
+    *,
+    confirmatory_item_ids: Collection[str] | None = None,
+    english_anchor_item_ids: Collection[str] | None = None,
+    source_item_by_blind_id: Mapping[str, str] | None = None,
+) -> None:
+    """Require controls for every English anchor in a source-matched packet.
+
+    In the frozen packet contract, English tasks are the source-matched anchors;
+    Urdu tasks are not anchors for this control. An empty English anchor set is
+    invalid for a mechanism claim rather than vacuously passing.
+    """
+    english_tasks = {task.blind_id for task in packet.tasks if task.language == "en"}
+    if confirmatory_item_ids is not None:
+        if english_anchor_item_ids is None or source_item_by_blind_id is None:
+            raise ValueError("confirmatory coverage requires English anchor item bindings")
+        confirmatory = set(confirmatory_item_ids)
+        anchors = set(english_anchor_item_ids)
+        if not confirmatory <= anchors:
+            raise ValueError("confirmatory items lack source-matched English anchors")
+        expected = {
+            blind_id
+            for blind_id in english_tasks
+            if source_item_by_blind_id.get(blind_id) in anchors
+        }
+        represented = {source_item_by_blind_id.get(blind_id) for blind_id in expected}
+        if not confirmatory <= represented:
+            raise ValueError("confirmatory item has no English anchor task")
+    else:
+        expected = english_tasks
+    if not expected:
+        raise ValueError("language-mechanism claim requires at least one English anchor task")
+    observed = {
+        request.blind_id
+        for request, record, translator in translations
+        if request.control is TranslationControl.ENGLISH_PARAPHRASE
+        and request.source_language == "en"
+        and request.target_language == "en"
+        and not record.truncated
+        and not record.errors
+    }
+    if expected - observed:
+        raise ValueError("English paraphrase control is required for a language-mechanism claim")
 
 
 class EquivalenceAudit(Contract):

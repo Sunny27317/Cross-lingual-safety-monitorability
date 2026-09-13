@@ -2394,3 +2394,17 @@ are reversed by a **new** entry, not by deleting an old one.
   unmerged); `src/`, `tests/`, and PR #27 itself not modified by this entry.
 - **STOP:** no judge call, translation, Urdu inference, human annotation, or
   confirmatory analysis is authorized by this entry.
+
+
+## D-077 — Freeze-authorized downstream execution guards
+- **Date:** 2026-09-12. **PRE-OUTCOME; engineering only.** This entry follows the
+  D-073 scientific-freeze cross-reference; PR #19 historical renumbering remains deferred and must be recomputed at merge time.
+- **FROZEN engineering:** source-item partitions are deterministic and disjoint;
+  judge scoring requires investigator-signed, plan-hash-bound acceptance criteria
+  dated before candidate outputs; human/direct/translated comparisons require the
+  exact source-item/condition/language/seed/generation identity key; and a
+  language-mechanism claim requires a usable English-to-English paraphrase control
+  for every English anchor task.
+- **PRESERVED:** no judge, translator, Urdu inference, human annotation, threshold,
+  SESOI or confirmatory N is selected by this change. Clustered-method validation is
+  synthetic smoke/operating-characteristic tooling only and cannot freeze a test.
