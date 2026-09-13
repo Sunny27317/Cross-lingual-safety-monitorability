@@ -41,7 +41,11 @@ read beyond its committed `PILOT_REPORT.md`, not touched, and not merged by this
 | Ethics/governance checklist and templates | `docs/ETHICS_AND_DATA_GOVERNANCE_CHECKLIST.md`; **operational `docs/ETHICS_REVIEW_REQUEST_TEMPLATE.md`, `docs/RATER_CONSENT_TEMPLATE.md`** (both marked DRAFT — REQUIRES INSTITUTIONAL REVIEW) | COMPLETE as checklist + submittable drafts; every determination HUMAN REQUIRED |
 | Reproducibility release classification | **new, `docs/REPRODUCIBILITY_RELEASE_PLAN.md`** | Proposed PUBLIC/PUBLIC AFTER REVIEW/PRIVATE/NEVER PUBLIC tiers per artifact; final tier HUMAN REQUIRED |
 | Prospective outcome-to-wording mapping | **new, `research/RESULT_INTERPRETATION_MATRIX.md`**; Discussion branches in `paper/main.md` | Prospective; no future outcome inspected |
-| Fast orientation for a new supervisor | **new, `research/SCIENTIFIC_STATUS.md`** | Short-form status; points to everything above |
+| Fast orientation for a new supervisor | `research/SCIENTIFIC_STATUS.md` (60-second) and `research/SUPERVISOR_HANDOFF.md` (≤10-minute, decision-focused) | COMPLETE, cross-referenced to each other |
+| Turning the 13 decisions into a meeting | `research/SUPERVISOR_MEETING_AGENDA.md` | COMPLETE |
+| Chronological human-execution steps | `research/HUMAN_EXECUTION_CHECKLIST.md` (14 steps, owner/input/output/gate/failure each; distinguishes the Urdu model stage from the Urdu human-reference stage) | COMPLETE |
+| Master after-approval execution sequence | `research/EXECUTION_ROADMAP.md` §3–5 (19 numbered steps, no further planning round needed) | COMPLETE |
+| Most granular claim-by-claim evidence ledger | `research/FINAL_CLAIM_AUDIT.md` (6 categories, separates descriptive from confirmatory-run-gated claims) | COMPLETE |
 | Novelty position | `research/POST_PILOT_METHODS_DECISIONS.md` §I; `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §5; restated in `paper/main.md` §Related Work | YELLOW, reaffirmed unchanged |
 
 ## 1. PR #27 fix — exact scientific semantics for the mechanism-claim/English-anchor gate

@@ -1,5 +1,10 @@
 # Scientific status — fastest orientation
 
+**Relationship to `research/SUPERVISOR_HANDOFF.md`:** this is the 60-second Q&A version;
+that document is the ≤10-minute version built specifically to walk a supervisor through
+the 13 pending decisions (estimands, H/D/T/P, merge status, meeting agenda link). Read
+this one first if you have a minute; read that one before making any decision.
+
 **What question are we answering?** When an automated safety monitor reports low
 disclosure of a hint's influence on an Urdu reasoning trace, is that because the model
 didn't disclose, or because the monitor can't read Urdu disclosure as well as a native

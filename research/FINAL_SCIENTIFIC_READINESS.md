@@ -1,9 +1,14 @@
 # Final scientific-readiness package
 
-**Status: prospective and outcome-blind.** This package was prepared from a clean
-main-based clone at `9ce491f7b6fb4dd4426168499a09b3c0b7e6f758`. The active Track-A
-checkout, `generations.jsonl`, raw outputs and pilot outcomes were not accessed. No
-scientific stage was run and no parameter is changed here.
+**Status: prospective and outcome-blind; historical PR #22 review, preserved as-is.**
+This package was prepared from a clean main-based clone at
+`9ce491f7b6fb4dd4426168499a09b3c0b7e6f758`. The active Track-A checkout,
+`generations.jsonl`, raw outputs and pilot outcomes were not accessed. No scientific
+stage was run and no parameter is changed here. **`research/FINAL_PROTOCOL.md` is now
+the canonical index and has since consolidated most of this document's content (§0
+of that document cites this one directly for novelty and publication-strategy
+detail); this document is not rewritten or deleted, since it is itself a review of
+record (PR #22) that later work builds on, not a draft to be replaced.**
 
 ## Problem and surviving contribution
 

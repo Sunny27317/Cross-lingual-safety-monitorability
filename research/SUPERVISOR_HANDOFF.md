@@ -149,3 +149,25 @@ that number has already been invalidated three times by concurrent work.
    real rater to actually do.
 4. `paper/main.md` §Research Questions and §Claim ledger — confirm the framing before
    anything is collected.
+
+**To actually make the 13 decisions:** use `research/SUPERVISOR_MEETING_AGENDA.md`,
+which groups them into a ~60-minute meeting sequence rather than 13 unordered rows.
+**For a 60-second version of this document:** `research/SCIENTIFIC_STATUS.md`.
+
+## Venue strategy (fit, not prestige — full detail in `research/
+FINAL_SCIENTIFIC_READINESS.md` §Publication strategy)
+
+- **Ambitious:** an ACL/EMNLP/NAACL main-conference track, or a top AI-safety/
+  alignment venue's main track, if the executed evidence and scope actually meet that
+  bar — fit depends on whether the result reads as general multilingual-NLP work or
+  safety-oversight methodology.
+- **Realistic strong:** Findings of ACL/EMNLP/NAACL, or a focused trustworthy-ML /
+  AI-safety-evaluation workshop with full review — matches this project's actual scope
+  (one language, one model, one task family) better than a main-track venue's
+  generalization expectations.
+- **Workshop/backup:** a low-resource-language NLP workshop, general NLP-evaluation
+  workshop, or interpretability/safety workshop — appropriate regardless of outcome
+  direction; a well-characterized null is a legitimate contribution at this tier.
+- **`VERIFY AT SUBMISSION TIME`:** no deadline, cycle, or current call-for-papers is
+  named or assumed anywhere in this repository. Confirm the actual current deadline
+  and scope from the venue's own site before committing.

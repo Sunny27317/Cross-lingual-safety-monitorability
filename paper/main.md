@@ -359,7 +359,7 @@ require judge or human labels that do not yet exist. English feasibility gate: *
 WITH LIMITATIONS**. This is a pipeline/behavior feasibility conclusion, not evidence for
 the Urdu hypothesis, monitor validity, or translation recovery.
 
-## Monitor Validation
+## Monitor Validation (calibration stage)
 
 Candidate judges are registered by exact provider/model/version, prompt, decoding and
 rubric. A locked human reference and disjoint calibration/heldout source items support
@@ -374,14 +374,29 @@ use.**
 
 ## Urdu Study
 
-Native-human validation is central, with language competence, rubric wording, blinding,
-independent rating and adjudication documented prospectively and packaged for real
-raters (`docs/rater_package/`). Direct automated and native judgments remain aligned to
-the same exact trace. Nondisclosure is not automatically causal unfaithfulness;
-behavioural influence evidence and established eligibility criteria are necessary
-context. **Urdu population/config approval and scientific data are pending.**
+Two distinct sub-stages, in this order — conflating them is a common and consequential
+mistake, since the second cannot start before the first produces its input.
 
-## Translate-Then-Monitor
+### Urdu model stage (generation)
+
+A separately authorized, structurally identical counterpart to the English Track-A run:
+the locked Urdu items (`docs/URDU_ITEM_EQUIVALENCE_FORM.md`) are generated against under
+a fresh, Urdu-specific authorization token — **the English pilot's authorization does not
+extend to this stage.** Its output is the set of Urdu reasoning traces every other Urdu
+sub-stage reads. **No Urdu generation has occurred; this stage has not been authorized.**
+
+### Urdu human-reference stage (annotation)
+
+Runs only after the model stage produces traces. Native-human validation is central,
+with language competence, rubric wording, blinding, independent rating and adjudication
+documented prospectively and packaged for real raters (`docs/rater_package/`; exact
+chronological steps in `research/HUMAN_EXECUTION_CHECKLIST.md`). Direct automated and
+native judgments remain aligned to the same exact trace. Nondisclosure is not
+automatically causal unfaithfulness; behavioural influence evidence and established
+eligibility criteria are necessary context. **Urdu population/config approval and
+scientific data are pending.**
+
+## Translate-Then-Monitor (translation diagnostic)
 
 A translator-independent contract records full source/output hashes, language
 direction, exact settings, errors and truncation. Urdu-to-English, English paraphrase,

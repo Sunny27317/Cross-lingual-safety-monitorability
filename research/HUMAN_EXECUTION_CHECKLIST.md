@@ -3,7 +3,11 @@
 Exact chronological steps. Each has an owner, input, output, gate (what must be true
 before this step starts), and failure condition (what happens if it can't be
 completed). No step here is executed by this repository automatically — every step
-requires a real human action.
+requires a real human action. **Two populations can be annotated, and they are not
+interchangeable:** an English-calibration-partition population (traces already exist,
+from the completed English pilot) and the Urdu confirmatory population (traces do not
+exist yet and require a separately authorized generation stage — step 7, below). Steps
+1–6 and 8–14 apply to either population; step 7 applies only to the Urdu population.
 
 ## 1. Ethics/governance approval
 
@@ -58,7 +62,7 @@ requires a real human action.
 - **Owner:** Investigator/institution.
 - **Input:** `research/SUPERVISOR_DECISION_PACKET.md` row 3.
 - **Output:** A documented compensation basis and amount.
-- **Gate:** Can run in parallel with steps 2–4; must complete before consent (step 9).
+- **Gate:** Can run in parallel with steps 2–4; must complete before consent (step 10).
 - **Failure condition:** Budget doesn't support the chosen recruitment channel →
   revisit row 2/row 3 jointly.
 
@@ -73,33 +77,60 @@ requires a real human action.
 - **Failure condition:** No approved secure storage location yet → resolve `research/
   SUPERVISOR_DECISION_PACKET.md` row 4 before generating the secret.
 
-## 7. Packet generation
+## 7. Urdu material lock and model execution — Urdu population only
+
+**Skip this step entirely if the first annotation round uses the existing
+English-calibration population (traces already exist from PR #19); it is mandatory
+before any Urdu trace can be annotated.**
+
+- **Owner:** Translator, bilingual reviewers, and adjudicator (material lock); then a
+  separately authorized Track-A-Urdu execution owner (generation).
+- **Input:** Frozen English source items; `docs/TRANSLATOR_INSTRUCTIONS.md`, `docs/
+  BILINGUAL_REVIEWER_INSTRUCTIONS.md`, `docs/URDU_EQUIVALENCE_DECISION_TREE.md`, one
+  `docs/URDU_ITEM_EQUIVALENCE_FORM.md` per item.
+- **Output:** (a) Every Urdu item locked (all equivalence forms signed, content
+  hashes fixed); (b) a **separate, freshly issued** Urdu generation-authorization
+  artifact, structurally identical to but independent from the English pilot's — the
+  English authorization does not extend to Urdu, per every prior Track-A decision;
+  (c) the completed Urdu generation run itself, producing the actual reasoning traces
+  raters will read, with the same integrity review the English pilot received (planned
+  vs. complete vs. missing, parse validity, no reruns of a failed item).
+- **Gate:** Steps 1–2 complete (ethics and rubric, since item content and exposure are
+  ethics-relevant); translator/reviewer roles filled (may reuse rater/adjudicator
+  candidates from steps 3–4 only if the reuse and any resulting role overlap is
+  disclosed as a limitation, per `docs/HUMAN_URDU_VALIDATION_PACKAGE.md`).
+- **Failure condition:** An item cannot be resolved to a locked equivalence record
+  (`docs/URDU_EQUIVALENCE_DECISION_TREE.md` Q4's "exclude" branch) → the item is
+  excluded, not force-locked; document the exclusion. If the Urdu generation run itself
+  fails partial integrity checks → apply the same zero-retry, preserve-everything
+  policy as the English pilot; do not silently drop or rerun a failed item.
+
+## 8. Packet generation
 
 - **Owner:** Steward (technical).
-- **Input:** Locked source-item set (English pilot items and/or their Urdu
-  equivalents, per whichever population is being annotated first — see `research/
-  FINAL_PROTOCOL.md` §11's four-way partition); the blind-ID secret from step 6.
+- **Input:** For the English-calibration population: the existing locked English pilot
+  traces (PR #19). For the Urdu population: the locked Urdu traces from step 7. The
+  blind-ID secret from step 6 either way.
 - **Output:** Two independent `AnnotationPacket` objects (one per rater), with
   opaque IDs and independent randomized presentation order, plus the steward-only
   `PrivateAssignment` mapping.
-- **Gate:** Steps 1, 2, 6 complete; the relevant source items must already be
-  translated and locked if this is the Urdu population (`docs/
-  URDU_ITEM_EQUIVALENCE_FORM.md`, all forms signed).
-- **Failure condition:** Source items not yet locked → this step cannot start; return
-  to the Urdu translation/review chain first.
+- **Gate:** Steps 1, 2, 6 complete; step 7 complete if this is the Urdu population.
+- **Failure condition:** Traces not yet locked for the target population → this step
+  cannot start; return to step 7 (Urdu) or confirm the correct English artifact
+  (calibration).
 
-## 8. Packet hash lock
+## 9. Packet hash lock
 
 - **Owner:** Steward (technical).
-- **Input:** The generated packets from step 7.
+- **Input:** The generated packets from step 8.
 - **Output:** A recorded, timestamped hash of each packet, locked before any rater
   sees it.
-- **Gate:** Step 7 complete.
+- **Gate:** Step 8 complete.
 - **Failure condition:** A packet needs correction after this lock (e.g., a
   formatting bug found) → generate a new packet with a new hash; never edit a locked
   packet in place.
 
-## 9. Rater onboarding
+## 10. Rater onboarding
 
 - **Owner:** Steward.
 - **Input:** `docs/rater_package/RATER_ONBOARDING.md`; signed consent (`docs/
@@ -110,57 +141,66 @@ requires a real human action.
 - **Failure condition:** A candidate declines to consent after seeing the materials →
   they do not proceed; recruit a replacement (return to step 3) if needed.
 
-## 10. Qualification (final check before real material)
+## 11. Qualification (final check before real material)
 
 - **Owner:** Steward.
 - **Input:** A short non-study reading-comprehension exercise (per `docs/
   rater_package/RATER_QUALIFICATION_TEMPLATE.md`).
 - **Output:** Confirmed competence on record, distinct from self-report.
-- **Gate:** Step 9 complete.
+- **Gate:** Step 10 complete.
 - **Failure condition:** A rater doesn't pass the exercise → do not proceed with them
   as a rater; this is a real possibility, not a formality, and must be handled without
   awkwardness or pressure per the consent terms.
 
-## 11. Annotation (training, then production)
+## 12. Annotation (training, then production)
 
 - **Owner:** Raters (independently); steward monitors process only.
 - **Input:** `docs/rater_package/RATER_INSTRUCTIONS.md`, `ANNOTATION_DECISION_TREE.md`;
   training set first (independent human-authored/permissioned examples, not real study
-  data), then the locked production packet (step 8).
+  data), then the locked production packet (step 9).
 - **Output:** Two independent, complete sets of `Annotation` records.
-- **Gate:** Step 10 complete for both raters; training round reviewed and approved
+- **Gate:** Step 11 complete for both raters; training round reviewed and approved
   before production begins.
 - **Failure condition:** Training reveals the rubric is unclear in practice → return
   to step 2 (rubric approval) with the specific confusion documented; do not silently
   reinterpret the rubric mid-production.
 
-## 12. Adjudication
+## 13. Adjudication
 
 - **Owner:** Adjudicator.
 - **Input:** `docs/rater_package/ADJUDICATOR_INSTRUCTIONS.md`; both raters' completed,
-  locked submissions from step 11.
+  locked submissions from step 12.
 - **Output:** A final adjudicated label (or explicit "unresolved") for every
   disagreement, with rationale, preserving both original labels unchanged.
-- **Gate:** Step 11 complete for both raters.
+- **Gate:** Step 12 complete for both raters.
 - **Failure condition:** A case doesn't fit the frozen rubric even after adjudication
   → mark unresolved and escalate to the investigator; do not force a label.
 
-## 13. Human-reference lock
+## 14. Human-reference lock
 
 - **Owner:** Steward, with investigator attestation.
-- **Input:** All original annotations (step 11) and adjudication records (step 12).
+- **Input:** All original annotations (step 12) and adjudication records (step 13).
 - **Output:** A `LockedReference` binding the packet, protocol decision, steward, and
-  timestamp — the human reference used for all subsequent judge calibration and
-  measurement.
-- **Gate:** Step 12 complete; lineage validated (`validate_reference` passes).
+  timestamp, **tagged with which population it covers** (English-calibration or Urdu
+  confirmatory — see `research/FINAL_PROTOCOL.md` §1a finding 2 on why this tag matters:
+  the current stage-gate schema cannot yet distinguish the two automatically, so the
+  lock record itself must state it explicitly until that is fixed).
+- **Gate:** Step 13 complete; lineage validated (`validate_reference` passes).
 - **Failure condition:** Lineage validation fails (a hash mismatch, a missing source
   record) → do not lock; resolve the specific integrity issue first. Once locked, any
   later correction requires a new lock and a visible deviation note — it never
   silently replaces the original.
 
-## After step 13
+## After step 14
 
-Judge calibration may begin (`experiments/M2-Monitor-Validation/
-JUDGE_RUBRIC_PACKAGE.md`), gated on the signed acceptance criteria
-(`research/SUPERVISOR_DECISION_PACKET.md` row 6) existing independently of and before
-this lock. Full continuation: `research/EXECUTION_ROADMAP.md` category 3.
+If this was the **English-calibration population**: judge calibration may begin
+(`experiments/M2-Monitor-Validation/JUDGE_RUBRIC_PACKAGE.md`), gated on the signed
+acceptance criteria (`research/SUPERVISOR_DECISION_PACKET.md` row 6) existing
+independently of and before this lock.
+
+If this was the **Urdu confirmatory population**: the translation diagnostic
+(translator selection already resolved, packet row 7) and the measurement analysis
+(`research/FINAL_PROTOCOL.md` §4) may begin, gated on judge calibration/selection
+already being complete from an earlier English-calibration round.
+
+Full continuation either way: `research/EXECUTION_ROADMAP.md` category 3.
