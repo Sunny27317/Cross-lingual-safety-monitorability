@@ -53,7 +53,7 @@ def _valid_payload(scientific_hash: str) -> str:
 def test_readiness_fails_closed_with_no_env(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv(ENV_AUTH, raising=False)
     # Hermetic: point at a pin path that is guaranteed absent, regardless of whether a
-    # real (locally created) DATASET_CONTENT_PIN.json exists in the ambient working copy.
+    # real (or Phase-2-created) DATASET_CONTENT_PIN.json exists in the ambient repo.
     rep = evaluate_readiness(config_path=CFG, runtime_path=RT, pin_path=tmp_path / "no-pin.json")
     assert rep.methodology_frozen is True          # methodology IS frozen
     assert rep.external_resources_cleared is False  # dataset pin + judge + audit + ethics
