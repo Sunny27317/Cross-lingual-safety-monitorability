@@ -1,9 +1,10 @@
 # Synthetic clustered-method validation
 
-This report is a prospective operating-characteristic check of the source-item
-clustered percentile bootstrap implementation. It uses generated binary paired
-trace differences only; it does not use pilot records and does not select a
-confirmatory sample size, SESOI, threshold, or test. The committed 20-simulation
+This report is a prospective operating-characteristic check of a source-item
+cluster sign-flip randomization test, with the percentile interval retained as a
+diagnostic. It uses generated binary paired trace differences only; it does not
+use pilot records and does not select a confirmatory sample size, SESOI, threshold,
+or test. The committed 20-simulation
 per-cell example is **smoke validation only**: its Monte Carlo error is too large
 to establish calibrated type-I error or interval coverage and it is not
 sufficient to freeze a confirmatory test.
@@ -47,5 +48,14 @@ an engineering diagnostic, not evidence for the study's confirmatory design.
 | (32, 6, .20, .10, .4, .1, 0) | 0.10 | 0.3365 | 0.9285 | 0.0106 | 0.0058 |
 | (32, 6, .10, .10, .4, .1, .2) | 0.00 | 0.0680 | 0.9320 | 0.0056 | 0.0056 |
 
-All four cells had zero undefined/failure intervals. The larger artifact hash is
-`2cf0118bf0865535d1b1e43813d883d3023261f6c20fbfcabd7e17064b2eabb1`.
+All four cells had zero undefined/failure intervals. The sign-flip test was
+conservative in all three null cells (0.0165, 0.0315, and 0.0495), while the
+percentile interval remains an explicitly reported small-cluster diagnostic.
+The larger artifact hash is
+`faa063db1b53b292dc3d59b530a0e7033bdfeb41b8fbac11e0ee7addc175de61`.
+
+The confirmatory sign-flip rejection rates for the three null cells were
+0.0165, 0.0315, and 0.0495. They are not anti-conservative in this grid, so the
+method is marked `READY_FOR_HUMAN_REVIEW`; final use still requires the protocol's
+human statistical approval. The percentile interval remains a diagnostic and is
+not used as the confirmatory test.

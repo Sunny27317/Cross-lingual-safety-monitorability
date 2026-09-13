@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 
@@ -92,6 +93,26 @@ def cluster_percentile_interval(
     return estimate, float(np.quantile(draws, alpha / 2)), float(np.quantile(draws, 1 - alpha / 2))
 
 
+def cluster_sign_flip_pvalue(
+    clusters: list[np.ndarray], *, draws: int, alpha: float, seed: int
+) -> tuple[float | None, bool]:
+    """Randomization p-value on source-item means under a paired null.
+
+    Each source item contributes one mean, so repeated traces cannot act as
+    independent inferential units. The returned flag is whether ``p <= alpha``.
+    Empty items are reported as missing rather than imputed.
+    """
+    means = np.asarray([float(x.mean()) for x in clusters if len(x)], dtype=float)
+    if not len(means):
+        return None, False
+    rng = np.random.default_rng(seed)
+    observed = abs(float(means.sum()))
+    signs = rng.choice((-1.0, 1.0), size=(draws, len(means)))
+    randomized = np.abs(signs @ means)
+    p_value = float((1 + np.count_nonzero(randomized >= observed - 1e-12)) / (draws + 1))
+    return p_value, p_value <= alpha
+
+
 def validate_cluster_method(
     scenarios: tuple[ClusterValidationScenario, ...],
     *,
@@ -109,6 +130,8 @@ def validate_cluster_method(
         rejections = 0
         covered = 0
         defined = 0
+        confirmatory_rejections = 0
+        confirmatory_defined = 0
         for _sim in range(simulations):
             clusters = _draw_clusters(scenario, rng)
             estimate, lower, upper = cluster_percentile_interval(
@@ -122,6 +145,14 @@ def validate_cluster_method(
             defined += 1
             rejections += int(lower > 0 or upper < 0)
             covered += int(lower <= scenario.delta <= upper)
+            _, rejected = cluster_sign_flip_pvalue(
+                clusters,
+                draws=bootstrap_replicates,
+                alpha=alpha,
+                seed=int(rng.integers(2**32)),
+            )
+            confirmatory_defined += 1
+            confirmatory_rejections += int(rejected)
         results.append(
             {
                 "scenario": scenario.__dict__,
@@ -129,6 +160,19 @@ def validate_cluster_method(
                 "defined_intervals": defined,
                 "failure_count": simulations - defined,
                 "rejection_rate": rejections / defined if defined else None,
+                "confirmatory_method": "source_item_cluster_sign_flip_randomization",
+                "confirmatory_rejection_rate": (
+                    confirmatory_rejections / confirmatory_defined if confirmatory_defined else None
+                ),
+                "confirmatory_monte_carlo_se": (
+                    math.sqrt(
+                        (confirmatory_rejections / confirmatory_defined)
+                        * (1 - confirmatory_rejections / confirmatory_defined)
+                        / confirmatory_defined
+                    )
+                    if confirmatory_defined
+                    else None
+                ),
                 "coverage": covered / defined if defined else None,
                 "monte_carlo_se_rejection": math.sqrt(
                     (rejections / defined) * (1 - rejections / defined) / defined
@@ -145,7 +189,7 @@ def validate_cluster_method(
         )
     report = {
         "schema_version": "cluster-method-validation/1",
-        "method": "source-item_cluster_percentile_bootstrap",
+        "method": "source_item_cluster_sign_flip_test_with_percentile_interval_diagnostic",
         "design": "ADEMP synthetic paired binary traces; no project data",
         "alpha": alpha,
         "simulations": simulations,
@@ -154,4 +198,17 @@ def validate_cluster_method(
         "scenarios": results,
         "selection": "No method, threshold, SESOI or N selected by this report",
     }
+    null_rows = [
+        row
+        for row in results
+        if row["true_delta"] == 0 and row["confirmatory_rejection_rate"] is not None
+    ]
+    within_null_mc = all(
+        cast(float, row["confirmatory_rejection_rate"]) <= alpha for row in null_rows
+    )
+    report["confirmatory_status"] = (
+        "READY_FOR_HUMAN_REVIEW"
+        if null_rows and within_null_mc
+        else "FAIL_CLOSED_UNVALIDATED"
+    )
     return {**report, "artifact_hash": object_hash(report)}
