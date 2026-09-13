@@ -6,7 +6,7 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal, Self, cast
 
 from pydantic import model_validator
 
@@ -119,3 +119,46 @@ def measurement_envelope(
     return ReportEnvelope(
         provenance=provenance, bindings=tuple(bindings), payload=payload, payload_hash=object_hash(payload)
     )
+
+
+def result_table_templates() -> dict[str, object]:
+    """Return empty, schema-stable table slots for future approved results."""
+    names = (
+        "primary_gap",
+        "secondary_recovery",
+        "hdtp_comparison",
+        "human_agreement",
+        "judge_calibration",
+        "missingness",
+        "translation_audit",
+        "sensitivity",
+        "provenance",
+    )
+    return {
+        "schema_version": "downstream-tables/1",
+        "status": "RESULTS PENDING; no scientific values inserted",
+        "tables": {name: {"columns": [], "rows": []} for name in names},
+    }
+
+
+def result_tables_from_payload(payload: dict[str, Any]) -> dict[str, object]:
+    """Create deterministic table rows from an already validated report payload."""
+    tables = result_table_templates()
+    table_map = cast(dict[str, Any], tables["tables"])
+    by_language = payload.get("by_language", {})
+    table_map["primary_gap"] = {
+        "columns": ["language", "metrics"],
+        "rows": [
+            {"language": k, "metrics": v.get("direct")}
+            for k, v in sorted(by_language.items())
+        ],
+    }
+    table_map["secondary_recovery"] = {
+        "columns": ["language", "metrics"],
+        "rows": [
+            {"language": k, "metrics": v.get("translation", v.get("paraphrase_control"))}
+            for k, v in sorted(by_language.items())
+        ],
+    }
+    table_map["missingness"] = {"columns": ["counts"], "rows": [payload.get("raw_missingness", {})]}
+    return {**tables, "status": "SYNTHETIC OR VALIDATED PAYLOAD; inspect provenance before publication"}

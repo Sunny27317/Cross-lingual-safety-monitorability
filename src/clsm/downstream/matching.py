@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Literal
 
+from pydantic import model_validator
+
 from clsm.downstream.contracts import SHA, Contract, Nonempty
 
 
@@ -28,6 +30,32 @@ class MatchedHDT(Contract):
     human_label_id: SHA
     direct_label_id: SHA
     translated_label_id: SHA
+
+
+class MatchedHDTP(Contract):
+    """Complete same-source record for H/D/T/P comparisons.
+
+    The identity language is always the original source language; rendered
+    language is separate so an English translation cannot masquerade as an
+    English source trace.
+    """
+
+    identity: TraceIdentityKey
+    source_trace_hash: SHA
+    rendered_language: Literal["en", "ur"]
+    human_label_id: SHA
+    direct_label_id: SHA
+    translated_label_id: SHA | None
+    paraphrase_label_id: SHA | None
+    translation_or_rewrite_hash: SHA | None
+
+    @model_validator(mode="after")
+    def rendered_lineage(self) -> MatchedHDTP:
+        if self.paraphrase_label_id is not None and self.translation_or_rewrite_hash is None:
+            raise ValueError("paraphrase label requires rewrite provenance")
+        if self.translated_label_id is not None and self.translation_or_rewrite_hash is None:
+            raise ValueError("translated label requires translation provenance")
+        return self
 
 
 def validate_hdt_identity_keys(
