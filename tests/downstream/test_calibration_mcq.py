@@ -6,7 +6,12 @@ import pytest
 from pydantic import ValidationError
 
 from clsm.downstream.calibration import candidate_comparison
-from clsm.downstream.contracts import ProspectiveCandidatePlan, TraceSet, content_hash
+from clsm.downstream.contracts import (
+    JudgeAcceptanceCriteria,
+    ProspectiveCandidatePlan,
+    TraceSet,
+    content_hash,
+)
 from clsm.downstream.fixtures import synthetic_bundle, synthetic_provenance
 from clsm.downstream.mcq import DatasetSpec, SourceRow, adapt_item, extract_strategies, validate_items
 
@@ -48,6 +53,19 @@ def comparison_arguments() -> dict[str, Any]:
         policy=b.policy,
         candidates=(b.judge,),
         outputs=b.direct,
+        acceptance_criteria=JudgeAcceptanceCriteria(
+            plan_hash=plan.artifact_hash,
+            investigator="synthetic",
+            max_false_negative_rate=0.2,
+            max_false_positive_rate=0.2,
+            minimum_coverage=0.8,
+            required_interval_half_width=0.2,
+            selection_if_unmet="neither",
+            decision_record="synthetic criteria; investigator decision required",
+            signed_utc="1970-01-01T00:00:00+00:00",
+            investigator_signature="synthetic-signature",
+            provenance=synthetic_provenance(),
+        ),
     )
 
 
@@ -224,6 +242,7 @@ def test_heldout_comparison_and_common_candidate_coverage() -> None:
         ),
     )
     plan = kwargs["plan"].model_copy(update={"heldout_reference_set_hash": reference.artifact_hash})
+    criteria = kwargs["acceptance_criteria"].model_copy(update={"plan_hash": plan.artifact_hash})
     output = b.direct[0].model_copy(update={"blind_id": task.blind_id, "input_hash": task.text_hash})
     report = candidate_comparison(
         **{
@@ -234,6 +253,7 @@ def test_heldout_comparison_and_common_candidate_coverage() -> None:
             "reference": reference,
             "annotations": (annotation,),
             "outputs": (output,),
+            "acceptance_criteria": criteria,
             "split": "heldout",
         }
     )
@@ -242,11 +262,18 @@ def test_heldout_comparison_and_common_candidate_coverage() -> None:
     plan = kwargs["plan"].model_copy(
         update={"candidate_spec_hashes": (b.judge.artifact_hash, second.artifact_hash)}
     )
+    criteria = kwargs["acceptance_criteria"].model_copy(update={"plan_hash": plan.artifact_hash})
     partial_outputs = tuple(
         o.model_copy(update={"judge_spec_hash": second.artifact_hash}) for o in b.direct[:1]
     )
     report = candidate_comparison(
-        **{**kwargs, "plan": plan, "candidates": (b.judge, second), "outputs": (*b.direct, *partial_outputs)}
+        **{
+            **kwargs,
+            "plan": plan,
+            "candidates": (b.judge, second),
+            "outputs": (*b.direct, *partial_outputs),
+            "acceptance_criteria": criteria,
+        }
     )
     assert len(report["common_complete_ids"]) == 1
     assert all(c["common_complete_set_metrics"]["complete_pairs"] == 1 for c in report["candidates"])
