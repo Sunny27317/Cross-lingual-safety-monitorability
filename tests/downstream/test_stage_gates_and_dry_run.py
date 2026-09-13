@@ -15,6 +15,10 @@ def test_stage_gate_ledger_rejects_stale_or_missing_approval() -> None:
         gate=StageGate.G2_REFERENCE_PROTOCOL,
         subject_hash=protocol,
         evidence_hash=content_hash("evidence"),
+        artifact_role="calibration_human_reference",
+        bound_artifact_hash=content_hash("calibration reference"),
+        protocol_version="final-protocol/1",
+        packet_schema_hash=content_hash("packet schema"),
         approver="synthetic-approver",
         approved_utc="2026-09-12T00:00:00+00:00",
         approval_signature="synthetic-signature",
@@ -27,6 +31,31 @@ def test_stage_gate_ledger_rejects_stale_or_missing_approval() -> None:
         ledger.require(StageGate.G3_RATER_RECRUITMENT)
     with pytest.raises(ValueError, match="missing"):
         ledger.require_through(StageGate.G3_RATER_RECRUITMENT)
+
+
+def test_g4_requires_role_and_exact_reference_artifact() -> None:
+    protocol = content_hash("synthetic protocol")
+    approval = StageApproval(
+        gate=StageGate.G4_REFERENCE_LOCKED,
+        subject_hash=protocol,
+        evidence_hash=content_hash("lock evidence"),
+        artifact_role="urdu_confirmatory_human_reference",
+        bound_artifact_hash=content_hash("urdu reference"),
+        protocol_version="final-protocol/1",
+        approver="synthetic-approver",
+        approved_utc="2026-09-12T00:00:00+00:00",
+        approval_signature="synthetic-signature",
+        decision_record="synthetic only",
+        provenance=synthetic_provenance(),
+    )
+    ledger = StageGateLedger(protocol_hash=protocol, approvals=(approval,))
+    assert ledger.require(
+        StageGate.G4_REFERENCE_LOCKED,
+        artifact_role="urdu_confirmatory_human_reference",
+        artifact_hash=approval.bound_artifact_hash,
+    ).artifact_role == "urdu_confirmatory_human_reference"
+    with pytest.raises(ValueError, match="missing"):
+        ledger.require(StageGate.G4_REFERENCE_LOCKED, artifact_role="calibration_human_reference")
 
 
 def test_scientific_manifest_requires_authorization() -> None:

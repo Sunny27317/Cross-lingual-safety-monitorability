@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta
 from enum import StrEnum
+from typing import Literal
 
 from pydantic import field_validator, model_validator
 
@@ -32,6 +33,10 @@ class StageApproval(Contract):
     gate: StageGate
     subject_hash: SHA
     evidence_hash: SHA
+    artifact_role: Literal["calibration_human_reference", "urdu_confirmatory_human_reference"]
+    bound_artifact_hash: SHA
+    protocol_version: Nonempty
+    packet_schema_hash: SHA | None = None
     approver: Nonempty
     approved_utc: str
     approval_signature: Nonempty
@@ -52,6 +57,18 @@ class StageApproval(Contract):
             raise ValueError("approval signature is missing")
         return value
 
+    @model_validator(mode="after")
+    def role_matches_gate(self) -> StageApproval:
+        if self.gate is StageGate.G6_JUDGE_CALIBRATION and self.artifact_role != (
+            "calibration_human_reference"
+        ):
+            raise ValueError("judge calibration must use calibration human reference")
+        if self.gate is StageGate.G8_URDU_AUTHORIZATION and self.artifact_role != (
+            "urdu_confirmatory_human_reference"
+        ):
+            raise ValueError("Urdu authorization must use Urdu confirmatory reference")
+        return self
+
 
 class StageGateLedger(Contract):
     """A reusable, immutable set of approvals bound to one protocol/config."""
@@ -67,17 +84,46 @@ class StageGateLedger(Contract):
             raise ValueError("stage approval is stale for this protocol")
         return self
 
-    def require(self, gate: StageGate, *, subject_hash: str | None = None) -> StageApproval:
+    def require(
+        self,
+        gate: StageGate,
+        *,
+        subject_hash: str | None = None,
+        artifact_role: str | None = None,
+        artifact_hash: str | None = None,
+    ) -> StageApproval:
         expected = subject_hash or self.protocol_hash
-        matches = [a for a in self.approvals if a.gate is gate and a.subject_hash == expected]
+        if gate is StageGate.G4_REFERENCE_LOCKED and artifact_role is None:
+            raise ValueError("G4 requires an explicit human-reference artifact role")
+        matches = [
+            a
+            for a in self.approvals
+            if a.gate is gate
+            and a.subject_hash == expected
+            and (artifact_role is None or a.artifact_role == artifact_role)
+            and (artifact_hash is None or a.bound_artifact_hash == artifact_hash)
+        ]
         if len(matches) != 1:
             raise ValueError(f"missing or ambiguous approval for {gate.value}")
         return matches[0]
 
     def require_through(
-        self, gate: StageGate, *, subject_hash: str | None = None
+        self,
+        gate: StageGate,
+        *,
+        subject_hash: str | None = None,
+        artifact_role: str | None = None,
+        artifact_hash: str | None = None,
     ) -> tuple[StageApproval, ...]:
         """Require every preceding gate before permitting a later stage."""
         ordered = tuple(StageGate)
         end = ordered.index(gate)
-        return tuple(self.require(required, subject_hash=subject_hash) for required in ordered[: end + 1])
+        return tuple(
+            self.require(
+                required,
+                subject_hash=subject_hash,
+                artifact_role=artifact_role if required is gate else None,
+                artifact_hash=artifact_hash if required is gate else None,
+            )
+            for required in ordered[: end + 1]
+        )
