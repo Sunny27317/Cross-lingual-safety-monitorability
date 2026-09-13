@@ -94,6 +94,17 @@ This is the entirety of the PR #27 fix. It does not touch partitions, matching,
 acceptance criteria, or the simulation module, all of which were reviewed and found
 correct.
 
+**Status update:** PR #27 has since pushed its own fix (commit `78c206d`,
+"close paraphrase mechanism gate") independently of this document. It correctly closes
+the zero-English-task case (`if not expected: raise ValueError(...)`) and independently
+resolved §2's identity-key ambiguity the same way this document does. It does **not**
+yet implement the confirmatory-item-ID coverage check above: a packet with even one
+unrelated English task still passes today, without checking that every confirmatory-
+sample source item specifically has an anchor. The gap is narrower than before, but
+`confirmatory_item_ids ⊆ english_anchor_items` is still not enforced. This is a
+scientific requirement PR #27 must still satisfy, not a new finding invalidated by the
+partial fix.
+
 ## 2. H/D/T identity key — resolving the `language` field ambiguity
 
 `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 13 (D-073) froze the identity key
@@ -259,7 +270,10 @@ sign-off fields in `research/SUPERVISOR_DECISION_PACKET.md`.
 
 Version `final-protocol/1`. This document and its accompanying additions are recorded
 under `literature/DECISION_LOG.md` **D-074**. D-073 had reserved `D-074` as the target
-for renumbering PR #19's colliding `D-069` entry; that target now moves to **D-075**
-(the next free number after this entry), recorded in both D-073 and D-074 to avoid a
-second collision. Exact file hash is reported at commit time, not embedded here, to
+for renumbering PR #19's colliding `D-069` entry; that target is now invalid, and — as
+of this writing — so is the next guess, `D-075`, since PR #27 independently claimed it
+concurrently. PR #19's actual renumbering target must be recomputed from `main`'s real
+state at merge time, never hardcoded here (see D-073 and D-074 in `literature/
+DECISION_LOG.md` for the full history of this repeatedly-invalidated guess). Exact file
+hash is reported at commit time, not embedded here, to
 avoid a self-referential hash.

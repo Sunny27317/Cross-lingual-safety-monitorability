@@ -362,19 +362,22 @@ Track B and all frozen Track-A scientific parameters exactly as they are.
    as engineering scaffolding for the post-pilot design freeze. **Do not merge it. Do not
    touch, comment on, or merge PR #19.**
 9. **Only at the actual moment PR #19 is merged** (a separate, later, human-approved
-   event): renumber PR #19's `D-069` entry to the next free number on `main` at that
-   time (`D-075` as of the later `research/FINAL_PROTOCOL.md` pass in this same PR,
-   which took `D-074` before PR #19 merged; recheck at merge time in case another PR
-   has landed since).
+   event): renumber PR #19's `D-069` entry to **whatever the next free `D-` number
+   actually is on `main` at that moment** — do not hardcode a number here. Both `D-074`
+   (taken by this same PR's later `research/FINAL_PROTOCOL.md` pass) and `D-075` (taken
+   independently by PR #27) have already been claimed by other work before PR #19
+   merged; recompute at merge time rather than trusting any number written in advance.
 
 ## Decision-log status
 
 This document is accompanied by `literature/DECISION_LOG.md` entry **D-073**. PR #19's
-still-open `D-069` entry must be renumbered to **D-075** (not `D-074` — `D-074` was
-subsequently taken by `research/FINAL_PROTOCOL.md`'s decision entry in this same PR,
-before PR #19 merged) at PR #19's merge time, not before — updating the guidance left by
-the prior audit (`research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2), which correctly identified the collision
-before this document existed.
+still-open `D-069` entry must be renumbered at merge time to whatever `main`'s actual
+next free `D-` number is then — **not** a number fixed in this text. `D-074` was
+subsequently taken by `research/FINAL_PROTOCOL.md`'s decision entry in this same PR, and
+`D-075` was independently taken by PR #27, both before PR #19 merged — updating the
+guidance left by the prior audit (`research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2), which
+correctly identified the collision before this document existed, and which this
+document's own now-superseded `D-074`/`D-075` guesses illustrate rather than solve.
 
 ## Scope note
 

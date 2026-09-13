@@ -2283,11 +2283,15 @@ are reversed by a **new** entry, not by deleting an old one.
   synthetic-ground-truth simulation study — and is handed to Codex as an ordinary
   engineering task (see `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 20.3), not left
   as an open scientific question requiring investigator judgment.
-- **Consequence for PR #19:** its own `D-069` entry must be renumbered to **D-075**
-  (superseding this entry's original note, which said D-074; D-074 was subsequently
-  used by the final-protocol pass below, before PR #19 merged) at PR #19's merge time,
-  recheck at merge time, updating the collision first flagged in `research/
-  SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2 (which named `D-073` as
+- **Consequence for PR #19:** its own `D-069` entry must be renumbered at PR #19's
+  merge time to **whatever the next free `D-` number actually is on `main` at that
+  moment** — do not hardcode a specific number in advance. This entry originally
+  named `D-074` as the target; D-074 was then used by the final-protocol pass below
+  (D-074) before PR #19 merged, and separately, PR #27 (`research/
+  final-scientific-execution-readiness`) independently added its own `D-075` entry
+  whose text still (incorrectly, as of this correction) claims `D-074` is reserved
+  for PR #19 — a second live instance of the exact cross-branch numbering collision
+  first flagged in `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2 (which named `D-073` as
   the target before this entry existed).
 - **Full detail:** `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md`.
 - **STOP:** no judge call, translation, Urdu inference, human annotation, or
@@ -2332,10 +2336,16 @@ are reversed by a **new** entry, not by deleting an old one.
   `paper/main.md` expanded (title options, claim ledger, threats to validity, empty
   result-table skeletons, discussion scaffolding, appendix structure) with no Results/
   Discussion/Conclusion content written.
-- **Renumbering correction:** D-073 and `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md`
-  originally targeted `D-074` as PR #19's renumbering destination for its colliding
-  `D-069`. This entry takes `D-074`, so that target is corrected to **D-075** in both
-  places (edited before merge; PR #19 itself untouched).
+- **Renumbering correction, and a live third instance of the same collision:** D-073
+  and `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` originally targeted `D-074` as PR
+  #19's renumbering destination. This entry takes `D-074`, invalidating that target —
+  fixed in both places (edited before merge; PR #19 itself untouched) to say
+  "recompute at merge time" rather than a hardcoded number. **This correction is
+  itself already stale**: PR #27, branched before this entry existed, independently
+  added its own `D-075` entry whose text claims `D-074` is reserved for PR #19. Do
+  not trust any specific number written in D-073, this entry, or PR #27's D-075 by
+  the time PR #19 actually merges — recompute from `main`'s actual highest `D-`
+  number plus whatever else has merged in between.
 - **Independence:** this entry did not read `generations.jsonl`, PR #19's checkout
   beyond its committed `PILOT_REPORT.md`, or any raw pilot output. PR #19 is not merged,
   commented on for merge, or modified by this entry.
