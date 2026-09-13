@@ -1,6 +1,6 @@
 # Track-A pre-run snapshot — 2026-09-11
 
-**PRE-OUTCOME. AUTHORIZED TO RUN: NO.** This branch incorporates current main
+**Historical pre-run state (before authorization): AUTHORIZED TO RUN: NO.** This branch incorporates current main
 `9ce491f7b6fb4dd4426168499a09b3c0b7e6f758` (PR #20) through the conflict-resolution
 merge. PR #20 retains D-069–D-072; the PR #19 llama.cpp stop-reason decision is now
 **D-078**. Scientific parameters and the scientific config hash are unchanged.
