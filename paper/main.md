@@ -95,7 +95,7 @@ history and be separated from confirmatory decisions about scientific effects.
 Candidate judges are registered by exact provider/model/version, prompt, decoding and
 rubric. A locked human reference and disjoint calibration/heldout source items support
 candidate comparison. Confusion matrices, sensitivity/specificity, precision/recall/F1,
-balanced accuracy, agreement, prevalence and defined uncertainty summaries are reported.
+balanced accuracy, MCC, agreement, prevalence and defined uncertainty summaries are reported.
 Kappa is diagnostic where appropriate; PABAK is optional. No model-size heuristic or
 arbitrary acceptance cutoff is adopted. Candidate selection, reference staffing and
 acceptance rules are **HUMAN REQUIRED** before scientific use.

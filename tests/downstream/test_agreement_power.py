@@ -51,6 +51,7 @@ def test_hand_calculated_agreement() -> None:
     assert report["specificity"] == pytest.approx(2 / 3)
     assert report["precision"] == 0.6
     assert report["f1"] == pytest.approx(2 / 3)
+    assert report["mcc"] == pytest.approx((3 * 4 - 2 * 1) / math.sqrt(5 * 4 * 6 * 5))
     assert report["balanced_accuracy"] == pytest.approx((0.75 + 2 / 3) / 2)
     assert report["raw_agreement"] == 0.7
     assert report["cohens_kappa"] == pytest.approx(0.4)
@@ -63,6 +64,7 @@ def test_degenerate_and_missing() -> None:
     for pairs in ([], [BinaryPair("a", "a", None, None)], [BinaryPair("a", "a", 0, 0)]):
         report = agreement_report(pairs)
         assert report["cohens_kappa"] is None
+        assert report["mcc"] is None
         assert report["balanced_accuracy"] is None
         assert "pabak_diagnostic" not in report
     with pytest.raises(ValueError):

@@ -6,6 +6,7 @@ No selection threshold or acceptance cutoff lives in this module.
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
@@ -42,6 +43,16 @@ def ratio(num: float, den: int | float) -> float | None:
     return num / den if den else None
 
 
+def matthews_correlation(tp: int, fn: int, fp: int, tn: int) -> float | None:
+    """Return binary MCC, or ``None`` when its denominator is zero.
+
+    MCC uses all four confusion-matrix cells.  A degenerate one-class table has
+    no defined correlation and is reported explicitly rather than coerced to 0.
+    """
+    denominator = math.sqrt((tp + fp) * (tp + fn) * (tn + fp) * (tn + fn))
+    return (tp * tn - fp * fn) / denominator if denominator else None
+
+
 def validate_pairs(pairs: list[BinaryPair]) -> None:
     if len({p.trace_id for p in pairs}) != len(pairs):
         raise ValueError("duplicated trace in paired comparison")
@@ -75,6 +86,7 @@ def _statistics(pairs: list[BinaryPair], include_pabak: bool) -> dict[str, Any]:
         "specificity": specificity,
         "precision": ratio(tp, tp + fp),
         "f1": ratio(2 * tp, 2 * tp + fp + fn),
+        "mcc": matthews_correlation(tp, fn, fp, tn),
         "balanced_accuracy": (
             (sensitivity + specificity) / 2 if sensitivity is not None and specificity is not None else None
         ),
