@@ -30,7 +30,7 @@ Decision map:
 | PR #26 D-073 | D-073 |
 | PR #26 D-074 | D-074 |
 | PR #27 D-075 | D-075 |
-| PR #19 D-073 | **D-077 at PR #19 merge time**, recomputed from actual main if other entries merge first |
+| PR #19 D-069 | **D-077 at PR #19 merge time**, recomputed from actual main if other entries merge first |
 
 The integration branch contains `research/FINAL_PROTOCOL.md` version
 `final-protocol/1`, byte hash
