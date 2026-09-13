@@ -2354,6 +2354,20 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ---
 
+## D-075 — Freeze-authorized downstream execution guards
+- **Date:** 2026-09-12. **PRE-OUTCOME; engineering only.** This entry is retained
+  from PR #27. The PR #19 decision number remains a merge-time allocation and must
+  be recomputed from the actual main history.
+- **FROZEN engineering:** source-item partitions are deterministic and disjoint;
+  judge scoring requires investigator-signed, plan-hash-bound acceptance criteria
+  dated before candidate outputs; human/direct/translated comparisons require the
+  exact source-item/condition/language/seed/generation identity key; and a
+  language-mechanism claim requires a usable English-to-English paraphrase control
+  for every English anchor task.
+- **PRESERVED:** no judge, translator, Urdu inference, human annotation, threshold,
+  SESOI or confirmatory N is selected by this change. Clustered-method validation is
+  synthetic smoke/operating-characteristic tooling only and cannot freeze a test.
+
 ## D-076 — Deep PR #27 re-review (commit `23f0718`); two new findings; supervisor
 ## handoff and human-execution checklist added
 - **Date:** 2026-09-13. **PRE-OUTCOME; no scientific data generated.** Numbered `D-076`
