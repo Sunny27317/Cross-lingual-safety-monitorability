@@ -95,11 +95,18 @@ class StageGateLedger(Contract):
         expected = subject_hash or self.protocol_hash
         if gate is StageGate.G4_REFERENCE_LOCKED and artifact_role is None:
             raise ValueError("G4 requires an explicit human-reference artifact role")
+        required_role = {
+            StageGate.G6_JUDGE_CALIBRATION: "calibration_human_reference",
+            StageGate.G8_URDU_AUTHORIZATION: "urdu_confirmatory_human_reference",
+        }.get(gate)
+        if required_role is not None and artifact_role not in (None, required_role):
+            raise ValueError(f"{gate.value} requires {required_role} artifact")
         matches = [
             a
             for a in self.approvals
             if a.gate is gate
             and a.subject_hash == expected
+            and (required_role is None or a.artifact_role == required_role)
             and (artifact_role is None or a.artifact_role == artifact_role)
             and (artifact_hash is None or a.bound_artifact_hash == artifact_hash)
         ]
@@ -114,16 +121,45 @@ class StageGateLedger(Contract):
         subject_hash: str | None = None,
         artifact_role: str | None = None,
         artifact_hash: str | None = None,
+        g4_artifact_role: Literal[
+            "calibration_human_reference", "urdu_confirmatory_human_reference"
+        ]
+        | None = None,
+        g4_artifact_hash: str | None = None,
     ) -> tuple[StageApproval, ...]:
-        """Require every preceding gate before permitting a later stage."""
+        """Require every preceding gate with explicit G4 provenance.
+
+        G4 is a prerequisite with its own human-reference artifact identity;
+        its role and hash must be supplied independently of the target gate's
+        provenance.  This prevents a later gate's role from being reused as an
+        implicit authorization for G4.
+        """
         ordered = tuple(StageGate)
         end = ordered.index(gate)
+        g4_index = ordered.index(StageGate.G4_REFERENCE_LOCKED)
+        if (
+            end >= g4_index
+            and gate is not StageGate.G4_REFERENCE_LOCKED
+            and (g4_artifact_role is None or g4_artifact_hash is None)
+        ):
+            raise ValueError("G4 prerequisite artifact role and hash are required")
+
+        def provenance(required: StageGate) -> tuple[str | None, str | None]:
+            if required is StageGate.G4_REFERENCE_LOCKED:
+                if gate is StageGate.G4_REFERENCE_LOCKED:
+                    return artifact_role, artifact_hash
+                return g4_artifact_role, g4_artifact_hash
+            if required is gate:
+                return artifact_role, artifact_hash
+            return None, None
+
         return tuple(
             self.require(
                 required,
                 subject_hash=subject_hash,
-                artifact_role=artifact_role if required is gate else None,
-                artifact_hash=artifact_hash if required is gate else None,
+                artifact_role=role,
+                artifact_hash=bound_hash,
             )
             for required in ordered[: end + 1]
+            for role, bound_hash in (provenance(required),)
         )
