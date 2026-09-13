@@ -127,6 +127,7 @@ def validate_cluster_method(
                 "scenario": scenario.__dict__,
                 "true_delta": scenario.delta,
                 "defined_intervals": defined,
+                "failure_count": simulations - defined,
                 "rejection_rate": rejections / defined if defined else None,
                 "coverage": covered / defined if defined else None,
                 "monte_carlo_se_rejection": math.sqrt(

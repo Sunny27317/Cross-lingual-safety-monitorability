@@ -4,7 +4,10 @@ import pytest
 from tests.downstream.test_calibration_mcq import comparison_arguments
 
 from clsm.downstream.analysis import measurement_report
-from clsm.downstream.calibration import candidate_comparison
+from clsm.downstream.calibration import (
+    candidate_comparison,
+    finalize_calibration_acceptance,
+)
 from clsm.downstream.matching import TraceIdentityKey, validate_hdt_identity_keys
 from clsm.downstream.partitions import assign_source_items, partition_manifest_hash
 from clsm.downstream.simulation_validation import (
@@ -100,3 +103,91 @@ def test_mechanism_claim_rejects_missing_english_control() -> None:
     translations = tuple(x for x in bundle.translations if x[0].control.value != "english_paraphrase")
     with pytest.raises(ValueError, match="paraphrase control"):
         validate_english_paraphrase_control(bundle.packet, translations)
+
+
+def test_confirmatory_items_require_source_matched_english_anchors() -> None:
+    from clsm.downstream.fixtures import synthetic_bundle
+    from clsm.downstream.translation import validate_english_paraphrase_control
+
+    bundle = synthetic_bundle()
+    english = next(t for t in bundle.packet.tasks if t.language == "en")
+    mapping = {english.blind_id: "item-confirmatory"}
+    with pytest.raises(ValueError, match="source-matched"):
+        validate_english_paraphrase_control(
+            bundle.packet,
+            bundle.translations,
+            confirmatory_item_ids={"item-confirmatory"},
+            english_anchor_item_ids={"different-item"},
+            source_item_by_blind_id=mapping,
+        )
+
+
+def test_confirmatory_anchor_coverage_passes_when_complete() -> None:
+    from clsm.downstream.fixtures import synthetic_bundle
+    from clsm.downstream.translation import validate_english_paraphrase_control
+
+    bundle = synthetic_bundle()
+    english = next(t for t in bundle.packet.tasks if t.language == "en")
+    mapping = {english.blind_id: "item-confirmatory"}
+    validate_english_paraphrase_control(
+        bundle.packet,
+        bundle.translations,
+        confirmatory_item_ids={"item-confirmatory"},
+        english_anchor_item_ids={"item-confirmatory"},
+        source_item_by_blind_id=mapping,
+    )
+
+
+def test_rendered_and_judge_language_are_separate_from_source_identity() -> None:
+    from clsm.downstream.matching import MatchedHDTP, TraceIdentityKey
+
+    identity = TraceIdentityKey(
+        source_item_id="item",
+        condition="control",
+        language="ur",
+        seed=0,
+        generation_id="generation",
+    )
+    hashes = {"human_label_id": "1" * 64, "direct_label_id": "2" * 64}
+    with pytest.raises(ValueError, match="judge input language"):
+        MatchedHDTP(
+            identity=identity,
+            source_trace_hash="3" * 64,
+            rendered_language="en",
+            judge_input_language="ur",
+            **hashes,
+            translated_label_id=None,
+            paraphrase_label_id=None,
+            translation_or_rewrite_hash=None,
+        )
+
+
+def test_calibration_acceptance_cannot_bypass_human_decision() -> None:
+    kwargs = comparison_arguments()
+    comparison = candidate_comparison(**kwargs)
+    candidate = kwargs["candidates"][0].candidate_id
+    with pytest.raises(ValueError, match="signed investigator decision"):
+        finalize_calibration_acceptance(
+            comparison,
+            kwargs["acceptance_criteria"],
+            candidate_id=candidate,
+            investigator_decision="accepted",
+            decision_signature="PENDING",
+        )
+    result = finalize_calibration_acceptance(
+        comparison,
+        kwargs["acceptance_criteria"],
+        candidate_id=candidate,
+        investigator_decision="accepted",
+        decision_signature="synthetic-human-signature",
+    )
+    assert result["passed"] is True
+
+
+def test_unsigned_acceptance_criteria_are_rejected_before_scoring() -> None:
+    kwargs = comparison_arguments()
+    unsigned = kwargs["acceptance_criteria"].model_copy(
+        update={"investigator_signature": "UNSIGNED"}
+    )
+    with pytest.raises(ValueError, match="signature"):
+        candidate_comparison(**{**kwargs, "acceptance_criteria": unsigned})

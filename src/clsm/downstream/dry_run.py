@@ -24,6 +24,7 @@ def synthetic_downstream_dry_run() -> dict[str, Any]:
         identity=identity,
         source_trace_hash=content_hash("synthetic-source-trace"),
         rendered_language="en",
+        judge_input_language="en",
         human_label_id=bundle.reference.labels[0].source_annotation_hashes[0],
         direct_label_id=bundle.direct[0].raw_response_hash,
         translated_label_id=bundle.translated[0].raw_response_hash,

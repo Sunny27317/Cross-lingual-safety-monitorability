@@ -36,16 +36,16 @@ choose confirmatory N, SESOI, or an acceptance threshold.
 
 ## Larger synthetic-only check (not a freeze)
 
-The following wider check was run after the smoke report with 1,000 simulations
-per cell, 100 bootstrap replicates, alpha 0.05, and seed `20260912`. It is still
+The following wider check was run after the smoke report with 2,000 simulations
+per cell, 1,000 bootstrap replicates, alpha 0.05, and seed `20260912`. It is still
 an engineering diagnostic, not evidence for the study's confirmatory design.
 
 | scenario (items, traces/item, p+, p-, ICC, missing, informative missing) | true delta | rejection | coverage | rejection MCSE | coverage MCSE |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| (8, 3, .20, .20, 0, 0, 0) | 0.00 | 0.113 | 0.887 | 0.0100 | 0.0100 |
-| (16, 4, .15, .15, .2, .05, 0) | 0.00 | 0.082 | 0.918 | 0.0087 | 0.0087 |
-| (32, 6, .20, .10, .4, .1, 0) | 0.10 | 0.370 | 0.918 | 0.0153 | 0.0087 |
-| (32, 6, .10, .10, .4, .1, .2) | 0.00 | 0.085 | 0.915 | 0.0088 | 0.0088 |
+| (8, 3, .20, .20, 0, 0, 0) | 0.00 | 0.1065 | 0.8935 | 0.0069 | 0.0069 |
+| (16, 4, .15, .15, .2, .05, 0) | 0.00 | 0.0570 | 0.9430 | 0.0052 | 0.0052 |
+| (32, 6, .20, .10, .4, .1, 0) | 0.10 | 0.3365 | 0.9285 | 0.0106 | 0.0058 |
+| (32, 6, .10, .10, .4, .1, .2) | 0.00 | 0.0680 | 0.9320 | 0.0056 | 0.0056 |
 
-The larger artifact hash is
-`d45b82e7ff99fc491473623c47586699098b3215ba059d7712b63e22c60dc342`.
+All four cells had zero undefined/failure intervals. The larger artifact hash is
+`2cf0118bf0865535d1b1e43813d883d3023261f6c20fbfcabd7e17064b2eabb1`.

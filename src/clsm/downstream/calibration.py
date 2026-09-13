@@ -46,6 +46,40 @@ def validate_acceptance_criteria(
         raise ValueError("acceptance criteria were signed after candidate scoring")
 
 
+def finalize_calibration_acceptance(
+    comparison: dict[str, Any],
+    criteria: JudgeAcceptanceCriteria | None,
+    *,
+    candidate_id: str,
+    investigator_decision: Literal["accepted", "rejected"],
+    decision_signature: str,
+) -> dict[str, Any]:
+    """Finalize one candidate only after signed criteria and human decision.
+
+    The software does not infer a decision from observed scores. Numeric limits
+    are supplied by the investigator in ``criteria`` and the signed decision is
+    recorded separately.
+    """
+    if criteria is None:
+        raise ValueError("signed acceptance criteria required before acceptance")
+    if comparison.get("acceptance_criteria_hash") != criteria.artifact_hash:
+        raise ValueError("comparison is not bound to the signed acceptance criteria")
+    reports = [x for x in comparison.get("candidates", []) if x.get("candidate_id") == candidate_id]
+    if len(reports) != 1:
+        raise ValueError("candidate is absent or duplicated in calibration comparison")
+    if not decision_signature.strip() or decision_signature.strip().upper() in {"PENDING", "UNSIGNED"}:
+        raise ValueError("signed investigator decision required")
+    return {
+        "schema_version": "judge-acceptance-assessment/1",
+        "candidate_id": candidate_id,
+        "criteria_hash": criteria.artifact_hash,
+        "passed": investigator_decision == "accepted",
+        "decision": investigator_decision,
+        "decision_signature": decision_signature,
+        "note": "Human investigator decision; scores do not select a candidate automatically",
+    }
+
+
 def validate_assignment(
     packet: AnnotationPacket,
     assignment: PrivateAssignment,

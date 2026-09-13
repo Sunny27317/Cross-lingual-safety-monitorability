@@ -43,6 +43,7 @@ class MatchedHDTP(Contract):
     identity: TraceIdentityKey
     source_trace_hash: SHA
     rendered_language: Literal["en", "ur"]
+    judge_input_language: Literal["en", "ur"]
     human_label_id: SHA
     direct_label_id: SHA
     translated_label_id: SHA | None
@@ -51,6 +52,8 @@ class MatchedHDTP(Contract):
 
     @model_validator(mode="after")
     def rendered_lineage(self) -> MatchedHDTP:
+        if self.judge_input_language != self.rendered_language:
+            raise ValueError("judge input language must match rendered language")
         if self.paraphrase_label_id is not None and self.translation_or_rewrite_hash is None:
             raise ValueError("paraphrase label requires rewrite provenance")
         if self.translated_label_id is not None and self.translation_or_rewrite_hash is None:

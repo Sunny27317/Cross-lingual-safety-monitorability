@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Collection, Mapping
 from typing import Any
 
 from clsm.downstream.agreement import (
@@ -70,6 +71,9 @@ def measurement_report(
     translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...],
     resampling: ResamplingPlan | None = None,
     mechanism_claim: bool = False,
+    confirmatory_item_ids: Collection[str] | None = None,
+    english_anchor_item_ids: Collection[str] | None = None,
+    source_item_by_blind_id: Mapping[str, str] | None = None,
 ) -> dict[str, Any]:
     validate_assignment(packet, assignment, traces)
     validate_reference(reference, annotations, packet)
@@ -107,7 +111,13 @@ def measurement_report(
         except ValueError:
             unusable.append(request.blind_id)
     if mechanism_claim:
-        validate_english_paraphrase_control(packet, translations)
+        validate_english_paraphrase_control(
+            packet,
+            translations,
+            confirmatory_item_ids=confirmatory_item_ids,
+            english_anchor_item_ids=english_anchor_item_ids,
+            source_item_by_blind_id=source_item_by_blind_id,
+        )
     for output in direct:
         if output.blind_id not in tasks:
             raise ValueError("direct output not in locked trace set")
@@ -206,6 +216,9 @@ class MeasurementBundle(Contract):
     translated: tuple[JudgeOutput, ...]
     translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...]
     mechanism_claim: bool = False
+    confirmatory_item_ids: tuple[str, ...] | None = None
+    english_anchor_item_ids: tuple[str, ...] | None = None
+    source_item_by_blind_id: dict[str, str] | None = None
 
 
 def analyze_bundle(bundle: MeasurementBundle, *, resampling: ResamplingPlan | None = None) -> dict[str, Any]:
@@ -223,4 +236,7 @@ def analyze_bundle(bundle: MeasurementBundle, *, resampling: ResamplingPlan | No
         translations=bundle.translations,
         resampling=resampling,
         mechanism_claim=bundle.mechanism_claim,
+        confirmatory_item_ids=bundle.confirmatory_item_ids,
+        english_anchor_item_ids=bundle.english_anchor_item_ids,
+        source_item_by_blind_id=bundle.source_item_by_blind_id,
     )
