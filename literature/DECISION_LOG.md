@@ -2248,3 +2248,45 @@ are reversed by a **new** entry, not by deleting an old one.
   remain private. Schemas/hashes do not establish competence, consent or permission.
 - **STOP:** engineering and synthetic validation only. Downstream scientific stages
   remain unauthorized; this PR must not be merged by the infrastructure agent.
+
+---
+
+## D-073 — Next-stage scientific freeze: post-English-pilot design decisions closed
+- **Date:** 2026-09-12. Written after PR #19's English pilot reports complete
+  (800/800, integrity PASS WITH DOCUMENTED LIMITATIONS) but **before PR #19 merges**;
+  PR #19 remains open, unmerged and untouched by this entry. This decision was made by
+  reading PR #19's committed `PILOT_REPORT.md` only (not `generations.jsonl`, not any
+  raw output) plus the full merged PR #20–#25 methods/readiness package.
+- **FROZEN (design, not execution):** the primary/secondary/exploratory estimand
+  definitions (`G = mean(H-D)`, `R = mean(T-D)`, agreement-recovery diagnostic) restated
+  unchanged from D-059/D-070; the five-category disclosure-construct rubric and its
+  binary mapping (three independent prior reviews converged without dissent); the human
+  annotation, blinding/adjudication, Urdu-equivalence, and judge-calibration
+  *procedures* verbatim from the existing methods package; the GPT-5.4/Claude Sonnet 4.6
+  judge candidate shortlist as closed (no further candidate search warranted); a
+  four-way item-disjoint partition rule (rubric-training/calibration/heldout/
+  confirmatory) assigned by deterministic seeded source-item ID, newly specified; an
+  explicit H/D/T same-trace identity-key requirement, newly specified; the
+  English-to-English paraphrase control escalated from SHOULD to **MUST HAVE**, because
+  this project's own framing of `R` is a language-specific-mechanism claim; the
+  descriptive/confirmatory demarcation list.
+- **EXPLICITLY NOT FROZEN, still HUMAN REQUIRED:** any numeric judge acceptance
+  threshold (only the *shape* of the sign-off record is frozen — investigator-supplied
+  error-cost judgment fields, timestamped and hashed before heldout scoring); final
+  judge/translator selection and cost/terms approval; human rater/adjudicator
+  recruitment, competence verification, consent and compensation; institutional ethics
+  determination; confirmatory SESOI/alpha/target power/multiplicity/N; storage/release
+  governance sign-off; the Urdu-language wording of the rubric.
+- **ONE GENUINE ENGINEERING UNBLOCK, NOT A HUMAN GATE:** the confirmatory cluster-robust
+  test/interval for `G`/`R` still has no simulation-validated type-I error/coverage.
+  This requires no real data, no judge, no translator and no human label — only a
+  synthetic-ground-truth simulation study — and is handed to Codex as an ordinary
+  engineering task (see `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 20.3), not left
+  as an open scientific question requiring investigator judgment.
+- **Consequence for PR #19:** its own `D-069` entry must be renumbered to **D-074** (the
+  next free number after this entry) at PR #19's merge time, updating the collision
+  first flagged in `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2 (which named `D-073` as
+  the target before this entry existed).
+- **Full detail:** `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md`.
+- **STOP:** no judge call, translation, Urdu inference, human annotation, or
+  confirmatory analysis is authorized by this entry. PR #19 is not merged by this entry.
