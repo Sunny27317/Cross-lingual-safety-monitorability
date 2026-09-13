@@ -2251,7 +2251,167 @@ are reversed by a **new** entry, not by deleting an old one.
 
 ---
 
-## D-073 — Real-environment smoke finding: llama.cpp v0.4.0 (build b10809) does not expose a parseable default token-count signal; STOP-REASON stays honestly UNKNOWN, not fixed mid-flight
+## D-073 — Next-stage scientific freeze: post-English-pilot design decisions closed
+- **Date:** 2026-09-12. Written after PR #19's English pilot reports complete
+  (800/800, integrity PASS WITH DOCUMENTED LIMITATIONS) but **before PR #19 merges**;
+  PR #19 remains open, unmerged and untouched by this entry. This decision was made by
+  reading PR #19's committed `PILOT_REPORT.md` only (not `generations.jsonl`, not any
+  raw output) plus the full merged PR #20–#25 methods/readiness package.
+- **FROZEN (design, not execution):** the primary/secondary/exploratory estimand
+  definitions (`G = mean(H-D)`, `R = mean(T-D)`, agreement-recovery diagnostic) restated
+  unchanged from D-059/D-070; the five-category disclosure-construct rubric and its
+  binary mapping (three independent prior reviews converged without dissent); the human
+  annotation, blinding/adjudication, Urdu-equivalence, and judge-calibration
+  *procedures* verbatim from the existing methods package; the GPT-5.4/Claude Sonnet 4.6
+  judge candidate shortlist as closed (no further candidate search warranted); a
+  four-way item-disjoint partition rule (rubric-training/calibration/heldout/
+  confirmatory) assigned by deterministic seeded source-item ID, newly specified; an
+  explicit H/D/T same-trace identity-key requirement, newly specified; the
+  English-to-English paraphrase control escalated from SHOULD to **MUST HAVE**, because
+  this project's own framing of `R` is a language-specific-mechanism claim; the
+  descriptive/confirmatory demarcation list.
+- **EXPLICITLY NOT FROZEN, still HUMAN REQUIRED:** any numeric judge acceptance
+  threshold (only the *shape* of the sign-off record is frozen — investigator-supplied
+  error-cost judgment fields, timestamped and hashed before heldout scoring); final
+  judge/translator selection and cost/terms approval; human rater/adjudicator
+  recruitment, competence verification, consent and compensation; institutional ethics
+  determination; confirmatory SESOI/alpha/target power/multiplicity/N; storage/release
+  governance sign-off; the Urdu-language wording of the rubric.
+- **ONE GENUINE ENGINEERING UNBLOCK, NOT A HUMAN GATE:** the confirmatory cluster-robust
+  test/interval for `G`/`R` still has no simulation-validated type-I error/coverage.
+  This requires no real data, no judge, no translator and no human label — only a
+  synthetic-ground-truth simulation study — and is handed to Codex as an ordinary
+  engineering task (see `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 20.3), not left
+  as an open scientific question requiring investigator judgment.
+- **Consequence for PR #19:** its own `D-069` entry must be renumbered at PR #19's
+  merge time to **whatever the next free `D-` number actually is on `main` at that
+  moment** — do not hardcode a specific number in advance. This entry originally
+  named `D-074` as the target; D-074 was then used by the final-protocol pass below
+  (D-074) before PR #19 merged, and separately, PR #27 (`research/
+  final-scientific-execution-readiness`) independently added its own `D-075` entry
+  whose text still (incorrectly, as of this correction) claims `D-074` is reserved
+  for PR #19 — a second live instance of the exact cross-branch numbering collision
+  first flagged in `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2 (which named `D-073` as
+  the target before this entry existed).
+- **Full detail:** `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md`.
+- **STOP:** no judge call, translation, Urdu inference, human annotation, or
+  confirmatory analysis is authorized by this entry. PR #19 is not merged by this entry.
+
+---
+
+## D-074 — Final canonical protocol; PR #27 English-anchor gap given an exact fix spec
+- **Date:** 2026-09-12. Independent review of PR #27 (open, `research/
+  final-scientific-execution-readiness`) found one confirmed, reproducible gap:
+  `validate_english_paraphrase_control()` only requires a paraphrase control for English
+  tasks already present in a packet, so a Urdu-only packet with `mechanism_claim=True`
+  passes vacuously with no English anchor arm at all — verified by direct execution
+  against the PR #27 branch in an isolated worktree, not by inspection alone.
+- **FROZEN (design, exact spec for Codex, no code changed by this entry):**
+  `research/FINAL_PROTOCOL.md` §1 specifies the exact required check (English-anchor
+  coverage over the confirmatory partition's item IDs, in addition to the existing
+  per-task paraphrase check) and the relaxed matching rule for the paraphrase record `P`
+  itself (matches its anchor by `source_item_id`/`condition`/`seed` only, since it is a
+  deliberate rewrite). §2 resolves a related ambiguity D-073's item 13 left implicit:
+  `TraceIdentityKey.language` always records the trace's own source language (`"ur"` for
+  every H/D/T row in the Urdu measurement); a separate, non-key `judge_input_language`
+  field records what a judge actually read for `D` vs. `T`.
+- **FROZEN:** a minimum simulation standard for the confirmatory cluster-test
+  validation (`research/FINAL_PROTOCOL.md` §3) — ≥1,000 bootstrap replicates, ≥2,000
+  simulations/scenario, a named scenario grid covering item count/ICC/missingness/
+  informative-missingness, explicit null-scenario type-I-error and coverage checks
+  against their own Monte Carlo intervals. This responds directly to the reviewed
+  `CLUSTER_METHOD_VALIDATION.md` example (20 simulations/scenario), which is honest
+  about not being a scientific result but is not sufficient to move the confirmatory
+  test from UNRESOLVED to READY.
+- **Consolidated, not re-decided:** the statistical plan (`research/FINAL_PROTOCOL.md`
+  §4) restates `experiments/M3-English-Urdu/MEASUREMENT_VALIDITY_ANALYSIS_PLAN.md` and
+  D-073 items 16–18 as one document; no estimand, sign, exclusion, or weighting rule
+  changed.
+- **New artifacts, no scientific content:** `docs/URDU_ITEM_EQUIVALENCE_FORM.md`
+  (per-item fillable equivalence record), `experiments/M2-Monitor-Validation/
+  JUDGE_SELECTION_RECORD_TEMPLATE.md` extended with the exact `JudgeAcceptanceCriteria`
+  sign-off table, `docs/HUMAN_URDU_VALIDATION_PACKAGE.md` extended with the binary
+  mapping/uncertainty-field/repeated-item paragraphs, `research/
+  SUPERVISOR_DECISION_PACKET.md` and `research/EXECUTION_ROADMAP.md` (new), and
+  `paper/main.md` expanded (title options, claim ledger, threats to validity, empty
+  result-table skeletons, discussion scaffolding, appendix structure) with no Results/
+  Discussion/Conclusion content written.
+- **Renumbering correction, and a live third instance of the same collision:** D-073
+  and `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` originally targeted `D-074` as PR
+  #19's renumbering destination. This entry takes `D-074`, invalidating that target —
+  fixed in both places (edited before merge; PR #19 itself untouched) to say
+  "recompute at merge time" rather than a hardcoded number. **This correction is
+  itself already stale**: PR #27, branched before this entry existed, independently
+  added its own `D-075` entry whose text claims `D-074` is reserved for PR #19. Do
+  not trust any specific number written in D-073, this entry, or PR #27's D-075 by
+  the time PR #19 actually merges — recompute from `main`'s actual highest `D-`
+  number plus whatever else has merged in between.
+- **Independence:** this entry did not read `generations.jsonl`, PR #19's checkout
+  beyond its committed `PILOT_REPORT.md`, or any raw pilot output. PR #19 is not merged,
+  commented on for merge, or modified by this entry.
+- **STOP:** no judge call, translation, Urdu inference, human annotation, or
+  confirmatory analysis is authorized by this entry.
+
+---
+
+## D-076 — Deep PR #27 re-review (commit `23f0718`); two new findings; supervisor
+## handoff and human-execution checklist added
+- **Date:** 2026-09-13. **PRE-OUTCOME; no scientific data generated.** Numbered `D-076`
+  because `D-075` was independently claimed by PR #27 concurrently — the same collision
+  pattern as D-069 and D-074/D-075 before it. **Per the standing guidance in D-073/D-074,
+  do not trust this number either: recompute the real next-free number on `main` from
+  its actual state at whichever merge happens first.**
+- **Verified by direct execution against PR #27's branch (worktree, not this repo's
+  checkout):** 414 tests pass (matches Codex's report exactly); the confirmatory-item-ID
+  English-anchor coverage gap and the `TraceIdentityKey`/`judge_input_language`
+  ambiguity — both flagged in this branch's prior review — are now correctly fixed,
+  and the fix is stricter than originally specified (`research/FINAL_PROTOCOL.md` §1–2).
+- **Two new findings (full detail: `research/FINAL_PROTOCOL.md` §1a), not previously
+  identified:**
+  1. The upgraded ADEMP validation (`experiments/M4-Confirmatory/
+     CLUSTER_METHOD_VALIDATION.md`, now 2,000 simulations/scenario, 1,000 bootstrap
+     replicates, meeting this project's own minimum standard on repetition counts) shows
+     two of three null scenarios' 95% Monte Carlo intervals excluding the nominal alpha/
+     coverage target — verified by direct recomputation from the report's own published
+     numbers. This is undisclosed in the report's own text. It is evidence, not proof,
+     that the candidate confirmatory method may be anti-conservative at small item
+     counts (n=8) and higher intra-item correlation (ICC=0.4, n=32).
+  2. `StageGateLedger` (new in this PR27 commit) permits at most one approval per gate,
+     bound to a single whole-protocol hash — it cannot distinguish an English/
+     calibration-partition human-reference lock from the Urdu confirmatory-population
+     reference lock, both of which would satisfy the same G4 gate.
+- **Consequence:** PR #27 review verdict is REQUEST CHANGES on these two points only.
+  The English-anchor and identity-key fixes are correctly accepted, not reopened.
+  Neither finding requires re-architecting the bootstrap method or the gate ledger; both
+  are scoped, addressable fixes (report-text disclosure; a population-scoped
+  `subject_hash` or a split gate).
+- **Scientific-side artifacts added this pass:** `research/SUPERVISOR_HANDOFF.md` (≤10
+  minute supervisor orientation), `research/HUMAN_EXECUTION_CHECKLIST.md` (chronological
+  steps to first real annotation), `research/FINAL_CLAIM_AUDIT.md` (claim-by-claim
+  evidence ledger). No new scientific document duplicates an existing one; each
+  supersedes or points to, rather than restates, prior content.
+- **Independence:** `generations.jsonl` not read; PR #19 not touched (still open,
+  unmerged); `src/`, `tests/`, and PR #27 itself not modified by this entry.
+- **STOP:** no judge call, translation, Urdu inference, human annotation, or
+  confirmatory analysis is authorized by this entry.
+
+
+## D-077 — Freeze-authorized downstream execution guards
+- **Date:** 2026-09-12. **PRE-OUTCOME; engineering only.** This entry follows the
+  D-073 scientific-freeze cross-reference; PR #19 historical renumbering remains deferred and must be recomputed at merge time.
+- **FROZEN engineering:** source-item partitions are deterministic and disjoint;
+  judge scoring requires investigator-signed, plan-hash-bound acceptance criteria
+  dated before candidate outputs; human/direct/translated comparisons require the
+  exact source-item/condition/language/seed/generation identity key; and a
+  language-mechanism claim requires a usable English-to-English paraphrase control
+  for every English anchor task.
+- **PRESERVED:** no judge, translator, Urdu inference, human annotation, threshold,
+  SESOI or confirmatory N is selected by this change. Clustered-method validation is
+  synthetic smoke/operating-characteristic tooling only and cannot freeze a test.
+
+---
+
+## D-078 — Real-environment smoke finding: llama.cpp v0.4.0 (build b10809) does not expose a parseable default token-count signal; STOP-REASON stays honestly UNKNOWN, not fixed mid-flight
 - **Date:** 2026-09-11. **PRE-OUTCOME.** Found during the Phase-5 non-scientific runtime
   smoke (synthetic prompt, "What is the capital city of France?" / a tiny "Say OK."
   probe — NOT MMLU, NOT a scientific item) on the actual pinned runtime

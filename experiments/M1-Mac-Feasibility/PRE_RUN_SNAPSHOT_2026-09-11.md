@@ -3,7 +3,7 @@
 **PRE-OUTCOME. AUTHORIZED TO RUN: NO.** This branch incorporates current main
 `9ce491f7b6fb4dd4426168499a09b3c0b7e6f758` (PR #20) through the conflict-resolution
 merge. PR #20 retains D-069–D-072; the PR #19 llama.cpp stop-reason decision is now
-**D-073**. Scientific parameters and the scientific config hash are unchanged.
+**D-078**. Scientific parameters and the scientific config hash are unchanged.
 
 **Current-clone preflight is NOT revalidated.** The real dataset pin is absent and
 runtime/model local paths are not configured in this clone. The attempted read-only
@@ -76,7 +76,7 @@ Three synthetic, non-MMLU prompts run through the real pinned binary + real pinn
 model (never through the authorization-gated backend class — no token exists).
 Confirmed: clean launch/exit, output capture, correct anchored CLI-chrome stripping on
 **real** (not fixture) output for the first time, usable reasoning-span + answer
-parsing. **One instrumentation finding, documented as DECISION_LOG D-073, not fixed
+parsing. **One instrumentation finding, documented as DECISION_LOG D-078, not fixed
 mid-flight:** this build does not expose a parseable token-count signal by default;
 `stop_reason` will read `UNKNOWN` (honestly, never fabricated) rather than `EOS` for
 ordinary successful generations. `TIMEOUT` and `NONZERO_EXIT` remain reliable. The

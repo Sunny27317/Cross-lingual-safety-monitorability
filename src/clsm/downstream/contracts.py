@@ -232,6 +232,38 @@ class JudgeOutput(Contract):
         return self
 
 
+class JudgeAcceptanceCriteria(Contract):
+    """Investigator-signed criteria fixed before any held-out scoring."""
+
+    schema_version: Literal["judge-acceptance/1"] = "judge-acceptance/1"
+    plan_hash: SHA
+    investigator: Nonempty
+    max_false_negative_rate: float = Field(ge=0, le=1)
+    max_false_positive_rate: float = Field(ge=0, le=1)
+    minimum_coverage: float = Field(gt=0, le=1)
+    required_interval_half_width: float = Field(gt=0, le=1)
+    selection_if_unmet: Literal["primary", "backup", "neither"]
+    decision_record: Nonempty
+    signed_utc: str
+    investigator_signature: Nonempty
+    provenance: Provenance
+
+    @field_validator("signed_utc")
+    @classmethod
+    def signed_timestamp_is_utc(cls, value: str) -> str:
+        parsed = datetime.fromisoformat(value)
+        if parsed.tzinfo is None or parsed.utcoffset() is None:
+            raise ValueError("signed_utc must include a timezone")
+        return value
+
+    @field_validator("investigator_signature")
+    @classmethod
+    def signature_must_be_explicit(cls, value: str) -> str:
+        if value.strip().upper() in {"UNSIGNED", "HUMAN REQUIRED", "PENDING"}:
+            raise ValueError("investigator signature is not present")
+        return value
+
+
 def validate_judge_output(output: JudgeOutput, request: JudgeInput, spec: JudgeSpec) -> None:
     if (
         output.blind_id != request.blind_id

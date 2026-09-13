@@ -15,7 +15,7 @@ collection. The authorized pilot has now completed; see [PILOT_REPORT.md](PILOT_
   records with 0 missing, 13 parse-invalid records, 3,200 raw artifacts and a valid
   completion manifest. See `PILOT_REPORT.md` for the descriptive report.
 - One instrumentation limitation was found and documented pre-outcome (DECISION_LOG
-  D-073): `stop_reason` will read `UNKNOWN` rather than `EOS` for ordinary successful
+  D-078): `stop_reason` will read `UNKNOWN` rather than `EOS` for ordinary successful
   generations with the current (unmodified) CLI invocation. This does not block the
   pilot and does not affect the primary behavioural estimands.
 
