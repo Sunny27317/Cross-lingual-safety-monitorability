@@ -36,12 +36,16 @@ read beyond its committed `PILOT_REPORT.md`, not touched, and not merged by this
 | Translation protocol, four controls | `experiments/M3-English-Urdu/TRANSLATION_PROTOCOL.md` | COMPLETE as design |
 | Measurement/statistical semantics for `G`/`R` | `experiments/M3-English-Urdu/MEASUREMENT_VALIDITY_ANALYSIS_PLAN.md` | COMPLETE; restated as one plan in §4 |
 | Power/robustness/sample-size/preregistration templates | `experiments/M4-Confirmatory/{POWER_PLAN,ROBUSTNESS_PLAN,SAMPLE_SIZE_DECISION_TEMPLATE,CONFIRMATORY_PREREG_TEMPLATE}.md` | COMPLETE as templates; all fields HUMAN REQUIRED |
-| PR #27 engineering gates | `src/clsm/downstream/{partitions,matching,simulation_validation}.py`, `contracts.py: JudgeAcceptanceCriteria`, `translation.py: validate_english_paraphrase_control` | Narrowed gap remains open (§1) as of PR #27 commit `78c206d`; not re-reviewed further by this pass per explicit instruction |
+| PR #27 engineering gates | `src/clsm/downstream/{partitions,matching,simulation_validation,stage_gates,dry_run,reproducibility}.py`, `contracts.py: JudgeAcceptanceCriteria`, `translation.py: validate_english_paraphrase_control`, `calibration.py: finalize_calibration_acceptance` | §1/§2 gaps from the prior review are fixed as of commit `23f0718`, independently verified by direct execution; two new findings open (§1a) |
 | Item-disjoint 4-way partition rule | `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` §11 (D-073); implemented in `partitions.py` | FROZEN + implemented |
 | Ethics/governance checklist and templates | `docs/ETHICS_AND_DATA_GOVERNANCE_CHECKLIST.md`; **operational `docs/ETHICS_REVIEW_REQUEST_TEMPLATE.md`, `docs/RATER_CONSENT_TEMPLATE.md`** (both marked DRAFT — REQUIRES INSTITUTIONAL REVIEW) | COMPLETE as checklist + submittable drafts; every determination HUMAN REQUIRED |
 | Reproducibility release classification | **new, `docs/REPRODUCIBILITY_RELEASE_PLAN.md`** | Proposed PUBLIC/PUBLIC AFTER REVIEW/PRIVATE/NEVER PUBLIC tiers per artifact; final tier HUMAN REQUIRED |
 | Prospective outcome-to-wording mapping | **new, `research/RESULT_INTERPRETATION_MATRIX.md`**; Discussion branches in `paper/main.md` | Prospective; no future outcome inspected |
-| Fast orientation for a new supervisor | **new, `research/SCIENTIFIC_STATUS.md`** | Short-form status; points to everything above |
+| Fast orientation for a new supervisor | `research/SCIENTIFIC_STATUS.md` (60-second) and `research/SUPERVISOR_HANDOFF.md` (≤10-minute, decision-focused) | COMPLETE, cross-referenced to each other |
+| Turning the 13 decisions into a meeting | `research/SUPERVISOR_MEETING_AGENDA.md` | COMPLETE |
+| Chronological human-execution steps | `research/HUMAN_EXECUTION_CHECKLIST.md` (14 steps, owner/input/output/gate/failure each; distinguishes the Urdu model stage from the Urdu human-reference stage) | COMPLETE |
+| Master after-approval execution sequence | `research/EXECUTION_ROADMAP.md` §3–5 (19 numbered steps, no further planning round needed) | COMPLETE |
+| Most granular claim-by-claim evidence ledger | `research/FINAL_CLAIM_AUDIT.md` (6 categories, separates descriptive from confirmatory-run-gated claims) | COMPLETE |
 | Novelty position | `research/POST_PILOT_METHODS_DECISIONS.md` §I; `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §5; restated in `paper/main.md` §Related Work | YELLOW, reaffirmed unchanged |
 
 ## 1. PR #27 fix — exact scientific semantics for the mechanism-claim/English-anchor gate
@@ -97,16 +101,64 @@ This is the entirety of the PR #27 fix. It does not touch partitions, matching,
 acceptance criteria, or the simulation module, all of which were reviewed and found
 correct.
 
-**Status update:** PR #27 has since pushed its own fix (commit `78c206d`,
-"close paraphrase mechanism gate") independently of this document. It correctly closes
-the zero-English-task case (`if not expected: raise ValueError(...)`) and independently
-resolved §2's identity-key ambiguity the same way this document does. It does **not**
-yet implement the confirmatory-item-ID coverage check above: a packet with even one
-unrelated English task still passes today, without checking that every confirmatory-
-sample source item specifically has an anchor. The gap is narrower than before, but
-`confirmatory_item_ids ⊆ english_anchor_items` is still not enforced. This is a
-scientific requirement PR #27 must still satisfy, not a new finding invalidated by the
-partial fix.
+**Status update (superseded twice, now resolved):** PR #27 first pushed a partial fix
+(commit `78c206d`) closing the zero-English-task case but not full confirmatory-item-ID
+coverage. As of commit `23f0718`, `validate_english_paraphrase_control` accepts optional
+`confirmatory_item_ids`/`english_anchor_item_ids`/`source_item_by_blind_id` parameters
+and, when supplied, enforces exactly `confirmatory_item_ids ⊆ english_anchor_item_ids`
+**and** that every confirmatory item is actually represented by a bound English task —
+stricter than this document's original spec. **This closes the gap this section
+identified**, verified by direct execution against the PR #27 branch. One residual,
+narrower point: the three new parameters default to `None`, so a caller of
+`measurement_report(..., mechanism_claim=True)` that omits them still falls back to the
+older, weaker check. This is not a live bug (no real caller exists yet), but the
+eventual scientific pipeline invocation must always supply all three parameters when
+`mechanism_claim=True` — recorded here so it isn't lost before that pipeline exists.
+
+### 1a. Two new findings from PR #27's expanded scope (commit `23f0718`)
+
+**Finding 1 — the upgraded ADEMP validation report shows unacknowledged evidence of
+anti-conservative calibration.** `experiments/M4-Confirmatory/CLUSTER_METHOD_VALIDATION.md`
+now includes a properly-powered check (2,000 simulations/scenario, 1,000 bootstrap
+replicates, meeting this document's own §3 minimum standard). Applying §3's own
+convergence criterion — does each null scenario's 95% Monte Carlo interval contain the
+nominal alpha/target coverage — to its four reported cells: the 8-item null scenario
+(rejection 0.1065, MCSE 0.0069; 95% CI [0.093, 0.120]) and the 32-item/ICC=0.4 null
+scenario (rejection 0.0680, MCSE 0.0056; 95% CI [0.057, 0.079]) **both exclude the
+nominal alpha=0.05**, with corresponding under-coverage. Only the 16-item scenario
+passes. **This means the candidate source-item percentile bootstrap shows real evidence
+of an inflated false-positive rate at small item counts (n=8) and at higher intra-item
+correlation (ICC=0.4, n=32) — exactly the regime a resource-constrained confirmatory
+Urdu design is likely to sit in.** The report's own text does not state this; it reports
+the numbers and a general "all four cells had zero undefined/failure intervals" remark,
+which is a much weaker (and true, but insufficient) claim. This is a genuine scientific
+finding this document's §3 standard was built to surface, not a stylistic complaint.
+**Required fix:** the report must explicitly compute and state, per null scenario,
+whether the Monte Carlo interval contains the nominal alpha/coverage target, and must
+flag that the method is not yet demonstrated adequate at n≈8 or at ICC≈0.4 — this table
+must not be read as "the confirmatory test is now validated" until either a larger item
+count is used, an alternative/corrected interval method is checked, or this is
+otherwise resolved.
+
+**Finding 2 — `StageGateLedger`'s gate G4 ("locked human reference") cannot distinguish
+which population's reference was locked.** `StageGateLedger.unique_gates` permits at
+most one `StageApproval` per `StageGate`, and requires every approval's `subject_hash`
+to equal the ledger's single `protocol_hash`. This means the ledger structurally cannot
+represent "the English/calibration-partition reference is locked" (a real, permitted,
+narrower-scope event per `research/POST_PILOT_METHODS_DECISIONS.md` §C.2) as distinct
+from "the Urdu confirmatory-population reference is locked" (the actual event the
+primary estimand `G` depends on) — both would satisfy the same G4 gate bound to the same
+`protocol_hash`. **This creates a real risk that an English-only calibration reference
+could be read by downstream code, or by a rushed reviewer, as satisfying the whole
+study's human-reference requirement**, contradicting the standing rule that English
+calibration reference "provides no Urdu human labels." **Required fix:** `StageApproval`
+needs a population/scope-identifying field (e.g. binding `subject_hash` to a specific
+partition or population hash rather than the whole-protocol hash), or G4 needs to split
+into a calibration-reference gate and a confirmatory-reference gate, before this gate
+schema is relied upon to sequence the real Urdu stage.
+
+Both findings are independent of, and do not reduce credit for, the two now-confirmed
+fixes in §1 and §2 above.
 
 ## 2. H/D/T identity key — resolving the `language` field ambiguity
 

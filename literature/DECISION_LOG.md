@@ -2352,10 +2352,12 @@ are reversed by a **new** entry, not by deleting an old one.
 - **STOP:** no judge call, translation, Urdu inference, human annotation, or
   confirmatory analysis is authorized by this entry.
 
+---
+
 ## D-075 — Freeze-authorized downstream execution guards
-- **Date:** 2026-09-12. **PRE-OUTCOME; engineering only.** This entry follows the
-  D-073/D-074 protocol-freeze records. The PR #19 decision number remains a
-  merge-time allocation and must be recomputed from the actual main history.
+- **Date:** 2026-09-12. **PRE-OUTCOME; engineering only.** This entry is retained
+  from PR #27. The PR #19 decision number remains a merge-time allocation and must
+  be recomputed from the actual main history.
 - **FROZEN engineering:** source-item partitions are deterministic and disjoint;
   judge scoring requires investigator-signed, plan-hash-bound acceptance criteria
   dated before candidate outputs; human/direct/translated comparisons require the
@@ -2365,3 +2367,44 @@ are reversed by a **new** entry, not by deleting an old one.
 - **PRESERVED:** no judge, translator, Urdu inference, human annotation, threshold,
   SESOI or confirmatory N is selected by this change. Clustered-method validation is
   synthetic smoke/operating-characteristic tooling only and cannot freeze a test.
+
+## D-076 — Deep PR #27 re-review (commit `23f0718`); two new findings; supervisor
+## handoff and human-execution checklist added
+- **Date:** 2026-09-13. **PRE-OUTCOME; no scientific data generated.** Numbered `D-076`
+  because `D-075` was independently claimed by PR #27 concurrently — the same collision
+  pattern as D-069 and D-074/D-075 before it. **Per the standing guidance in D-073/D-074,
+  do not trust this number either: recompute the real next-free number on `main` from
+  its actual state at whichever merge happens first.**
+- **Verified by direct execution against PR #27's branch (worktree, not this repo's
+  checkout):** 414 tests pass (matches Codex's report exactly); the confirmatory-item-ID
+  English-anchor coverage gap and the `TraceIdentityKey`/`judge_input_language`
+  ambiguity — both flagged in this branch's prior review — are now correctly fixed,
+  and the fix is stricter than originally specified (`research/FINAL_PROTOCOL.md` §1–2).
+- **Two new findings (full detail: `research/FINAL_PROTOCOL.md` §1a), not previously
+  identified:**
+  1. The upgraded ADEMP validation (`experiments/M4-Confirmatory/
+     CLUSTER_METHOD_VALIDATION.md`, now 2,000 simulations/scenario, 1,000 bootstrap
+     replicates, meeting this project's own minimum standard on repetition counts) shows
+     two of three null scenarios' 95% Monte Carlo intervals excluding the nominal alpha/
+     coverage target — verified by direct recomputation from the report's own published
+     numbers. This is undisclosed in the report's own text. It is evidence, not proof,
+     that the candidate confirmatory method may be anti-conservative at small item
+     counts (n=8) and higher intra-item correlation (ICC=0.4, n=32).
+  2. `StageGateLedger` (new in this PR27 commit) permits at most one approval per gate,
+     bound to a single whole-protocol hash — it cannot distinguish an English/
+     calibration-partition human-reference lock from the Urdu confirmatory-population
+     reference lock, both of which would satisfy the same G4 gate.
+- **Consequence:** PR #27 review verdict is REQUEST CHANGES on these two points only.
+  The English-anchor and identity-key fixes are correctly accepted, not reopened.
+  Neither finding requires re-architecting the bootstrap method or the gate ledger; both
+  are scoped, addressable fixes (report-text disclosure; a population-scoped
+  `subject_hash` or a split gate).
+- **Scientific-side artifacts added this pass:** `research/SUPERVISOR_HANDOFF.md` (≤10
+  minute supervisor orientation), `research/HUMAN_EXECUTION_CHECKLIST.md` (chronological
+  steps to first real annotation), `research/FINAL_CLAIM_AUDIT.md` (claim-by-claim
+  evidence ledger). No new scientific document duplicates an existing one; each
+  supersedes or points to, rather than restates, prior content.
+- **Independence:** `generations.jsonl` not read; PR #19 not touched (still open,
+  unmerged); `src/`, `tests/`, and PR #27 itself not modified by this entry.
+- **STOP:** no judge call, translation, Urdu inference, human annotation, or
+  confirmatory analysis is authorized by this entry.
