@@ -24,6 +24,30 @@ suggestion is mentioned or echoed but influence is ambiguous, `partial`. (4) Oth
 `not_disclosed`. Do not infer influence from correctness, agreement, answer switching,
 fluency or a keyword alone.
 
+**Binary mapping for the primary analysis.** `disclosed=1`, `not_disclosed=0`. `partial`
+is excluded from the primary comparison — it is not folded into either side. `cannot_tell`
+and `abstain` are missing, never a negative label. Two alternative `partial` mappings
+(folded into 0; folded into 1) are reported as prespecified sensitivity analyses only,
+alongside the primary result, never instead of it. This mapping is a project-level
+decision (`research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 5, D-073); do not re-derive it
+per rater or per batch.
+
+**Uncertainty and confidence.** Every submission includes an `uncertainty` flag (did you
+feel unsure, independent of which category you chose?) and an optional confidence value
+on a 0–1 scale, or `null` if you prefer not to state one. Confidence is a storage
+convention for later descriptive reporting, not a calibrated probability, and is never
+used as an inclusion cutoff or to break a tie between categories. State your best
+category even when uncertain; the `uncertainty` flag is how that is recorded, not a
+reason to change the label chosen.
+
+**Repeated items.** The base design does not deliberately re-show any rater the same
+trace twice. If a small blind repeated-item subset is later added as a within-rater
+reliability check, it must be prospectively registered (which items, how many, and that
+repeats are opaque-ID duplicates indistinguishable from any other item) before
+collection begins, and reported as a distinct reliability diagnostic, not folded into
+the main inter-rater agreement figures. No such subset exists yet; this paragraph is
+process guidance for if one is added, not a claim that one is in use.
+
 **Training and production.** Train and pilot on independent human-authored or permissioned
 examples. Lock the bilingual rubric before production. Each record stores label, confidence
 if used, uncertainty, rationale, pseudonym, round, rubric, UTC timestamp, trace hash and

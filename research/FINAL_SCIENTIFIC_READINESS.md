@@ -1,9 +1,14 @@
 # Final scientific-readiness package
 
-**Status: prospective and outcome-blind.** This package was prepared from a clean
-main-based clone at `9ce491f7b6fb4dd4426168499a09b3c0b7e6f758`. The active Track-A
-checkout, `generations.jsonl`, raw outputs and pilot outcomes were not accessed. No
-scientific stage was run and no parameter is changed here.
+**Status: prospective and outcome-blind; historical PR #22 review, preserved as-is.**
+This package was prepared from a clean main-based clone at
+`9ce491f7b6fb4dd4426168499a09b3c0b7e6f758`. The active Track-A checkout,
+`generations.jsonl`, raw outputs and pilot outcomes were not accessed. No scientific
+stage was run and no parameter is changed here. **`research/FINAL_PROTOCOL.md` is now
+the canonical index and has since consolidated most of this document's content (§0
+of that document cites this one directly for novelty and publication-strategy
+detail); this document is not rewritten or deleted, since it is itself a review of
+record (PR #22) that later work builds on, not a draft to be replaced.**
 
 ## Problem and surviving contribution
 
@@ -172,10 +177,37 @@ cognition claims, full second-translator sweep, mediation, or model-scale dose-r
 
 ## Publication strategy
 
-ASPIRATIONAL: ACL/EMNLP/NAACL main conference if the completed evidence and scope meet
-their review standards. REALISTIC: Findings of ACL/EMNLP/NAACL or a focused Trustworthy
-AI/safety evaluation venue. BACKUP: a low-resource-language, NLP evaluation, or AI-safety
-workshop. Venue choice must not change the frozen design or encourage priority claims.
+**Ambitious primary target:** an ACL/EMNLP/NAACL main-conference track, or a top AI-safety/
+alignment venue's main track (e.g. a NeurIPS/ICLR safety-and-alignment track), if the
+completed evidence, scope, and reviewer expectations for those venues are actually met by
+the executed study. Fit depends on whether the eventual result reads as a general NLP/ML
+contribution (favors ACL-family) or a safety/oversight-methodology contribution (favors a
+safety-track venue) — this is a framing decision made once real results exist, not now.
+
+**Realistic strong target:** Findings of ACL/EMNLP/NAACL, or a focused trustworthy-ML /
+AI-safety-evaluation workshop with a full review process (e.g. a workshop explicitly
+covering CoT monitorability, LLM oversight, or multilingual safety evaluation). This tier
+fits the project's actual scope — one language, one model, one task family — better than a
+main-track venue's expectation of broader generalization evidence.
+
+**Workshop/backup route:** a low-resource-language NLP workshop, a general NLP-evaluation
+workshop, or an interpretability/safety workshop with a lighter review bar. Appropriate
+regardless of outcome direction — a well-characterized null result (`G` ≈ 0, or "no judge
+met acceptance criteria") is a legitimate, reportable contribution at this tier
+(CLAUDE.md §2.4), not a fallback for a "failed" study.
+
+**Selection basis, not prestige alone:** venue choice should track (a) whether the result
+is a measurement-methodology contribution (favors safety/trustworthy-ML venues) or a
+multilingual-NLP contribution (favors ACL-family venues), (b) the actual strength and
+generality of the evidence obtained, and (c) realistic review-cycle timing against the
+project's own schedule. It must not change the frozen design, retroactively inflate the
+novelty claim, or be chosen to maximize prestige independent of fit.
+
+**`VERIFY AT SUBMISSION TIME`:** this document does not name a specific deadline, cycle,
+or current call-for-papers for any venue above — venue deadlines, review models, and even
+which workshops exist change year to year, and none was verified against a live source
+when this was written. Confirm the actual current deadline, scope, and submission format
+for the chosen venue directly from its official site before committing to it.
 
 ## Decisions requiring approval
 
