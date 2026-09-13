@@ -48,14 +48,21 @@ an engineering diagnostic, not evidence for the study's confirmatory design.
 | (32, 6, .20, .10, .4, .1, 0) | 0.10 | 0.3365 | 0.9285 | 0.0106 | 0.0058 |
 | (32, 6, .10, .10, .4, .1, .2) | 0.00 | 0.0680 | 0.9320 | 0.0056 | 0.0056 |
 
-All four cells had zero undefined/failure intervals. The sign-flip test was
-conservative in all three null cells (0.0165, 0.0315, and 0.0495), while the
-percentile interval remains an explicitly reported small-cluster diagnostic.
+All four cells had zero undefined/failure intervals. The sign-flip calibration
+depends on the exchangeability/symmetry-under-the-null assumption documented in
+`POWER_PLAN.md`; it is not a distribution-free guarantee. The null-cell
+rejection rates were 0.0165, 0.0315, and 0.0495, with corresponding binomial
+Monte Carlo standard errors 0.0028, 0.0052, and 0.0049. In particular, the
+informative-missingness null cell is 0.0495 (MCSE approximately 0.00485; 95%
+Monte Carlo interval approximately [0.0400, 0.0590]). These values are
+compatible with nominal alpha within Monte Carlo uncertainty; they do not prove
+that the procedure is conservative and still require human statistical
+acceptance. The percentile interval remains an explicitly reported small-cluster
+diagnostic.
 The larger artifact hash is
 `faa063db1b53b292dc3d59b530a0e7033bdfeb41b8fbac11e0ee7addc175de61`.
 
-The confirmatory sign-flip rejection rates for the three null cells were
-0.0165, 0.0315, and 0.0495. They are not anti-conservative in this grid, so the
-method is marked `READY_FOR_HUMAN_REVIEW`; final use still requires the protocol's
-human statistical approval. The percentile interval remains a diagnostic and is
-not used as the confirmatory test.
+The sign-flip procedure is marked `READY_FOR_HUMAN_REVIEW` as an engineering
+candidate only; final use still requires the protocol's human statistical
+approval. The percentile interval remains a diagnostic and is not used as the
+confirmatory test.
