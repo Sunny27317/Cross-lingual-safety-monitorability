@@ -5,12 +5,15 @@ detail lives in the cited files. Nothing in category 1 requires any item in cate
 
 ## 1. AUTOMATABLE NOW (no human decision, no real data; engineering — currently Codex's lane)
 
-- Close PR #27's remaining, narrower English-anchor gap (confirmatory-item-ID coverage,
-  not yet fixed as of commit `78c206d`) exactly as specified in `research/
-  FINAL_PROTOCOL.md` §1; verify the `judge_input_language` field per §2 is present.
-- Run the minimum-standard simulation validation (`research/FINAL_PROTOCOL.md` §3) across
-  the specified scenario grid at 1,000+ bootstrap replicates / 2,000+ simulations per
-  scenario; publish the resulting operating-characteristics report.
+- **Done as of PR #27 commit `23f0718`:** confirmatory-item-ID English-anchor coverage
+  (`research/FINAL_PROTOCOL.md` §1), source/rendered/judge-input language separation
+  (§2), the judge-acceptance hard gate, and the ≥2,000-simulation/1,000-replicate ADEMP
+  upgrade (§3's minimum standard, met on repetition/replicate counts).
+- **Still open (`research/FINAL_PROTOCOL.md` §1a):** the ADEMP report must explicitly
+  state whether each null scenario's Monte Carlo interval contains nominal alpha/
+  coverage — two of three currently do not, undisclosed in the report text; and
+  `StageGateLedger`'s G4 gate needs a population-scoped `subject_hash` so a
+  calibration-only reference cannot be mistaken for the confirmatory Urdu reference.
 - Any further engineering scaffolding that touches no real dataset, model, judge, or
   translator call — e.g., wiring the `JudgeAcceptanceCriteria` sign-off table (`experiments/
   M2-Monitor-Validation/JUDGE_SELECTION_RECORD_TEMPLATE.md`) into the actual calibration

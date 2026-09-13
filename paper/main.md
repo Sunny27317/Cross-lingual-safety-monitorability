@@ -399,9 +399,13 @@ outcomes (`research/SUPERVISOR_DECISION_PACKET.md`). Prospective exact independe
 paired-binary calculations and explicitly assumed item-cluster simulations support
 sensitivity analysis; they do not select N or SESOI automatically. The confirmatory
 test/interval additionally requires the minimum simulation-validation standard in
-`research/FINAL_PROTOCOL.md` §3 before it may be described as ready. The confirmatory
-preregistration is an unfilled template, not a registered or approved scientific design.
-**No confirmatory result exists in this scaffold.**
+`research/FINAL_PROTOCOL.md` §3 before it may be described as ready — and, as of the
+latest validation pass, is **not yet** ready at small item counts or high intra-item
+correlation specifically: two of three checked null scenarios showed type-I error
+exceeding nominal at n=8 and at n=32/ICC=0.4 (`research/FINAL_PROTOCOL.md` §1a).
+Confirmatory N must be chosen with this in mind, not assumed adequate by default. The
+confirmatory preregistration is an unfilled template, not a registered or approved
+scientific design. **No confirmatory result exists in this scaffold.**
 
 ## Limitations
 
@@ -569,6 +573,25 @@ post-execution analysis artifact, never before.
 | Equal-item weighting | PENDING | PENDING | PENDING |
 | Worst-case missingness bound | PENDING | PENDING | PENDING |
 
+## Figures [skeletons only — no plot exists]
+
+Per `paper/figures/README.md`; generated only from authorized, hash-verified analysis
+artifacts, never as a plausible-looking placeholder.
+
+- **Figure 1 — Study flow.** English feasibility → human/judge validation → Urdu
+  collection → same-trace translation diagnostic → confirmatory review, with explicit
+  STOP gates at each transition (`research/EXECUTION_ROADMAP.md`'s five categories).
+- **Figure 2 — Paired measurement diagram.** One root Urdu trace branching into native
+  (`H`), direct automated (`D`), and translated automated (`T`) labels; the English
+  paraphrase control (`P`) shown as a structurally separate arm on the English anchor,
+  not a branch of the Urdu trace.
+- **Figure 3 — Gap and recovery estimates.** `G` and `R` point estimates with
+  item-cluster bootstrap intervals, denominators, and missingness annotated on the
+  same axis — never plotted without its interval or its complete-case caveat.
+- **Figure 4 — Translation audit diagnostics.** Per-category counts of semantic
+  adequacy issues, added/omitted disclosure, and truncation, alongside the coverage
+  and failure counts from Table 9.
+
 ## Discussion [FUTURE INTERPRETATION PATHS — none of these is an observed conclusion]
 
 The eventual discussion is written only after Tables 2–10 exist, following exactly the
@@ -629,7 +652,10 @@ every row of the Claim Ledger, below, before finalizing wording.
 Every claim the eventual paper makes must trace to a row here. Category is one of:
 **SUPPORTED NOW** (true today, from completed non-Urdu evidence), **REQUIRES HUMAN
 REFERENCE**, **REQUIRES URDU EXPERIMENT**, **REQUIRES TRANSLATION DIAGNOSTIC**, or
-**PROHIBITED** (never claimable by this design, regardless of outcome).
+**PROHIBITED** (never claimable by this design, regardless of outcome). `research/
+FINAL_CLAIM_AUDIT.md` is the more granular version of this same table — it additionally
+separates a *descriptive* Urdu/translation finding from a claim that requires the
+*confirmatory* run specifically, which matters most when writing Discussion.
 
 | Claim | Category | Evidence artifact required |
 |---|---|---|
@@ -672,6 +698,11 @@ REFERENCE**, **REQUIRES URDU EXPERIMENT**, **REQUIRES TRANSLATION DIAGNOSTIC**, 
   full prospective outcome-to-wording mapping underlying the Discussion branches above.
 - **J. Ethics and governance package**, `docs/ETHICS_REVIEW_REQUEST_TEMPLATE.md`,
   `docs/RATER_CONSENT_TEMPLATE.md`, `docs/REPRODUCIBILITY_RELEASE_PLAN.md`.
+- **K. Final claim audit**, `research/FINAL_CLAIM_AUDIT.md` — the confirmatory-vs-
+  descriptive-vs-prohibited breakdown underlying the Claim ledger above.
+- **L. Supervisor and execution handoff**, `research/SUPERVISOR_HANDOFF.md`,
+  `research/HUMAN_EXECUTION_CHECKLIST.md` — not part of the manuscript itself, listed
+  here only so a co-author can locate the operational record.
 
 ## References
 

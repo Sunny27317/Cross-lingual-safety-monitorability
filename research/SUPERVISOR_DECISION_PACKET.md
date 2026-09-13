@@ -183,20 +183,32 @@ descriptive.
 **Unblocks:** row 12 and the confirmatory preregistration template.
 **Decision:** ______________________________ **Date:** __________ **By:** __________
 
-### 12. Confirmatory N
+### 12. Confirmatory N and nuisance assumptions
 
 **Exact question:** How many independent source items (and total traces) are collected
-for the confirmatory stage?
-**Why it matters:** the actual resourcing commitment.
-**Options:** computed from rows 9–11 via the simulation-validated method in `research/
-FINAL_PROTOCOL.md` §3 (once that validation is complete), crossed with real
-rater/annotation/compute capacity.
-**Recommended:** none — this is downstream arithmetic once rows 9–11 and the §3
-simulation validation both exist; do not fill in before both.
+for the confirmatory stage, and what ICC/missingness/reference-error range is assumed
+for that power calculation?
+**Why it matters:** the actual resourcing commitment, and the sample-size math is only
+as good as its assumed nuisance parameters — an optimistic ICC/missingness guess
+produces an underpowered N even at a correctly-chosen SESOI/alpha/power.
+**Options:** N is computed from rows 9–11 via the simulation-validated method in
+`research/FINAL_PROTOCOL.md` §3 (once that validation is complete — see the open
+finding in §1a affecting small-N/high-ICC regimes specifically); nuisance assumptions
+(ICC, missingness rate, reference-error rate) are stated as an investigator-justified
+range, not a single optimistic point estimate — e.g., "ICC between 0.1 and 0.4,
+missingness up to 20%," with a stated basis (prior related literature, or a
+conservative default if none exists).
+**Recommended:** none for N (downstream arithmetic once rows 9–11 and the §3
+validation both exist); for nuisance assumptions, prefer a range wide enough to remain
+defensible even if the pilot's own item-dependence structure turns out less favorable
+than hoped — do not use the English pilot's own repeated-sample correlation as a proxy
+for Urdu disclosure-label ICC, which is a different quantity entirely.
 **Tradeoff:** a larger N is more defensible but costs more rater time and compute; a
-smaller N risks an uninformative confirmatory result.
+smaller N risks an uninformative confirmatory result; a narrow, optimistic nuisance
+range risks the same even at a "correct" N.
 **Unblocks:** the confirmatory preregistration and the final go/no-go (row 13).
-**Decision:** N (items): ______ Total traces: ______ **Date:** __________ **By:** __________
+**Decision:** N (items): ______ Total traces: ______ ICC range: ______ Missingness
+range: ______ Reference-error range: ______ **Date:** __________ **By:** __________
 
 ### 13. Final go/no-go for Urdu data collection
 
