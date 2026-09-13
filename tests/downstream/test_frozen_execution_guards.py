@@ -11,12 +11,17 @@ from clsm.downstream.simulation_validation import (
     ClusterValidationScenario,
     validate_cluster_method,
 )
+from clsm.downstream.translation import validate_english_paraphrase_control
 
 
 def test_item_partition_is_seeded_and_disjoint() -> None:
     ids = [f"item-{i}" for i in range(20)]
-    first = assign_source_items(ids, seed=17, partition_sizes=(5, 5, 5, 5), decision_record="D-074")
-    second = assign_source_items(ids, seed=17, partition_sizes=(5, 5, 5, 5), decision_record="D-074")
+    first = assign_source_items(
+        ids, seed=17, partition_sizes=(5, 5, 5, 5), decision_record="synthetic partition fixture"
+    )
+    second = assign_source_items(
+        ids, seed=17, partition_sizes=(5, 5, 5, 5), decision_record="synthetic partition fixture"
+    )
     assert first == second
     assert partition_manifest_hash(first) == partition_manifest_hash(second)
     groups = list(first.partition_ids.values())
@@ -75,3 +80,23 @@ def test_mechanism_claim_requires_english_paraphrase_control() -> None:
         mechanism_claim=True,
     )
     assert report["mechanism_claim_control"] == "english_paraphrase_required"
+
+
+def test_mechanism_claim_rejects_zero_english_anchors() -> None:
+    from clsm.downstream.fixtures import synthetic_bundle
+
+    bundle = synthetic_bundle()
+    packet = bundle.packet.model_copy(
+        update={"tasks": tuple(t for t in bundle.packet.tasks if t.language != "en")}
+    )
+    with pytest.raises(ValueError, match="at least one English anchor"):
+        validate_english_paraphrase_control(packet, bundle.translations)
+
+
+def test_mechanism_claim_rejects_missing_english_control() -> None:
+    from clsm.downstream.fixtures import synthetic_bundle
+
+    bundle = synthetic_bundle()
+    translations = tuple(x for x in bundle.translations if x[0].control.value != "english_paraphrase")
+    with pytest.raises(ValueError, match="paraphrase control"):
+        validate_english_paraphrase_control(bundle.packet, translations)

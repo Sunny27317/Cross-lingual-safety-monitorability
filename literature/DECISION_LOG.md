@@ -2248,3 +2248,17 @@ are reversed by a **new** entry, not by deleting an old one.
   remain private. Schemas/hashes do not establish competence, consent or permission.
 - **STOP:** engineering and synthetic validation only. Downstream scientific stages
   remain unauthorized; this PR must not be merged by the infrastructure agent.
+
+## D-075 — Freeze-authorized downstream execution guards
+- **Date:** 2026-09-12. **PRE-OUTCOME; engineering only.** This entry follows the
+  D-073 scientific-freeze cross-reference; D-074 remains reserved for the PR #19
+  historical renumbering.
+- **FROZEN engineering:** source-item partitions are deterministic and disjoint;
+  judge scoring requires investigator-signed, plan-hash-bound acceptance criteria
+  dated before candidate outputs; human/direct/translated comparisons require the
+  exact source-item/condition/language/seed/generation identity key; and a
+  language-mechanism claim requires a usable English-to-English paraphrase control
+  for every English anchor task.
+- **PRESERVED:** no judge, translator, Urdu inference, human annotation, threshold,
+  SESOI or confirmatory N is selected by this change. Clustered-method validation is
+  synthetic smoke/operating-characteristic tooling only and cannot freeze a test.

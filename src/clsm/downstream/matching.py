@@ -8,7 +8,13 @@ from clsm.downstream.contracts import SHA, Contract, Nonempty
 
 
 class TraceIdentityKey(Contract):
-    """The bindable identity shared by human, direct and translated labels."""
+    """Identity of the original source trace shared by H/D/T labels.
+
+    ``language`` is the language of the original source trace (for example,
+    ``"ur"`` for both a direct Urdu judge input and its English rendering).
+    Rendered translation language belongs to the translation request/record and
+    must never replace this source-language field.
+    """
 
     source_item_id: Nonempty
     condition: Nonempty

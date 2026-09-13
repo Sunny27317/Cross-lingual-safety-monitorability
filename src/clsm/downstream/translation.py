@@ -145,8 +145,15 @@ def validate_english_paraphrase_control(
     packet: AnnotationPacket,
     translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...],
 ) -> None:
-    """Require one usable English-to-English control per English source trace."""
+    """Require controls for every English anchor in a source-matched packet.
+
+    In the frozen packet contract, English tasks are the source-matched anchors;
+    Urdu tasks are not anchors for this control. An empty English anchor set is
+    invalid for a mechanism claim rather than vacuously passing.
+    """
     expected = {task.blind_id for task in packet.tasks if task.language == "en"}
+    if not expected:
+        raise ValueError("language-mechanism claim requires at least one English anchor task")
     observed = {
         request.blind_id
         for request, record, translator in translations
