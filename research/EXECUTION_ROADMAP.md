@@ -3,24 +3,36 @@
 One list, five categories, in dependency order within each. Cross-references only; full
 detail lives in the cited files. Nothing in category 1 requires any item in category 2.
 
-## 1. AUTOMATABLE NOW (no human decision, no real data)
+## 1. AUTOMATABLE NOW (no human decision, no real data; engineering — currently Codex's lane)
 
-- Fix PR #27's English-anchor gap exactly as specified in `research/FINAL_PROTOCOL.md` §1;
-  add the `judge_input_language` field per §2; add both tests.
+- Close PR #27's remaining, narrower English-anchor gap (confirmatory-item-ID coverage,
+  not yet fixed as of commit `78c206d`) exactly as specified in `research/
+  FINAL_PROTOCOL.md` §1; verify the `judge_input_language` field per §2 is present.
 - Run the minimum-standard simulation validation (`research/FINAL_PROTOCOL.md` §3) across
   the specified scenario grid at 1,000+ bootstrap replicates / 2,000+ simulations per
   scenario; publish the resulting operating-characteristics report.
-- Add the D-074 decision-log entry for this pass (done, this branch).
 - Any further engineering scaffolding that touches no real dataset, model, judge, or
   translator call — e.g., wiring the `JudgeAcceptanceCriteria` sign-off table (`experiments/
   M2-Monitor-Validation/JUDGE_SELECTION_RECORD_TEMPLATE.md`) into the actual calibration
   CLI so it refuses to run without a completed, hashed sign-off file.
 
+**Scientific/paper/human-package side (this pass, complete):** the canonical protocol
+(`research/FINAL_PROTOCOL.md`), the operational rater package (`docs/rater_package/`),
+Urdu translator/reviewer package (`docs/TRANSLATOR_INSTRUCTIONS.md`, `docs/
+BILINGUAL_REVIEWER_INSTRUCTIONS.md`, `docs/URDU_EQUIVALENCE_DECISION_TREE.md`), judge
+rubric package (`experiments/M2-Monitor-Validation/JUDGE_RUBRIC_PACKAGE.md`), ethics
+request/consent drafts, reproducibility release plan, result interpretation matrix, and
+paper scaffold (`paper/main.md`) are all complete and require no further engineering to
+be handed to a supervisor or recruited humans.
+
 ## 2. HUMAN-REQUIRED (blocks everything after it; see `research/SUPERVISOR_DECISION_PACKET.md`)
 
 In dependency order:
-1. Institutional ethics/IRB determination (packet row 1).
-2. Rater recruitment, qualification, compensation, consent (packet rows 2–3).
+1. Institutional ethics/IRB determination (packet row 1; submit `docs/
+   ETHICS_REVIEW_REQUEST_TEMPLATE.md`, completed).
+2. Rater recruitment, qualification (`docs/rater_package/
+   RATER_QUALIFICATION_TEMPLATE.md`), compensation, consent (`docs/
+   RATER_CONSENT_TEMPLATE.md`, only after institutional review) (packet rows 2–3).
 3. Judge calibration numeric acceptance criteria, signed before any candidate output
    (packet row 6; form in `experiments/M2-Monitor-Validation/
    JUDGE_SELECTION_RECORD_TEMPLATE.md`).
@@ -35,12 +47,14 @@ In dependency order:
 - Judge calibration run against the two candidates (gated on 2.3), producing the report
   in `experiments/M2-Monitor-Validation/JUDGE_CALIBRATION_REPORT_TEMPLATE.md`'s structure.
 - Judge selection lock (gated on the calibration report + packet row 5).
-- Urdu item translation + independent bilingual review, using `docs/
-  URDU_ITEM_EQUIVALENCE_FORM.md` per item (gated on 2.2 for raters/reviewers and 2.5 for
-  rubric wording — translation review needs the same qualified bilingual reviewers).
-- Human annotation collection on locked Urdu traces, once traces exist (gated on 2.1–2.2
-  and the Urdu generator authorization, which is a **separate** stage authorization from
-  English, per every prior Track-A decision).
+- Urdu item translation (`docs/TRANSLATOR_INSTRUCTIONS.md`) + independent bilingual
+  review (`docs/BILINGUAL_REVIEWER_INSTRUCTIONS.md`) + adjudication (`docs/
+  URDU_EQUIVALENCE_DECISION_TREE.md`), using `docs/URDU_ITEM_EQUIVALENCE_FORM.md` per
+  item (gated on 2.2 for reviewers and 2.5 for rubric wording).
+- Human annotation collection on locked Urdu traces, once traces exist, using `docs/
+  rater_package/RATER_INSTRUCTIONS.md` and `ADJUDICATOR_INSTRUCTIONS.md` (gated on
+  2.1–2.2 and the Urdu generator authorization, which is a **separate** stage
+  authorization from English, per every prior Track-A decision).
 - Urdu generator run (a **separate**, freshly authorized Track-A-style stage; not covered
   by the English pilot's authorization; requires its own frozen config and human
   authorization token, structurally identical to but independent of the English one).

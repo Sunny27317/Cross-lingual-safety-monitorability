@@ -1,159 +1,211 @@
 # Supervisor decision packet
 
-**One purpose: get sign-off on exactly the decisions that are genuinely human-only.**
-Nothing below is filled in. No option list is a default — pick one, write it in, sign
-it. Background and full protocol detail: `research/FINAL_PROTOCOL.md` (index),
-`research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` (D-073), `docs/
+**One purpose: make these 13 decisions quickly and correctly.** Nothing below is filled
+in. Every recommendation is a starting point, not a default — read the tradeoff, then
+write your choice in the blank field and sign it. Background: `research/
+FINAL_PROTOCOL.md` (index), `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` (D-073), `docs/
 ETHICS_AND_DATA_GOVERNANCE_CHECKLIST.md`. This packet does not itself authorize any
-scientific stage; each row's sign-off authorizes only that row's decision.
+scientific stage; each row's sign-off authorizes only that row.
 
 ---
 
 ### 1. Institutional ethics/IRB determination
 
-**Why it matters:** the study recruits human raters to read model-generated reasoning
-traces, some containing a misleading hint; no institutional review has occurred.
+**Exact question:** What institutional review path applies to recruiting human raters
+to read model-generated reasoning traces (some containing a misleading hint)?
+**Why it matters:** no recruitment may legally or ethically begin without this.
 **Options:** (a) formal IRB submission and review; (b) institutional exemption
-determination; (c) informal departmental sign-off if the institution's policy permits it
-for this activity type. **Claude's recommendation:** consult the institution directly —
-this project cannot and does not assert which option applies. **Consequences:** no
-recruitment may begin under any option until the institution's own determination is in
-hand; skipping this is the single most consequential thing that could make the human
-data unusable or retracted later. **Sign-off:** Determination: ______ Date: ______ By: ______
+determination; (c) informal departmental sign-off, if the institution's own policy
+permits it for this activity type.
+**Recommended:** consult the institution directly — this project cannot assert which
+option applies and does not attempt to.
+**Tradeoff:** (b)/(c) are faster but only valid if the institution says they apply here;
+guessing wrong risks invalidating all downstream human data.
+**Unblocks:** everything involving real human raters (rows 2, 4, 6, 7, 8, 13).
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 2. Rater recruitment and qualification
 
-**Why it matters:** the primary estimand is anchored entirely on native/near-native Urdu
-readers' judgments; unqualified raters would silently invalidate the human reference.
-**Options:** (a) recruit from a university Urdu-speaking student/staff pool; (b) recruit
-via a paid platform with a competence screen; (c) use existing personal/institutional
-contacts with documented competence. **Claude's recommendation:** (a) or (c), because
-competence documentation (reading/register/code-switch familiarity, per `docs/
-HUMAN_URDU_VALIDATION_PACKAGE.md`) is easiest to verify and record credibly for people
-already known to the institution. **Consequences:** platform-recruited raters need a
-real, documented, non-self-report competence check or the reference is not defensible in
-review. **Sign-off:** Recruitment channel: ______ Raters + adjudicator named: ______ Date: ______ By: ______
+**Exact question:** Where do the two raters and one adjudicator come from, and how is
+their competence verified?
+**Why it matters:** the primary estimand is entirely anchored on their judgment;
+unqualified raters silently invalidate the human reference.
+**Options:** (a) university Urdu-speaking student/staff pool; (b) paid platform with a
+competence screen; (c) existing personal/institutional contacts with documented
+competence.
+**Recommended:** (a) or (c) — competence documentation is easiest to verify credibly for
+people already known to the institution.
+**Tradeoff:** (b) widens the candidate pool but needs a real, non-self-report competence
+check (`docs/rater_package/RATER_QUALIFICATION_TEMPLATE.md`) or the reference won't
+survive review.
+**Unblocks:** training, then production annotation (row 13's prerequisite).
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 3. Compensation
 
-**Why it matters:** required before consent is meaningful; also affects what recruitment
-channel is realistic. **Options:** (a) hourly/task-based payment; (b) course credit
-(if applicable and permitted); (c) no compensation (volunteer/collaborator raters only).
-**Claude's recommendation:** no recommendation — this is a resourcing and institutional-
-policy decision outside this project's authority. **Consequences:** the amount and basis
-must be fixed before recruitment, not negotiated per rater. **Sign-off:** Basis/amount: ______ Date: ______ By: ______
+**Exact question:** How, and how much, are raters and the adjudicator paid (if at all)?
+**Why it matters:** required before consent is meaningful; affects which recruitment
+channel (row 2) is realistic.
+**Options:** (a) hourly/task-based payment; (b) course credit, if applicable and
+permitted; (c) no compensation (volunteer/collaborator raters only).
+**Recommended:** none offered — resourcing/institutional-policy decision outside this
+project's authority.
+**Tradeoff:** (c) is simplest administratively but narrows who can realistically
+participate.
+**Unblocks:** consent (row 1 dependency) and recruitment (row 2).
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 4. Storage, retention, and release governance
 
-**Why it matters:** rater identities, rationales, and free-text annotations could be
-sensitive; release policy affects what can ever be published. **Options:** (a) restricted
-institutional storage, pseudonymous release of labels/rationales only after
-de-identification review; (b) restricted storage, no public release beyond aggregate
-statistics; (c) fully open release of pseudonymized records. **Claude's recommendation:**
-(a) — supports reproducibility review without committing to full openness before anyone
-has read the free-text rationales for re-identification risk. **Consequences:** (c)
-forecloses redaction later; choose the most conservative option you can still revise
-upward. **Sign-off:** Option: ______ Retention period: ______ Date: ______ By: ______
+**Exact question:** Where are rater identities, rationales, and annotations stored, for
+how long, and what — if anything — is ever released publicly?
+**Why it matters:** free-text rationales can be re-identifying; release policy bounds
+what can ever be published.
+**Options:** (a) restricted institutional storage, pseudonymous release of
+labels/rationales only after a de-identification review; (b) restricted storage, no
+public release beyond aggregate statistics; (c) fully open release of pseudonymized
+records.
+**Recommended:** (a) — supports reproducibility review without pre-committing to full
+openness before anyone has checked the free text for re-identification risk.
+**Tradeoff:** (c) is most open-science-friendly but forecloses redaction later; (b) is
+safest but weakens reproducibility claims.
+**Unblocks:** the reproducibility release plan (`docs/REPRODUCIBILITY_RELEASE_PLAN.md`)
+finalization, and any public data release after publication.
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 5. Final judge selection (API choice)
 
-**Why it matters:** the automated monitor `D`/`T` is the other half of the primary
-estimand; its identity must be locked before any output is observed.
+**Exact question:** Which automated judge (if any) is used for `D` and `T`?
+**Why it matters:** the other half of the primary estimand; must be locked before any
+output is observed.
 **Options:** (a) GPT-5.4 (`gpt-5.4-2026-03-05`), primary candidate; (b) Claude Sonnet 4.6
 (`claude-sonnet-4-6`), backup candidate; (c) neither, if calibration fails both.
-**Claude's recommendation:** run calibration on (a) first per the frozen priority order
-(`research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 10); fall back to (b) only if (a) fails
-the criteria in row 6. **Consequences:** choosing without calibration evidence (e.g. "the
-bigger model") is exactly the model-size heuristic this project's own decision log
-repeatedly rejects. **Sign-off:** Selected: ______ Based on calibration report hash: ______ Date: ______ By: ______
+**Recommended:** calibrate (a) first per the frozen priority order (`research/
+NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 10); fall back to (b) only if (a) fails row 6's
+criteria.
+**Tradeoff:** choosing without calibration evidence (e.g. "the bigger model") repeats
+exactly the model-size heuristic this project's own decisions reject.
+**Unblocks:** Tables 3–8 of `paper/main.md`; the whole measurement stage.
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 6. Numeric judge acceptance criteria
 
-**Why it matters:** no dataset can supply the relative cost of a missed acknowledgment
-versus an invented one; this is a pure error-cost judgment. **Options:** state your own
-`max_false_negative_rate`, `max_false_positive_rate`, `minimum_coverage`,
-`required_interval_half_width` (see `experiments/M2-Monitor-Validation/
-JUDGE_SELECTION_RECORD_TEMPLATE.md`'s sign-off table for the exact fields).
-**Claude's recommendation:** none offered — a borrowed number from an unrelated
-benchmark is explicitly rejected by this project's own standing decisions; do not ask
-for a suggested number here. **Consequences:** signing before any candidate output
-exists is what makes this an acceptance rule rather than a post-hoc rationalization.
-**Sign-off:** filled directly in `experiments/M2-Monitor-Validation/
-JUDGE_SELECTION_RECORD_TEMPLATE.md`; record the completion date here: ______ By: ______
+**Exact question:** What is the maximum tolerable false-negative rate, false-positive
+rate, minimum coverage, and required interval half-width for accepting a judge
+candidate?
+**Why it matters:** a pure error-cost judgment; no dataset can supply it.
+**Options:** state your own four numbers (see `experiments/M2-Monitor-Validation/
+JUDGE_SELECTION_RECORD_TEMPLATE.md`'s sign-off table for the exact fields) — there is no
+menu of pre-built options here by design.
+**Recommended:** none offered — a borrowed number from an unrelated benchmark is
+explicitly rejected by this project's own standing decisions.
+**Tradeoff:** stricter bounds are more defensible but may reject every candidate,
+forcing "no judge selected" (a legitimate, reportable outcome, not a failure).
+**Unblocks:** judge calibration scoring (code refuses to run without this, signed,
+before any candidate output exists).
+**Decision:** filled directly in the linked template; record completion date here:
+**Date:** __________ **By:** __________
 
 ### 7. Translator selection
 
-**Why it matters:** the secondary estimand `R` depends entirely on one locked translation
-pathway. **Options:** (a) a general-purpose hosted LLM translator, calibrated on a
-held-out Urdu→English adequacy set; (b) a dedicated MT system (e.g. a provider's
-translation API); (c) human professional translation of every trace instead of machine
-translation (much higher cost, removes "automated recovery" as a claim entirely — this
-would change the research question, not just the toolchain). **Claude's recommendation:**
-(a) or (b), calibrated per `experiments/M3-English-Urdu/TRANSLATION_PROTOCOL.md`, with a
-provider distinct from the primary judge where practicable. **Consequences:** (c) is
-scientifically cleaner for translation quality but stops being a test of "automated
-translate-then-monitor recovery" — flag explicitly if chosen. **Sign-off:** Selected: ______ Date: ______ By: ______
+**Exact question:** Which translator (provider/model/version) produces the locked
+Urdu→English translations for `T`?
+**Why it matters:** the secondary estimand `R` depends entirely on one locked pathway.
+**Options:** (a) a general-purpose hosted LLM translator, calibrated on a held-out
+Urdu→English adequacy set; (b) a dedicated MT system/API; (c) human professional
+translation of every trace instead of machine translation.
+**Recommended:** (a) or (b), calibrated per `experiments/M3-English-Urdu/
+TRANSLATION_PROTOCOL.md`, distinct provider from the judge where practicable.
+**Tradeoff:** (c) is cleaner for translation quality but stops testing "automated"
+recovery — it changes the research question, not just the toolchain; flag explicitly if
+chosen.
+**Unblocks:** the translation diagnostic (Tables 6–8).
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 8. Urdu rubric-language approval
 
-**Why it matters:** the English-language disclosure construct is frozen (`research/
-NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 5); its Urdu-language wording, as shown to raters,
-is not yet reviewed. **Options:** (a) professional bilingual translation of the rubric
-text, reviewed by both raters before training; (b) draft by one bilingual reviewer,
-independently checked by the second. **Claude's recommendation:** (b) is sufficient given
-raters are required to have strong written English (they can also read the English
-version side by side); either is acceptable if independently checked.
-**Consequences:** do not skip independent check even for a "simple" rubric — disclosure-
-category boundaries are exactly where translation nuance matters most.
-**Sign-off:** Approved wording version: ______ Date: ______ By (both reviewers): ______
+**Exact question:** Is the Urdu-language wording of the rubric (as shown to raters, if
+used instead of the English rater packet) reviewed and approved?
+**Why it matters:** the English construct is frozen; its Urdu rendering is not yet
+reviewed, and boundary cases (e.g. "rejecting ≠ disclosing") are exactly where
+translation nuance matters most.
+**Options:** (a) professional bilingual translation of the rubric, reviewed by both
+raters before training; (b) draft by one bilingual reviewer, independently checked by
+the second; (c) use the English-language rater packet directly (`docs/rater_package/`),
+relying on raters' required strong written English.
+**Recommended:** (c) is sufficient and simplest, since raters must already have strong
+written English; if Urdu wording is wanted for comfort, (b) is enough if independently
+checked.
+**Tradeoff:** (a) is most thorough but adds a translation-review step to a document that
+isn't itself experimental material.
+**Unblocks:** rater training (once row 2 is also resolved).
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 9. SESOI (smallest effect size of interest)
 
-**Why it matters:** must be a substantive judgment about what detection-rate difference
-would change an oversight conclusion — not derivable from any pilot. **Options:** state
-an absolute percentage-point difference in `G` (e.g., "a 10-point gap would change our
-recommendation about relying on this monitor for Urdu"). **Claude's recommendation:**
-none offered — see `experiments/M4-Confirmatory/SAMPLE_SIZE_DECISION_TEMPLATE.md`; a
-value copied from the blueprint's old 10-point figure or from the English pilot's
-observed effect is explicitly disallowed by this project's own decisions.
-**Consequences:** an unjustified SESOI invalidates the entire confirmatory N calculation
-downstream. **Sign-off:** SESOI: ______ Justification: ______ Date: ______ By: ______
+**Exact question:** What absolute difference in `G` (percentage points) would change
+your conclusion about relying on this monitor for Urdu?
+**Why it matters:** must be a substantive judgment, not derivable from any pilot or
+Urdu data.
+**Options:** state your own value and one sentence of justification — no pre-built menu,
+by design; a value copied from the old blueprint's 10-point figure or from the English
+pilot's observed effect is explicitly disallowed.
+**Recommended:** none offered.
+**Tradeoff:** a larger SESOI needs a smaller N but risks missing a real, smaller effect;
+a smaller SESOI needs more resources.
+**Unblocks:** row 12 (confirmatory N).
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 10. Alpha and target power
 
-**Why it matters:** standard but still a project choice, and it interacts with
-multiplicity (row 11). **Options:** (a) alpha 0.05, power 0.80 (conventional); (b) a
-different pair, justified by this study's error-cost stakes. **Claude's recommendation:**
-(a) is a defensible default absent a specific reason otherwise; state one if choosing
-otherwise. **Consequences:** must be fixed jointly with SESOI and N (row 12) before any
-confirmatory design is registered. **Sign-off:** Alpha: ______ Power: ______ Date: ______ By: ______
+**Exact question:** What significance level and target power apply to the confirmatory
+test of `G` (and `R`, if formally tested)?
+**Why it matters:** standard, but still a project choice, interacting with row 11.
+**Options:** (a) alpha 0.05, power 0.80 (conventional); (b) a different pair, justified
+by this study's specific error-cost stakes.
+**Recommended:** (a) is defensible absent a specific reason otherwise.
+**Tradeoff:** stricter alpha/higher power both increase the required N.
+**Unblocks:** row 12.
+**Decision:** Alpha: ______ Power: ______ **Date:** __________ **By:** __________
 
 ### 11. Multiplicity rule
 
-**Why it matters:** whether `R` is tested as a formal secondary alongside primary `G`.
-**Options:** (a) Holm-adjusted two-test family (`G`, `R`); (b) `R` reported as
-estimation-only, not formally tested, no adjustment needed. **Claude's recommendation:**
-(a) if a formal claim about `R` is intended in the paper; (b) if `R` will only be
-discussed descriptively. **Consequences:** deciding this after seeing data is exactly the
-kind of post-hoc flexibility this project's confirmatory gate exists to prevent.
-**Sign-off:** Rule: ______ Date: ______ By: ______
+**Exact question:** Is `R` formally tested alongside primary `G`, with a multiplicity
+adjustment, or reported as estimation-only?
+**Why it matters:** deciding this after seeing data is exactly the post-hoc flexibility
+the confirmatory gate exists to prevent.
+**Options:** (a) Holm-adjusted two-test family (`G`, `R`); (b) `R` estimation-only, no
+formal test, no adjustment needed.
+**Recommended:** (a) if the paper will make a formal claim about `R`; (b) if `R` stays
+descriptive.
+**Tradeoff:** (a) is a stronger claim if it holds, but raises the bar `R` must clear;
+(b) is safer but weaker.
+**Unblocks:** row 12 and the confirmatory preregistration template.
+**Decision:** ______________________________ **Date:** __________ **By:** __________
 
 ### 12. Confirmatory N
 
-**Why it matters:** the final independent-item sample size for the Urdu confirmatory
-stage. **Options:** computed from rows 9–11 via the simulation-validated method in
-`research/FINAL_PROTOCOL.md` §3, once that validation is complete, crossed with actual
-rater/annotation/compute resource limits. **Claude's recommendation:** none — this is
-downstream arithmetic once rows 9–11 and the simulation validation exist; do not fill it
-in before both. **Consequences:** an N chosen before the SESOI/alpha/power rows are
-signed is not a real power calculation. **Sign-off:** N (independent items): ______ Total planned traces: ______ Date: ______ By: ______
+**Exact question:** How many independent source items (and total traces) are collected
+for the confirmatory stage?
+**Why it matters:** the actual resourcing commitment.
+**Options:** computed from rows 9–11 via the simulation-validated method in `research/
+FINAL_PROTOCOL.md` §3 (once that validation is complete), crossed with real
+rater/annotation/compute capacity.
+**Recommended:** none — this is downstream arithmetic once rows 9–11 and the §3
+simulation validation both exist; do not fill in before both.
+**Tradeoff:** a larger N is more defensible but costs more rater time and compute; a
+smaller N risks an uninformative confirmatory result.
+**Unblocks:** the confirmatory preregistration and the final go/no-go (row 13).
+**Decision:** N (items): ______ Total traces: ______ **Date:** __________ **By:** __________
 
 ### 13. Final go/no-go for Urdu data collection
 
-**Why it matters:** the single decision that actually starts spending human and compute
-resources on Urdu collection. **Options:** (a) go, once rows 1–12 above are all signed;
-(b) no-go / pause, citing which row(s) remain open. **Claude's recommendation:** (a) only
-once every prior row in this packet has a non-blank entry — this project's own gates are
-designed so no earlier stage can silently substitute for this decision.
-**Consequences:** this is the one decision that converts a fully-designed prospective
-study into an actual data-collection commitment. **Sign-off:** Decision: ______ Date: ______ By: ______
+**Exact question:** Do we begin Urdu data collection now?
+**Why it matters:** the one decision that actually spends human and compute resources.
+**Options:** (a) go, once rows 1–12 are all signed; (b) no-go/pause, naming which row(s)
+remain open.
+**Recommended:** (a) only once every row above has a non-blank entry.
+**Tradeoff:** going early without a resolved row risks collecting data under an
+unapproved or unjustified design; waiting delays the timeline.
+**Unblocks:** everything in `research/EXECUTION_ROADMAP.md` category 3 onward.
+**Decision:** ______________________________ **Date:** __________ **By:** __________

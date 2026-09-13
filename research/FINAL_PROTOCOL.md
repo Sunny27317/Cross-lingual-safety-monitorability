@@ -29,17 +29,20 @@ read beyond its committed `PILOT_REPORT.md`, not touched, and not merged by this
 |---|---|---|
 | Primary RQ, estimand signs (`G`, `R`, agreement diagnostic) | `paper/main.md` §"Research Questions"; `literature/DECISION_LOG.md` D-059/D-070 | FROZEN |
 | Disclosure construct, 5-category rubric, binary mapping | `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` §5 (D-073); worked examples in `docs/HUMAN_URDU_VALIDATION_PACKAGE.md` | FROZEN (construct); Urdu wording HUMAN REQUIRED |
-| Rater-facing packet (recruitment → decision tree → submission fields → reporting) | `docs/HUMAN_URDU_VALIDATION_PACKAGE.md`; `experiments/M2-Monitor-Validation/{HUMAN_REFERENCE_PROTOCOL,ANNOTATION_GUIDE,ADJUDICATION_PROTOCOL}.md` | COMPLETE as design; extended by this pass (§5) |
-| Urdu material equivalence procedure | `experiments/M3-English-Urdu/URDU_PROTOCOL.md`, `docs/HUMAN_URDU_VALIDATION_PACKAGE.md` §"Urdu material QA checklist" | COMPLETE as design; per-item fillable form added by this pass (`docs/URDU_ITEM_EQUIVALENCE_FORM.md`) |
-| Judge candidate shortlist, calibration sequence, metrics | `experiments/M2-Monitor-Validation/JUDGE_VALIDATION_PROTOCOL.md`; `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` §9–10 | FROZEN (shortlist + procedure); numeric criteria HUMAN REQUIRED |
-| Judge acceptance sign-off template | `experiments/M2-Monitor-Validation/JUDGE_SELECTION_RECORD_TEMPLATE.md` | Extended by this pass with the exact metric/threshold/rationale/date/approver/plan-hash table (§6) |
+| Rater-facing packet (recruitment → decision tree → submission fields → reporting) | `docs/HUMAN_URDU_VALIDATION_PACKAGE.md`; `experiments/M2-Monitor-Validation/{HUMAN_REFERENCE_PROTOCOL,ANNOTATION_GUIDE,ADJUDICATION_PROTOCOL}.md`; **operational package `docs/rater_package/`** (§5) | COMPLETE as design AND as a real-world-usable package |
+| Urdu material equivalence procedure | `experiments/M3-English-Urdu/URDU_PROTOCOL.md`, `docs/HUMAN_URDU_VALIDATION_PACKAGE.md` §"Urdu material QA checklist"; per-item form `docs/URDU_ITEM_EQUIVALENCE_FORM.md`; **operational instructions `docs/TRANSLATOR_INSTRUCTIONS.md`, `docs/BILINGUAL_REVIEWER_INSTRUCTIONS.md`, `docs/URDU_EQUIVALENCE_DECISION_TREE.md`** (§7) | COMPLETE as design AND as a real-world-usable package |
+| Judge candidate shortlist, calibration sequence, metrics | `experiments/M2-Monitor-Validation/JUDGE_VALIDATION_PROTOCOL.md`; `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` §9–10; **judge-facing prompt/schema `experiments/M2-Monitor-Validation/JUDGE_RUBRIC_PACKAGE.md`** (§6) | FROZEN (shortlist + procedure); numeric criteria HUMAN REQUIRED |
+| Judge acceptance sign-off template | `experiments/M2-Monitor-Validation/JUDGE_SELECTION_RECORD_TEMPLATE.md` | Exact metric/threshold/rationale/date/approver/plan-hash table present (§6) |
 | Translation protocol, four controls | `experiments/M3-English-Urdu/TRANSLATION_PROTOCOL.md` | COMPLETE as design |
 | Measurement/statistical semantics for `G`/`R` | `experiments/M3-English-Urdu/MEASUREMENT_VALIDITY_ANALYSIS_PLAN.md` | COMPLETE; restated as one plan in §4 |
 | Power/robustness/sample-size/preregistration templates | `experiments/M4-Confirmatory/{POWER_PLAN,ROBUSTNESS_PLAN,SAMPLE_SIZE_DECISION_TEMPLATE,CONFIRMATORY_PREREG_TEMPLATE}.md` | COMPLETE as templates; all fields HUMAN REQUIRED |
-| PR #27 engineering gates | `src/clsm/downstream/{partitions,matching,simulation_validation}.py`, `contracts.py: JudgeAcceptanceCriteria`, `translation.py: validate_english_paraphrase_control` | Correct except the gap fixed in §1 |
+| PR #27 engineering gates | `src/clsm/downstream/{partitions,matching,simulation_validation}.py`, `contracts.py: JudgeAcceptanceCriteria`, `translation.py: validate_english_paraphrase_control` | Narrowed gap remains open (§1) as of PR #27 commit `78c206d`; not re-reviewed further by this pass per explicit instruction |
 | Item-disjoint 4-way partition rule | `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` §11 (D-073); implemented in `partitions.py` | FROZEN + implemented |
-| Ethics/governance checklist | `docs/ETHICS_AND_DATA_GOVERNANCE_CHECKLIST.md` | COMPLETE as checklist; every row HUMAN REQUIRED |
-| Novelty position | `research/POST_PILOT_METHODS_DECISIONS.md` §I; `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §5 | YELLOW, reaffirmed unchanged |
+| Ethics/governance checklist and templates | `docs/ETHICS_AND_DATA_GOVERNANCE_CHECKLIST.md`; **operational `docs/ETHICS_REVIEW_REQUEST_TEMPLATE.md`, `docs/RATER_CONSENT_TEMPLATE.md`** (both marked DRAFT — REQUIRES INSTITUTIONAL REVIEW) | COMPLETE as checklist + submittable drafts; every determination HUMAN REQUIRED |
+| Reproducibility release classification | **new, `docs/REPRODUCIBILITY_RELEASE_PLAN.md`** | Proposed PUBLIC/PUBLIC AFTER REVIEW/PRIVATE/NEVER PUBLIC tiers per artifact; final tier HUMAN REQUIRED |
+| Prospective outcome-to-wording mapping | **new, `research/RESULT_INTERPRETATION_MATRIX.md`**; Discussion branches in `paper/main.md` | Prospective; no future outcome inspected |
+| Fast orientation for a new supervisor | **new, `research/SCIENTIFIC_STATUS.md`** | Short-form status; points to everything above |
+| Novelty position | `research/POST_PILOT_METHODS_DECISIONS.md` §I; `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §5; restated in `paper/main.md` §Related Work | YELLOW, reaffirmed unchanged |
 
 ## 1. PR #27 fix — exact scientific semantics for the mechanism-claim/English-anchor gate
 
@@ -233,33 +236,51 @@ have to reassemble it.
 No SESOI, alpha, target power, multiplicity choice, or N is set by this document. All
 remain in `experiments/M4-Confirmatory/SAMPLE_SIZE_DECISION_TEMPLATE.md`, HUMAN REQUIRED.
 
-## 5. Rater-facing packet — status after this pass
+## 5. Rater-facing packet — now operational
 
-`docs/HUMAN_URDU_VALIDATION_PACKAGE.md` already contained the recruitment procedure,
-decision tree, blinding rules, adjudication summary, and worked examples. This pass adds
-the three pieces item B of the completion-phase task named that were not yet explicit
-there: the binary mapping used in the primary analysis, the uncertainty/confidence field
-raters actually fill in, and a repeated-item policy statement. See that file directly;
-it is not reproduced here.
+`docs/HUMAN_URDU_VALIDATION_PACKAGE.md` states the design (recruitment procedure,
+decision tree, blinding rules, adjudication summary, worked examples, binary mapping,
+uncertainty field, repeated-item policy). **`docs/rater_package/`** now turns that design
+into six documents a real recruited rater or adjudicator can be handed directly:
+`RATER_ONBOARDING.md`, `RATER_INSTRUCTIONS.md`, `RATER_QUALIFICATION_TEMPLATE.md`,
+`ANNOTATION_DECISION_TREE.md`, `ADJUDICATOR_INSTRUCTIONS.md`, `RATER_FAQ.md`. No rater
+was recruited or invented to produce these; they are plain-language restatements of the
+already-frozen design, not a new design.
 
-## 6. Judge acceptance sign-off — status after this pass
+## 6. Judge acceptance sign-off and rubric — now operational
 
-`experiments/M2-Monitor-Validation/JUDGE_SELECTION_RECORD_TEMPLATE.md` already covers the
-full decision record. This pass adds the exact, code-matching sign-off table (mirroring
+`experiments/M2-Monitor-Validation/JUDGE_SELECTION_RECORD_TEMPLATE.md` covers the full
+decision record and the exact, code-matching sign-off table (mirroring
 `JudgeAcceptanceCriteria`'s fields one-to-one: `plan_hash`, `investigator`,
 `max_false_negative_rate`, `max_false_positive_rate`, `minimum_coverage`,
 `required_interval_half_width`, `selection_if_unmet`, `decision_record`, `signed_utc`,
-`investigator_signature`) so the investigator can fill exactly the fields the code will
-validate, with no translation gap between form and schema. See that file directly.
+`investigator_signature`). **`experiments/M2-Monitor-Validation/
+JUDGE_RUBRIC_PACKAGE.md`** (new) adds the exact judge-facing prompt template, structured
+output schema matching `JudgeInput`/`JudgeOutput`, abstention/partial/uncertainty
+handling, calibration-only and heldout-prohibition instructions, and prompt-versioning
+requirements — written so the judge and the human raters measure the same construct
+without forcing identical wording.
 
-## 7. Urdu item equivalence — status after this pass
+## 7. Urdu item equivalence — now operational
 
 `experiments/M3-English-Urdu/TRANSLATION_PROTOCOL.md` and `docs/
-HUMAN_URDU_VALIDATION_PACKAGE.md`'s QA checklist already state the procedure. This pass
-adds one new artifact, `docs/URDU_ITEM_EQUIVALENCE_FORM.md`: a per-item fillable record
-(not prose) covering source item, translation, independent bilingual review,
-discrepancy classification, adjudication, semantic-equivalence lock, hashes/versioning,
-and the exact rule for how an edit after lock invalidates downstream artifacts.
+HUMAN_URDU_VALIDATION_PACKAGE.md`'s QA checklist state the procedure. `docs/
+URDU_ITEM_EQUIVALENCE_FORM.md` is the per-item fillable record. **`docs/
+TRANSLATOR_INSTRUCTIONS.md`, `docs/BILINGUAL_REVIEWER_INSTRUCTIONS.md`, and `docs/
+URDU_EQUIVALENCE_DECISION_TREE.md`** (new) give the translator, the independent
+bilingual reviewers, and the adjudicator each their own operational instructions for
+using that form — no real translation has been performed to produce them.
+
+## 5a–7a. Ethics, reproducibility-release, and interpretation packages — now operational
+
+Three further genuinely new, operational (not audit) documents complete this pass:
+`docs/ETHICS_REVIEW_REQUEST_TEMPLATE.md` and `docs/RATER_CONSENT_TEMPLATE.md` (both
+explicitly marked as requiring institutional review before use — no ethics
+determination is claimed); `docs/REPRODUCIBILITY_RELEASE_PLAN.md` (a proposed
+PUBLIC / PUBLIC AFTER REVIEW / PRIVATE / NEVER PUBLIC classification per artifact type,
+not an institutional decision); and `research/RESULT_INTERPRETATION_MATRIX.md` (a
+prospective outcome-pattern-to-wording map, extending `paper/main.md`'s Discussion
+branches, written without inspecting any future outcome).
 
 ## 8. What remains human-required
 
