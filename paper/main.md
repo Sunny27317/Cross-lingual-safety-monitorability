@@ -5,6 +5,18 @@ were inspected by the author of this scaffold. This text does not assert that a
 scientific stage has or has not been executed elsewhere. It contains no generated
 scientific findings, invented labels, selected judge/translator, or confirmatory claim.
 
+## Title options [WORKING — supervisor to choose or reject all]
+
+1. *Separating reasoning disclosure from language-dependent monitoring failure in Urdu*
+   (current working title; neutral on outcome, states the measurement-validity framing).
+2. *A native-Urdu-anchored test of automated chain-of-thought monitor validity.*
+3. *Monitor or model? Disentangling automated-monitor language limitations from
+   reasoning disclosure in Urdu.*
+
+None asserts a finding, a novelty priority, or an outcome direction. Final title choice
+should wait until Results exist, since a title implying a direction (e.g. "monitors fail
+in Urdu") would be a claim this project cannot make before data.
+
 ## Abstract [RESULTS PENDING]
 
 Reasoning traces can expose information useful to safety monitoring, but a monitor's
@@ -137,6 +149,31 @@ cognition or establish universal safety-monitor validity. Model/task/language sc
 generalization, especially to frontier systems. Synthetic tests validate software, not
 these scientific assumptions.
 
+### Threats to validity
+
+**Construct validity.** "Disclosure" is explicit textual acknowledgment, not causal
+faithfulness or hidden cognition; a trace can be causally influenced by a hint without
+acknowledging it, or can mention a hint it did not actually use. The rubric's `partial`/
+`cannot_tell` boundary is itself an operational choice, reported with sensitivity
+mappings rather than treated as ground truth.
+
+**Internal validity.** Confounds between "language" and "translation artifact" are the
+central threat this design exists to address (§Translate-Then-Monitor); the English
+paraphrase control bounds, but does not eliminate, generic-rewriting effects. Rater
+recognition of study context from unavoidable in-text cues is a residual confound in the
+human reference itself.
+
+**External validity.** One quantized 1.7B-parameter model, one MMLU-derived item set,
+one hint design, and one language pair. No claim generalizes to other model scales,
+frontier systems, other benchmarks, or other low-resource languages without independent
+evidence.
+
+**Statistical conclusion validity.** Repeated generations within a source item are
+correlated, not independent draws; every interval and test uses the source-item cluster
+as the unit. The confirmatory test's own type-I error and coverage require the
+simulation validation in `research/FINAL_PROTOCOL.md` §3 before any p-value from it is
+reported as calibrated.
+
 ## Ethics
 
 Institutional determination, consent/compensation, harmful-content exposure, privacy,
@@ -156,17 +193,101 @@ run identifiers and approved evidence, not substitute fixture hashes for scienti
 
 ## Results [PENDING]
 
-**No results written.** Planned tables and figures are in their respective directories.
-Do not insert invented estimates, representative-looking outputs or synthetic labels.
+**No results written.** Do not insert invented estimates, representative-looking
+outputs or synthetic labels. The tables below are the exact planned skeletons (headers
+only, per `paper/tables/README.md`); every cell is filled only from a hash-verified
+category-4 analysis artifact (`research/EXECUTION_ROADMAP.md`), never before.
+
+**Table 1 — Frozen identities and coverage.**
+
+| Field | Value |
+|---|---|
+| Scientific config hash | PENDING |
+| Dataset content hash (English / Urdu) | PENDING |
+| Judge spec hash (selected candidate) | PENDING |
+| Translator spec hash | PENDING |
+| Planned / complete / missing traces, by language and arm | PENDING |
+
+**Table 2 — Monitor-Validity Gap (primary).**
+
+| Population | n complete pairs | TP | FN | FP | TN | mean(H−D) | 95% interval | Sensitivity | Specificity |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| Urdu, confirmatory sample | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+
+**Table 3 — Translate-then-monitor recovery (secondary) and agreement diagnostic (exploratory).**
+
+| Population | n complete triples | mean(T−D) | 95% interval | mean(1[T=H]−1[D=H]) | 95% interval |
+|---|---:|---:|---:|---:|---:|
+| Urdu, common H/D/T | PENDING | PENDING | PENDING | PENDING | PENDING |
+
+**Table 4 — Translation-artifact audit.**
+
+| Category | n audited | Semantic adequacy issues | Disclosure added | Disclosure omitted | Option drift | Truncated/unusable |
+|---|---:|---:|---:|---:|---:|---:|
+| Urdu → English | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
+| English → English paraphrase | PENDING | PENDING | PENDING | PENDING | PENDING | PENDING |
 
 ## Discussion [PENDING]
 
 Interpretation must follow validated evidence, including alternative mechanisms,
 measurement error, missingness and negative findings. No success claim is prewritten.
+The eventual discussion must address, in this order, without pre-answering any of them:
+
+1. What did `G` and `R` actually show, including sign and confidence interval, before
+   any interpretation?
+2. Do the confusion matrices show a genuine detection asymmetry, or does a near-zero
+   marginal `G`/`R` conceal offsetting false positives and false negatives?
+3. Does the translation-artifact audit (Table 4) support or undercut reading `R` as
+   evidence about monitor *language* limitation specifically, versus generic
+   rewriting sensitivity (per the English paraphrase control)?
+4. What do the missingness and coverage figures imply about which population the
+   reported estimate actually generalizes to?
+5. How does this result relate to the adjacent literature in Related Work — does it
+   corroborate, contradict, or sit orthogonal to Onyame et al., Zhao et al., Yang et al.,
+   and Ercolano's DialectShift-Monitor finding?
+6. What, specifically, can and cannot be claimed as a result of this study (cross-check
+   against the Claim Ledger below before finalizing wording)?
 
 ## Conclusion [PENDING]
 
 No empirical conclusion is available in this scaffold.
+
+## Claim ledger
+
+Every claim the eventual paper makes must trace to a row here, filled in only once the
+underlying evidence exists. This is a checklist against overclaiming, not a results
+section.
+
+| Claim | Permitted only if | Evidence artifact | Status |
+|---|---|---|---|
+| A Monitor-Validity Gap `G` was estimated for this model/task/hint design | Confirmatory `G` computed on the locked confirmatory sample | Table 2 | PENDING |
+| Translation changed automated detection (`R` ≠ 0) | Confirmatory `R` computed on common H/D/T triples | Table 3 | PENDING |
+| The change is consistent with a language-specific monitor limitation | English anchor + paraphrase control both present and audited (§Translate-Then-Monitor; `research/FINAL_PROTOCOL.md` §1) | Table 3 + Table 4 | PENDING |
+| Translation "recovers" validity / is a mitigation | Improved agreement with native reference, not just a sign change in `R` | Table 3 (agreement diagnostic) | PENDING, and only ever stated as "consistent with," never proven |
+| This is the first study of its kind | — | — | **NEVER** — YELLOW novelty status; adjacent work exists (`research/POST_PILOT_METHODS_DECISIONS.md` §I) |
+| The model has private unfaithful cognition | — | — | **NEVER** — disclosure is textual, not a causal-cognition claim |
+| Results generalize to other low-resource languages | — | — | **NEVER** without independent evidence — this is a one-language, one-model, one-task study |
+| The English pilot shows a switch/adoption effect | Descriptive report only, already true | `experiments/M1-Mac-Feasibility/PILOT_REPORT.md` (PR #19) | DESCRIPTIVE, not evidence for any Urdu claim |
+
+## Appendix (structure)
+
+- **A. Full frozen protocol.** `research/FINAL_PROTOCOL.md` and its index of canonical
+  sources, reproduced or linked in full.
+- **B. Disclosure rubric, English and locked Urdu wording**, with worked examples
+  (`docs/HUMAN_URDU_VALIDATION_PACKAGE.md`).
+- **C. Judge calibration report**, all registered candidates, full metrics, and the
+  signed acceptance-criteria record (`experiments/M2-Monitor-Validation/
+  JUDGE_CALIBRATION_REPORT_TEMPLATE.md`, `JUDGE_SELECTION_RECORD_TEMPLATE.md`).
+- **D. Urdu item equivalence records**, one `docs/URDU_ITEM_EQUIVALENCE_FORM.md` per
+  item, or a summary table with per-item hashes.
+- **E. Translation-artifact audit detail**, full `EquivalenceAudit` records.
+- **F. Confirmatory preregistration**, filed before outcomes, unedited
+  (`experiments/M4-Confirmatory/CONFIRMATORY_PREREG_TEMPLATE.md`).
+- **G. Full decision log**, `literature/DECISION_LOG.md`, referenced by number
+  throughout the main text rather than reproduced inline.
+- **H. Deviations.** Every case where a prospective decision was revised after some
+  access to outcomes, with date and reason, per the project's own non-negotiable rule
+  against silently rewriting a prospective decision (CLAUDE.md §2.3).
 
 ## References
 

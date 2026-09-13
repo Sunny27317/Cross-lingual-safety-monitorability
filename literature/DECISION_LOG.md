@@ -2283,10 +2283,61 @@ are reversed by a **new** entry, not by deleting an old one.
   synthetic-ground-truth simulation study — and is handed to Codex as an ordinary
   engineering task (see `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md` item 20.3), not left
   as an open scientific question requiring investigator judgment.
-- **Consequence for PR #19:** its own `D-069` entry must be renumbered to **D-074** (the
-  next free number after this entry) at PR #19's merge time, updating the collision
-  first flagged in `research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2 (which named `D-073` as
+- **Consequence for PR #19:** its own `D-069` entry must be renumbered to **D-075**
+  (superseding this entry's original note, which said D-074; D-074 was subsequently
+  used by the final-protocol pass below, before PR #19 merged) at PR #19's merge time,
+  recheck at merge time, updating the collision first flagged in `research/
+  SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2 (which named `D-073` as
   the target before this entry existed).
 - **Full detail:** `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md`.
 - **STOP:** no judge call, translation, Urdu inference, human annotation, or
   confirmatory analysis is authorized by this entry. PR #19 is not merged by this entry.
+
+---
+
+## D-074 — Final canonical protocol; PR #27 English-anchor gap given an exact fix spec
+- **Date:** 2026-09-12. Independent review of PR #27 (open, `research/
+  final-scientific-execution-readiness`) found one confirmed, reproducible gap:
+  `validate_english_paraphrase_control()` only requires a paraphrase control for English
+  tasks already present in a packet, so a Urdu-only packet with `mechanism_claim=True`
+  passes vacuously with no English anchor arm at all — verified by direct execution
+  against the PR #27 branch in an isolated worktree, not by inspection alone.
+- **FROZEN (design, exact spec for Codex, no code changed by this entry):**
+  `research/FINAL_PROTOCOL.md` §1 specifies the exact required check (English-anchor
+  coverage over the confirmatory partition's item IDs, in addition to the existing
+  per-task paraphrase check) and the relaxed matching rule for the paraphrase record `P`
+  itself (matches its anchor by `source_item_id`/`condition`/`seed` only, since it is a
+  deliberate rewrite). §2 resolves a related ambiguity D-073's item 13 left implicit:
+  `TraceIdentityKey.language` always records the trace's own source language (`"ur"` for
+  every H/D/T row in the Urdu measurement); a separate, non-key `judge_input_language`
+  field records what a judge actually read for `D` vs. `T`.
+- **FROZEN:** a minimum simulation standard for the confirmatory cluster-test
+  validation (`research/FINAL_PROTOCOL.md` §3) — ≥1,000 bootstrap replicates, ≥2,000
+  simulations/scenario, a named scenario grid covering item count/ICC/missingness/
+  informative-missingness, explicit null-scenario type-I-error and coverage checks
+  against their own Monte Carlo intervals. This responds directly to the reviewed
+  `CLUSTER_METHOD_VALIDATION.md` example (20 simulations/scenario), which is honest
+  about not being a scientific result but is not sufficient to move the confirmatory
+  test from UNRESOLVED to READY.
+- **Consolidated, not re-decided:** the statistical plan (`research/FINAL_PROTOCOL.md`
+  §4) restates `experiments/M3-English-Urdu/MEASUREMENT_VALIDITY_ANALYSIS_PLAN.md` and
+  D-073 items 16–18 as one document; no estimand, sign, exclusion, or weighting rule
+  changed.
+- **New artifacts, no scientific content:** `docs/URDU_ITEM_EQUIVALENCE_FORM.md`
+  (per-item fillable equivalence record), `experiments/M2-Monitor-Validation/
+  JUDGE_SELECTION_RECORD_TEMPLATE.md` extended with the exact `JudgeAcceptanceCriteria`
+  sign-off table, `docs/HUMAN_URDU_VALIDATION_PACKAGE.md` extended with the binary
+  mapping/uncertainty-field/repeated-item paragraphs, `research/
+  SUPERVISOR_DECISION_PACKET.md` and `research/EXECUTION_ROADMAP.md` (new), and
+  `paper/main.md` expanded (title options, claim ledger, threats to validity, empty
+  result-table skeletons, discussion scaffolding, appendix structure) with no Results/
+  Discussion/Conclusion content written.
+- **Renumbering correction:** D-073 and `research/NEXT_STAGE_SCIENTIFIC_FREEZE.md`
+  originally targeted `D-074` as PR #19's renumbering destination for its colliding
+  `D-069`. This entry takes `D-074`, so that target is corrected to **D-075** in both
+  places (edited before merge; PR #19 itself untouched).
+- **Independence:** this entry did not read `generations.jsonl`, PR #19's checkout
+  beyond its committed `PILOT_REPORT.md`, or any raw pilot output. PR #19 is not merged,
+  commented on for merge, or modified by this entry.
+- **STOP:** no judge call, translation, Urdu inference, human annotation, or
+  confirmatory analysis is authorized by this entry.

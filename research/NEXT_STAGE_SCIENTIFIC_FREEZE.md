@@ -363,15 +363,17 @@ Track B and all frozen Track-A scientific parameters exactly as they are.
    touch, comment on, or merge PR #19.**
 9. **Only at the actual moment PR #19 is merged** (a separate, later, human-approved
    event): renumber PR #19's `D-069` entry to the next free number on `main` at that
-   time (currently `D-074`, immediately after this document's `D-073`; recheck at merge
-   time in case another PR has landed between now and then).
+   time (`D-075` as of the later `research/FINAL_PROTOCOL.md` pass in this same PR,
+   which took `D-074` before PR #19 merged; recheck at merge time in case another PR
+   has landed since).
 
 ## Decision-log status
 
 This document is accompanied by `literature/DECISION_LOG.md` entry **D-073**. PR #19's
-still-open `D-069` entry must be renumbered to **D-074** (the next free number after this
-one) at PR #19's merge time, not before — updating the guidance left by the prior audit
-(`research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2), which correctly identified the collision
+still-open `D-069` entry must be renumbered to **D-075** (not `D-074` — `D-074` was
+subsequently taken by `research/FINAL_PROTOCOL.md`'s decision entry in this same PR,
+before PR #19 merged) at PR #19's merge time, not before — updating the guidance left by
+the prior audit (`research/SCIENTIFIC_LEAD_FINAL_AUDIT.md` §2), which correctly identified the collision
 before this document existed.
 
 ## Scope note
