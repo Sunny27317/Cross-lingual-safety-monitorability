@@ -1,0 +1,26 @@
+# Synthetic clustered-method validation
+
+This report is a prospective operating-characteristic check of the source-item
+clustered percentile bootstrap implementation. It uses generated binary paired
+trace differences only; it does not use pilot records and does not select a
+confirmatory sample size, SESOI, threshold, or test.
+
+The simulation used 20 repetitions per scenario, 50 source-item bootstrap
+replicates, nominal alpha 0.10, and seed `20260911`. Rejection is recorded when
+the percentile interval excludes zero. Monte Carlo standard errors are shown so
+the small synthetic run is not mistaken for a scientific result.
+
+| scenario (items, traces/item, p+, p-, ICC, missing, informative missing) | true delta | defined | rejection | rejection MCSE | coverage | coverage MCSE |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| (8, 3, .20, .20, 0, 0, 0) | 0.00 | 20 | 0.15 | 0.0798 | 0.85 | 0.0798 |
+| (12, 4, .20, .10, .2, .1, .2) | 0.10 | 20 | 0.50 | 0.1118 | 0.80 | 0.0894 |
+| (20, 5, .10, .10, .4, 0, 0) | 0.00 | 20 | 0.10 | 0.0671 | 0.90 | 0.0671 |
+
+The informative-missingness row is a sensitivity mechanism: its interval
+coverage is against the complete-case scenario delta and is not evidence that
+missingness is ignorable. The implementation must therefore report missingness
+and retain this sensitivity analysis rather than silently treating it as a
+validated assumption.
+
+The deterministic report artifact hash is
+`b5d89f39888e461f9fb31bd615962cbae3161be17a828f91b3d6aafa2bcecacf`.

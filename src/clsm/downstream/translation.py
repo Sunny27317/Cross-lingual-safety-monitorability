@@ -7,6 +7,7 @@ from typing import Literal, Self
 
 from pydantic import Field, field_validator, model_validator
 
+from clsm.downstream.annotation import AnnotationPacket
 from clsm.downstream.contracts import (
     SHA,
     Contract,
@@ -138,6 +139,25 @@ def validate_translation(
         or record.measured_input_units + record.reserved_output_units > expected.context_limit
     ):
         raise ValueError("translation unusable: truncation/error/context overflow")
+
+
+def validate_english_paraphrase_control(
+    packet: AnnotationPacket,
+    translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...],
+) -> None:
+    """Require one usable English-to-English control per English source trace."""
+    expected = {task.blind_id for task in packet.tasks if task.language == "en"}
+    observed = {
+        request.blind_id
+        for request, record, translator in translations
+        if request.control is TranslationControl.ENGLISH_PARAPHRASE
+        and request.source_language == "en"
+        and request.target_language == "en"
+        and not record.truncated
+        and not record.errors
+    }
+    if expected - observed:
+        raise ValueError("English paraphrase control is required for a language-mechanism claim")
 
 
 class EquivalenceAudit(Contract):

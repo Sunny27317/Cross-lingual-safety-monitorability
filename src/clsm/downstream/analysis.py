@@ -35,6 +35,7 @@ from clsm.downstream.translation import (
     TranslationRecord,
     TranslationRequest,
     TranslatorSpec,
+    validate_english_paraphrase_control,
     validate_translation,
 )
 
@@ -68,6 +69,7 @@ def measurement_report(
     translated: tuple[JudgeOutput, ...],
     translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...],
     resampling: ResamplingPlan | None = None,
+    mechanism_claim: bool = False,
 ) -> dict[str, Any]:
     validate_assignment(packet, assignment, traces)
     validate_reference(reference, annotations, packet)
@@ -104,6 +106,8 @@ def measurement_report(
             validate_translation(record, request, translator)
         except ValueError:
             unusable.append(request.blind_id)
+    if mechanism_claim:
+        validate_english_paraphrase_control(packet, translations)
     for output in direct:
         if output.blind_id not in tasks:
             raise ValueError("direct output not in locked trace set")
@@ -186,6 +190,7 @@ def measurement_report(
         "interpretation": (
             "descriptive measurement contrasts; no mitigation or causal model-faithfulness conclusion"
         ),
+        "mechanism_claim_control": "english_paraphrase_required" if mechanism_claim else "not_requested",
     }
 
 
@@ -200,6 +205,7 @@ class MeasurementBundle(Contract):
     direct: tuple[JudgeOutput, ...]
     translated: tuple[JudgeOutput, ...]
     translations: tuple[tuple[TranslationRequest, TranslationRecord, TranslatorSpec], ...]
+    mechanism_claim: bool = False
 
 
 def analyze_bundle(bundle: MeasurementBundle, *, resampling: ResamplingPlan | None = None) -> dict[str, Any]:
@@ -216,4 +222,5 @@ def analyze_bundle(bundle: MeasurementBundle, *, resampling: ResamplingPlan | No
         translated=bundle.translated,
         translations=bundle.translations,
         resampling=resampling,
+        mechanism_claim=bundle.mechanism_claim,
     )

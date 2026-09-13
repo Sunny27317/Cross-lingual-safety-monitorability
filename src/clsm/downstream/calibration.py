@@ -14,6 +14,7 @@ from clsm.downstream.annotation import (
     validate_reference,
 )
 from clsm.downstream.contracts import (
+    JudgeAcceptanceCriteria,
     JudgeInput,
     JudgeOutput,
     JudgeSpec,
@@ -23,6 +24,26 @@ from clsm.downstream.contracts import (
     object_hash,
     validate_judge_output,
 )
+
+
+def validate_acceptance_criteria(
+    criteria: JudgeAcceptanceCriteria | None,
+    plan: ProspectiveCandidatePlan,
+    outputs: tuple[JudgeOutput, ...],
+) -> None:
+    """Require signed, hash-bound criteria before any candidate scores exist."""
+    if not outputs:
+        return
+    if criteria is None:
+        raise ValueError("signed acceptance criteria required before scoring")
+    criteria = JudgeAcceptanceCriteria.model_validate_json(criteria.model_dump_json())
+    if criteria.plan_hash != plan.artifact_hash:
+        raise ValueError("acceptance criteria do not bind this candidate plan")
+    if criteria.provenance.data_kind != plan.provenance.data_kind:
+        raise ValueError("acceptance criteria provenance mismatch")
+    first_output = min(datetime.fromisoformat(o.provenance.created_utc) for o in outputs)
+    if datetime.fromisoformat(criteria.signed_utc) > first_output:
+        raise ValueError("acceptance criteria were signed after candidate scoring")
 
 
 def validate_assignment(
@@ -66,6 +87,7 @@ def candidate_comparison(
     policy: LabelPolicy,
     candidates: tuple[JudgeSpec, ...],
     outputs: tuple[JudgeOutput, ...],
+    acceptance_criteria: JudgeAcceptanceCriteria | None = None,
     resampling: ResamplingPlan | None = None,
     include_pabak: bool = False,
     split: Literal["calibration", "heldout"] = "calibration",
@@ -124,6 +146,7 @@ def candidate_comparison(
         validate_judge_output(output, requests[output.blind_id], specs[output.judge_spec_hash])
         if output.provenance.data_kind != reference.provenance.data_kind:
             raise ValueError("mixed synthetic/scientific comparison")
+    validate_acceptance_criteria(acceptance_criteria, plan, outputs)
     refs = {r.blind_id: r for r in reference.labels}
     if any(r.rubric_version != policy.rubric_version for r in reference.labels):
         raise ValueError("reference/policy rubric mismatch")
@@ -189,6 +212,7 @@ def candidate_comparison(
         "plan_hash": plan.artifact_hash,
         "reference_hash": reference.artifact_hash,
         "label_policy_hash": policy.artifact_hash,
+        "acceptance_criteria_hash": acceptance_criteria.artifact_hash if acceptance_criteria else None,
         "candidates": reports,
         "selected_candidate": None,
         "common_complete_ids": sorted(common_ids),
