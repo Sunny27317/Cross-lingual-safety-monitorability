@@ -1,0 +1,23 @@
+{
+  "post_qc": {
+    "blockers": [],
+    "data_kind": "SCIENTIFIC_TECHNICAL_QC",
+    "duplicate_task_ids": 0,
+    "expected_tasks": 1871,
+    "persisted_records": 1871,
+    "prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+    "ready_to_seal": true,
+    "schema_version": "direct_judge_post_qc/1",
+    "scientific_labels_inspected": false,
+    "technical_state_counts": {
+      "MALFORMED_OUTPUT": 5,
+      "NO_LABEL": 3,
+      "VALID_LABEL": 1863
+    },
+    "unique_task_ids": 1871
+  },
+  "post_qc_sha256": "c4c01478629855b2f1a2e3ff5637c27cd46fb22f922019ae761209afda8b5633",
+  "schema_version": "judge_stage_seal/1",
+  "scientific_labels_inspected": false,
+  "stage": "direct_judge"
+}

@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from typing import cast
 
 import numpy as np
+from numpy.typing import NDArray
 
 from clsm.downstream.contracts import object_hash
 
@@ -43,11 +44,11 @@ class ClusterValidationScenario:
         return self.p_positive - self.p_negative
 
 
-def _draw_clusters(s: ClusterValidationScenario, rng: np.random.Generator) -> list[np.ndarray]:
+def _draw_clusters(s: ClusterValidationScenario, rng: np.random.Generator) -> list[NDArray[np.float64]]:
     base = np.array(
         [s.p_positive, s.p_negative, max(0.0, 1 - s.p_positive - s.p_negative)], dtype=float
     )
-    clusters: list[np.ndarray] = []
+    clusters: list[NDArray[np.float64]] = []
     for _ in range(s.items):
         probs = base
         if s.icc > 0:
@@ -64,7 +65,7 @@ def _draw_clusters(s: ClusterValidationScenario, rng: np.random.Generator) -> li
     return clusters
 
 
-def _estimate(clusters: list[np.ndarray]) -> float | None:
+def _estimate(clusters: list[NDArray[np.float64]]) -> float | None:
     values = (
         np.concatenate([x for x in clusters if len(x)], dtype=float)
         if any(map(len, clusters))
@@ -74,7 +75,7 @@ def _estimate(clusters: list[np.ndarray]) -> float | None:
 
 
 def cluster_percentile_interval(
-    clusters: list[np.ndarray], *, alpha: float, bootstrap_replicates: int, seed: int
+    clusters: list[NDArray[np.float64]], *, alpha: float, bootstrap_replicates: int, seed: int
 ) -> tuple[float | None, float | None, float | None]:
     if not 0 < alpha < 1 or bootstrap_replicates < 2:
         raise ValueError("invalid interval parameters")
@@ -94,7 +95,7 @@ def cluster_percentile_interval(
 
 
 def cluster_sign_flip_pvalue(
-    clusters: list[np.ndarray], *, draws: int, alpha: float, seed: int
+    clusters: list[NDArray[np.float64]], *, draws: int, alpha: float, seed: int
 ) -> tuple[float | None, bool]:
     """Randomization p-value on source-item means under a paired null.
 

@@ -1,0 +1,17 @@
+{
+  "schema_version": "workshop-v1-pre-result-archival-state/1",
+  "snapshot_type": "pre-result archival snapshot",
+  "scientific_direct_judge_distributions_inspected": false,
+  "final_analysis_run": false,
+  "translated_scientific_judging_run": false,
+  "human_outcomes_exist": false,
+  "direct_judge_stage_hash": "3077fae1e6ff25d5008e852bebdaa9b9ae01ff18e93fcfc8c4e78a1a2fab7589",
+  "analysis_hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db",
+  "translator_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "translator_config_hash_history": ["74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc"],
+  "translator_final_artifact_manifest_hash": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+  "translator_final_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "translator_runtime_status": "FROZEN_CPU_FLOAT32; scientific output stage still pending QC/seal",
+  "archival_commit_executed": false,
+  "note": "This record describes a reconstructed pre-result snapshot and does not claim to be the generation commit."
+}

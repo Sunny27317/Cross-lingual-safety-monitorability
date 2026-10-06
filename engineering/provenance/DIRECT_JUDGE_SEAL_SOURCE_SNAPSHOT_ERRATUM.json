@@ -1,0 +1,9 @@
+{
+  "schema_version": "workshop-v1-seal-snapshot-erratum/1",
+  "direct_judge_stage_hash": "3077fae1e6ff25d5008e852bebdaa9b9ae01ff18e93fcfc8c4e78a1a2fab7589",
+  "source_snapshot_at_seal": "19acaaa4b9cd009835ad4c2da515cd4a3b4c986f77e34e79248d41ae8f654db7",
+  "current_postseal_source_snapshot": "38f94eb0c26d1d80df93ea42fb6bb558adea4cb5e1b211e1074fbb8a386a2727",
+  "reason": "Static downstream orchestration and translator-readiness files were added after the direct-judge seal; no direct-judge outputs or scientific generation configuration were changed.",
+  "scientific_outputs_modified": false,
+  "scientific_configuration_modified": false
+}

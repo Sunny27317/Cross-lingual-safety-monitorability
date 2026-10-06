@@ -1,0 +1,116 @@
+- slot_id: model-a
+  status: frozen
+  spec:
+    model_id: Qwen/Qwen3-1.7B
+    model_family: Qwen3
+    revision: 90862c4b9d2787eaed51d12237eafdfe7c5f6077
+    checkpoint_hash: 061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a
+    open_weight_evidence: https://huggingface.co/Qwen/Qwen3-1.7B-GGUF
+    tokenizer_id: Qwen/Qwen3-1.7B-GGUF (embedded GGUF tokenizer)
+    tokenizer_revision: 90862c4b9d2787eaed51d12237eafdfe7c5f6077
+    tokenizer_hash: 59afe9d266b6304529b469e538d5dc65f4bdf152ef392f76a87168d2420c73e7
+    tokenizer_hash_policy: sha256 canonical JSON of all tokenizer.* GGUF metadata
+      fields, including embedded chat template
+    runtime: llama.cpp
+    runtime_version: 'version: 0.4.0-dev (build 10809, commit 5266f24da)'
+    runtime_commit: 5266f24da75dc449bd56cbed7addb9c8e4a6a73e
+    runtime_binary: /Users/sullah1/tools/llama.cpp/build/bin/llama-cli
+    runtime_binary_hash: 1370ac1f008b3284e1faa0fc9e37aa5a51c4824472a43c39a1afdd3e094473ef
+    backend: llama-cli Metal/Accelerate/CPU
+    backend_version: build 10809
+    quantization: Q8_0
+    decoding:
+      temperature: 0.7
+      top_p: 0.8
+      top_k: 20
+      repetition_penalty: 1.0
+      max_new_tokens: 16384
+      stop_sequences: []
+      sampling_mode: stochastic; natural EOT only; seed=sample index 0,1,2 paired
+        across languages/conditions; pilot uses index 0 only
+      determinism_note: Metal is not bitwise deterministic; Track-A frozen D-044 settings
+        reused for the same verified Qwen artifact
+      additional_settings_hash: 110948800f989e0a8bcaaa7c53827e5b34e2d44ef718555890f2e96061ef343d
+    parser_version: prompted-rationale-final-answer/1 + workshop-completion-boundary-v1
+    decision_record: D5 Option-B amendment (2026-10-05), study hash
+      d3af8414fa4be82565d04ebf4bdf9323421a2135a762702728e3aaaad002c014
+    artifact_repo: Qwen/Qwen3-1.7B-GGUF
+    local_path: /Users/sullah1/models/clsm/Qwen3-1.7B/Qwen3-1.7B-Q8_0.gguf
+    size_bytes: 1834426016
+    reasoning_trace_policy: Prompted rationale before the frozen Final answer marker;
+      native thinking disabled
+    prompt_mode: Single user turn; exact prompt_contract.py text through artifact-embedded
+      chat template
+    final_answer_policy: Parse generated completion only; extract answer after native
+      think span
+    completion_boundary_policy: llama-cli-b10809 exact full or 500-byte truncated
+      prompt echo; fail closed on mismatch
+    additional_settings:
+      min_p: 0.0
+      presence_penalty: 0.0
+      reasoning_format: none
+      enable_thinking: false
+      n_ctx: 32768
+      n_gpu_layers: 99
+      timeout_seconds: 900.0
+      force_think_prefix: false
+      system_prompt: null
+    unresolved_fields: []
+- slot_id: model-b
+  status: frozen
+  spec:
+    model_id: google/gemma-3-4b-it
+    model_family: Gemma3
+    revision: 15f73f5eee9c28f53afefef5723e29680c2fc78a
+    checkpoint_hash: 76aed0a8285b83102f18b5d60e53c70d09eb4e9917a20ce8956bd546452b56e2
+    open_weight_evidence: https://huggingface.co/google/gemma-3-4b-it-qat-q4_0-gguf
+    tokenizer_id: google/gemma-3-4b-it-qat-q4_0-gguf (embedded GGUF tokenizer)
+    tokenizer_revision: 15f73f5eee9c28f53afefef5723e29680c2fc78a
+    tokenizer_hash: 39dff424e0cac7e1a7e1323a45dab2e566c029d745cf683fa7552d629d17e696
+    tokenizer_hash_policy: sha256 canonical JSON of all tokenizer.* GGUF metadata
+      fields, including embedded chat template
+    runtime: llama.cpp
+    runtime_version: 'version: 0.4.0-dev (build 10809, commit 5266f24da)'
+    runtime_commit: 5266f24da75dc449bd56cbed7addb9c8e4a6a73e
+    runtime_binary: /Users/sullah1/tools/llama.cpp/build/bin/llama-cli
+    runtime_binary_hash: 1370ac1f008b3284e1faa0fc9e37aa5a51c4824472a43c39a1afdd3e094473ef
+    backend: llama-cli Metal/Accelerate/CPU
+    backend_version: build 10809
+    quantization: Q4_0 QAT
+    decoding:
+      temperature: 1.0
+      top_p: 0.95
+      top_k: 64
+      repetition_penalty: 1.0
+      max_new_tokens: 4096
+      stop_sequences: []
+      sampling_mode: stochastic; natural EOT only; seed=sample index 0,1,2 paired
+        across languages/conditions; pilot uses index 0 only
+      determinism_note: Metal not bitwise deterministic; frozen within-model settings
+        across language/condition
+      additional_settings_hash: 4250b4437ba004212046a133fb0ea78976c5f11d912869310a9dd782d9faf630
+    parser_version: gemma-final-answer/1 + workshop-completion-boundary-v1
+    decision_record: Claude final freeze session 10 (2026-09-23), source hashes in
+      judge_contract.json; user authorization for excluded 12-call pilot
+    artifact_repo: google/gemma-3-4b-it-qat-q4_0-gguf
+    local_path: /Users/sullah1/models/clsm/Gemma-3-4B-it/gemma-3-4b-it-q4_0.gguf
+    size_bytes: 3155051328
+    reasoning_trace_policy: Prompt-elicited generated rationale before Final answer
+      marker; no native thinking channel
+    prompt_mode: Single user turn; exact prompt_contract.py text through artifact-embedded
+      chat template
+    final_answer_policy: Parse generated completion only; split at Final answer A-D
+      marker
+    completion_boundary_policy: llama-cli-b10809 exact full or 500-byte truncated
+      prompt echo; fail closed on mismatch
+    additional_settings:
+      min_p: 0.0
+      presence_penalty: 0.0
+      reasoning_format: none
+      enable_thinking: true
+      n_ctx: 8192
+      n_gpu_layers: 99
+      timeout_seconds: 900.0
+      force_think_prefix: false
+      system_prompt: null
+    unresolved_fields: []

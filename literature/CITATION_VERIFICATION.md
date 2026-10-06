@@ -322,3 +322,35 @@ Every source below was fetched directly from its primary host on 2026-09-10.
 | Turpin et al. "suggested answer" biasing feature, up to 36% accuracy drop | **VERIFIED** — §6 above (unchanged; re-cited) | `arxiv.org/abs/2305.04388` |
 | **Young 2026 — "55.4% thinking-vs-answer divergence, 12 open-weight models, MMLU + GPQA + misleading hints"** — Richard J. Young, arXiv:**2603.26410** (+ companion arXiv:2603.22582) | **VERIFIED** — already in §D of this file (arXiv HTML + ResearchGate); re-cited here for `POWER_ANALYSIS.md` / D-045 as a **context range only**, never a pass/fail gate | `arxiv.org/abs/2603.26410` |
 | Walden & Wanner 2026 (arXiv:2601.07663) — do not tell the model the input may be manipulated/monitored | cited as in the existing repo (`configs/milestone1/cue.yaml`); **not independently re-verified this pass** — carries the existing repo status | (existing) |
+
+## H. Workshop-v1 HIGH-priority verification (2026-10-04, web-fetched)
+
+| Item | Status | Exact record (as fetched) | Source fetched | Supports |
+|---|---|---|---|---|
+| Gemma 3 | **VERIFIED** | "Gemma 3 Technical Report"; Gemma Team (Aishwarya Kamath, Johan Ferret, Shreya Pathak, et al.); submitted 2025-03-25; **arXiv:2503.19786**; abstract names Gemma3-4B-IT | `arxiv.org/abs/2503.19786` | Gemma-3-4B-it model identity |
+| Falcon-H1 | **VERIFIED** | "Falcon-H1: A Family of Hybrid-Head Language Models Redefining Efficiency and Performance"; Jingwei Zuo et al. (27 authors); submitted 2025-07-30; **arXiv:2507.22448** | `arxiv.org/abs/2507.22448`; model card `huggingface.co/tiiuae/Falcon-H1-7B-Instruct` (cites the same paper; licence "Falcon-LLM License") | judge model identity |
+| Falcon-H1 Urdu support | **VERIFIED (repository README)** | The official repository README lists Urdu (ur) among "18 core languages". The arXiv abstract and model card say "18 languages" without listing them | `github.com/tiiuae/Falcon-H1` | "officially lists Urdu among its core languages" |
+| Falcon-H1-7B-Instruct UrduBench score | **VERIFIED (mutable leaderboard; cite with access date)** | UrduBench leaderboard row "2, Falcon-h1-7b-instruct, 72.4, 49.6, 59.3, 32.8, 53.5"; 53.5 = average over MGSM, MATH-500, CommonSenseQA, OpenBookQA | `github.com/traversaal-ai/urdubench_leaderboard` (accessed 2026-10-04) | judge-selection rationale |
+| IndicTrans2 | **VERIFIED** | "IndicTrans2: Towards High-Quality and Accessible Machine Translation Models for all 22 Scheduled Indian Languages"; Jay Gala, Pranjal A. Chitale, Raghavan AK, Varun Gumma, Sumanth Doddapaneni, et al. (14 authors); TMLR; arXiv submitted 2023-05-25, final version 2023-12-20; **arXiv:2305.16307**. Repository README lists "Urdu (urd_Arab)" and Indic→English models. Model card licence MIT | `arxiv.org/abs/2305.16307`; `github.com/AI4Bharat/IndicTrans2`; `huggingface.co/ai4bharat/indictrans2-indic-en-1B` | translator identity; Urdu→English support |
+| OpenBookQA | **VERIFIED** | Todor Mihaylov, Peter Clark, Tushar Khot, Ashish Sabharwal. "Can a Suit of Armor Conduct Electricity? A New Dataset for Open Book Question Answering." EMNLP 2018, pp. 2381–2391. **DOI 10.18653/v1/D18-1260** | `aclanthology.org/D18-1260/` | item origin |
+| Cohen (1960) | **VERIFIED (bibliographic record via indexed sources)** | Cohen, J. (1960). "A coefficient of agreement for nominal scales." *Educational and Psychological Measurement*, 20(1), 37–46. **DOI 10.1177/001316446002000104** | search results (Semantic Scholar, BibSonomy listings) | κ definition |
+| DialectShift-Monitor | **VERIFIED as an existing repository; NOT a publication** | "DialectShift-Monitor", Lucas Ercolano, GitHub repository (no version or date; no associated paper or arXiv listed). Studies monitoring under Latin-American Spanish variants and Spanglish, including translate-then-monitor | `github.com/LucasErcolano/DialectShift-Monitor` (README, accessed 2026-10-04) | positioning: translate-then-monitor has prior implementation |
+| arXiv:2603.20172 | **VERIFIED** | "Measuring Faithfulness Depends on How You Measure: Classifier Sensitivity in LLM Chain-of-Thought Evaluation"; Richard J. Young; v1 2026-03-20, v2 2026-03-23. English-only. Three classifiers on 10,276 traces gave faithfulness 69.7–82.6% and per-model ranking shifts up to 8 positions | `arxiv.org/abs/2603.20172` | classifier/judge dependence of faithfulness measurement |
+| `large-traversaal/openbookqa_urdu_final` provenance | **VERIFIED** | Dataset card by large-traversaal (Traversaal.ai): "a cleaned Urdu translation of OpenBookQA"; cites UrduBench (Shafique et al. 2026, arXiv:2601.21000) | `huggingface.co/datasets/large-traversaal/openbookqa_urdu_final` | dataset provenance and UrduBench linkage |
+| Same dataset licence | **NOT RESOLVED (licence unstated)** | Card: "Licensing follows the terms of the original OpenBookQA dataset. Users should verify license details…"; no `license:` field. The `allenai/openbookqa` card shows license tag "unknown" | both HF cards (accessed 2026-10-04) | supports *not* redistributing item text |
+
+Note (2026-10-04): arXiv:2603.20172 is English-only and concerns classifier choice, not
+language. It strengthens our motivation that monitor validity must be measured. It does
+not cover native-language validation, so it does not pre-empt our contribution.
+
+### H.2 Additional verifications for Workshop-v1 Related Work (2026-10-04, arXiv abstract pages)
+
+| Item | Status | Record |
+|---|---|---|
+| arXiv:2505.12201 | VERIFIED | "How Reliable is Multilingual LLM-as-a-Judge?", Xiyan Fu, Wei Liu (2025-05-18). Five models, 25 languages; "average Fleiss' Kappa of approximately 0.3"; weaker in low-resource languages. Findings EMNLP 2025 per §D.2 |
+| arXiv:2605.28710 | VERIFIED identity; **claim corrected** | "Towards Reliable Multilingual LLMs-as-a-Judge: An Empirical Study", Irune Zubiaga, Aitor Soroa, Rodrigo Agerri (2026-05-27). The abstract's finding concerns fine-tuned vs. zero-shot judges. **The "Fleiss κ ≈ 0.3" attribution in §D.2 belongs to arXiv:2505.12201, not to this paper.** It is no longer cited for cross-language inconsistency |
+| arXiv:2607.02235 | VERIFIED | Doğruöz, Liao, Blaschke, Prange, Li, Adelani (2026-07-02); "only 33" of 650 LLM-as-a-judge papers focus on low-resource/multilingual settings. EMNLP Findings 2026 per arXiv comment |
+| arXiv:2607.14480 | VERIFIED; **claim refined** | "Lower-Resource, Higher Scores: Language Bias in LLM Evaluators", Ej Zhou, Lucas Resck, Zheng Hui, Anna Korhonen (2026-07-16). Evaluators assign **higher** scores to lower-resource-language responses. Cite as "systematically biased by response language", not "less accurate" |
+| arXiv:2310.13548 | VERIFIED | Sharma, Tong, Korbak, Duvenaud, Askell, et al. (19 authors), "Towards Understanding Sycophancy in Language Models" (2023-10-20). Models match user-stated beliefs over truthful answers |
+| arXiv:2310.02446 | VERIFIED | Yong, Menghini, Bach, "Low-Resource Languages Jailbreak GPT-4" (2023-10-03); NeurIPS 2023 SoLaR workshop |
+| arXiv:2310.06474 | VERIFIED | Deng, Zhang, Pan, Bing, "Multilingual Jailbreak Challenges in Large Language Models"; ICLR 2024 |

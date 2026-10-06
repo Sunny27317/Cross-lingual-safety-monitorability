@@ -1,0 +1,64 @@
+{
+  "annotation_executed": false,
+  "files": {
+    "ADJUDICATOR_INSTRUCTIONS.md": {
+      "sha256": "56a496fdac85d14fa3342b2d052efd461735cececd6ce2216da095c3a71b2617",
+      "source": "Codex worktree current"
+    },
+    "AGREEMENT_REPORTING.md": {
+      "sha256": "80fc838feb2ff01ebe6b978ec24c61e315d2f001ea5a7005b5a435a33f8e71f0",
+      "source": "Codex worktree current"
+    },
+    "ANNOTATION_DECISION_TREE.md": {
+      "sha256": "6f1bd72502403a3cf95f5b86d85cc40d441cac8e9548d5a7bd06ab429bd69656",
+      "source": "Codex worktree current"
+    },
+    "RATER_FAQ.md": {
+      "sha256": "638cfda06d74d50cf35c447e9f0c170c447de98450132fd9739d60510acdd8ed",
+      "source": "Codex worktree current"
+    },
+    "RATER_INSTRUCTIONS.md": {
+      "sha256": "ec48c7a6db54ed0d26fabf4cbdf6803e27fbc0babb00d43205d1d578a224da00",
+      "source": "Codex worktree current"
+    },
+    "RATER_ONBOARDING.md": {
+      "sha256": "d75dfe1554bb5350c13961071ac892021bf3c96a3052a54d095ef2b6841ae044",
+      "source": "Codex worktree current"
+    },
+    "RATER_QUALIFICATION_TEMPLATE.md": {
+      "sha256": "edc6dd11b633bfa1b2e48809cb449c584af266dfd24fec8a5cd31ef09e3d7407",
+      "source": "Codex worktree current"
+    },
+    "RECRUITMENT_KIT.md": {
+      "sha256": "c7b2c9d161f635816a66d1a8bf76bd0c298aabc76e419ac28ed52b6a19878c58",
+      "source": "Codex worktree current"
+    },
+    "TRAINING_TUTORIAL.md": {
+      "sha256": "42b46d5542d827e1736fe580e083db9436648cab1ef24433844273dd2a61cf23",
+      "source": "Codex worktree current"
+    },
+    "URDU_TRAINING_EXAMPLES_NATIVE_REVIEW.md": {
+      "sha256": "89b5f3b98914e6a43432361b26ec6bd96228ce2dc77e4c58cd5f25b0f7555e78",
+      "source": "Codex worktree current"
+    }
+  },
+  "latest_source": "/Users/sullah1/clsm-codex/docs/rater_package",
+  "parity_policy": "question + ordered options + exact suggestion + trace",
+  "ported_files": [
+    "ADJUDICATOR_INSTRUCTIONS.md",
+    "ANNOTATION_DECISION_TREE.md",
+    "RATER_FAQ.md",
+    "RATER_INSTRUCTIONS.md"
+  ],
+  "prior_reconciliation_sha256": "c28ceffef7aab257b1ea75efb5d56e69f094a7b25ea3bb2248f1acd0f4c608cc",
+  "ordering": "lexicographic blind_id; see engineering/workshop_v1_human_packet_order.json",
+  "native_training_review": {
+    "status": "SUBSTANTIVELY_COMPLETE_VERBAL_ONLY",
+    "reviewer": "Amna Anwar Riaz",
+    "examples": 16,
+    "same_meaning_all": true,
+    "written_form_completed": false,
+    "provenance": "engineering/provenance/AMNA_URDU_TRAINING_VERBAL_REVIEW_2026-10-04.json",
+    "training_file_sha256": "89b5f3b98914e6a43432361b26ec6bd96228ce2dc77e4c58cd5f25b0f7555e78"
+  }
+}

@@ -1,0 +1,5 @@
+# One explicit automated monitor specification will serve EN baseline, direct UR,
+# and translated-to-EN. Native human reference is a separate contract.
+automated_monitor: null
+translator: null
+human_reference: null

@@ -1,0 +1,34 @@
+{
+  "schema_version": "workshop-v1-pre-result-analysis-freeze-addendum/1",
+  "status": "FROZEN_PENDING_RESULT_UNSEAL",
+  "created_utc": "2026-10-06T11:01:38Z",
+  "scientific_results_inspected": false,
+  "real_outputs_processed": false,
+  "reason": "The post-translation analysis-input layer was added after the original analysis implementation freeze and therefore requires an explicit, honest addendum rather than retroactive attribution.",
+  "scope": {
+    "source": "src/clsm/workshop_v1/post_translation_pipeline.py",
+    "config": "engineering/workshop_v1_analysis_contract.json",
+    "purpose": "Build a provenance-complete analysis-input table while preserving technical failures and route/model/language/condition/Cue-B/identity metadata.",
+    "scientific_plan_changed": false
+  },
+  "synthetic_validation": {
+    "fixture": "tests/workshop_v1/test_post_translation_pipeline.py",
+    "checks": [
+      "expected rows preserved",
+      "malformed technical artifact reported rather than silently dropped",
+      "byte-identical output across two runs",
+      "generation lineage retained",
+      "direct and translated routes retained",
+      "model/language/condition/sample provenance retained",
+      "Cue-B status retained",
+      "translation identity provenance retained"
+    ],
+    "pytest_result": "PASS"
+  },
+  "hashes": {
+    "analysis_input_layer_sha256": "b9619e2b4cf197944b19d2d41b9d5476313def95bb2bcd334ee94bf5a79a8adb",
+    "builder_sha256": "03cbf0c313905dded44eb2d7b23e5d4d2b52b6428bb38e90069157aff570466f",
+    "contract_sha256": "d6c88f6bc8fc15456dc85272cdffd8abfb212ccdcc77a9ad38484708036e3276"
+  },
+  "relationship_to_original_freeze": "This is a new pre-result engineering freeze addendum; it does not claim the builder was part of the original analysis freeze and does not alter D-PG-1 through D-PG-6 or the statistical plan."
+}

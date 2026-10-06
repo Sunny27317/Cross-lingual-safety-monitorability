@@ -1,0 +1,28 @@
+{
+  "authorization_text": "I authorize exactly 935 Workshop-v1 Urdu Cue-A/Cue-B translation tasks under the locked generation stage hash 7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec and the separately frozen translation configuration, writing only to experiments/_runs/workshop-v1-translation. This does not authorize judging, human annotation, or analysis.",
+  "authorized": false,
+  "direction": {
+    "source": "urd_Arab",
+    "target": "eng_Latn"
+  },
+  "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "output_directory": "experiments/_runs/workshop-v1-translation",
+  "primary_model": "ai4bharat/indictrans2-indic-en-1B",
+  "primary_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+  "schema_version": "workshop-v1-translation-authorization/1",
+  "segmentation": {
+    "boundary_order": [
+      "line",
+      "sentence",
+      "clause",
+      "token"
+    ],
+    "max_source_tokens": 200,
+    "silent_truncation": false
+  },
+  "status": "TEMPLATE_NOT_AUTHORIZATION",
+  "task_count": 935,
+  "translation_config_hash": "4ef0a4de36c7ce4b58a4fda1877be30c9755d526e7e82340b8dc784edccfeaf2",
+  "translation_manifest": "engineering/workshop_v1_translation_manifest.json",
+  "translation_manifest_sha256": "51de95249d1b24b7c23711ea5e00d04026dad8d506ff46dbacf8a065d109ac38"
+}

@@ -1,0 +1,807 @@
+{
+  "schema_version": "workshop-v1-source-snapshot/2",
+  "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0",
+  "scientific_outputs_included": false,
+  "judge_outputs_included": false,
+  "files": [
+    {
+      "path": "configs/workshop_v1/conditions.yaml",
+      "sha256": "909cb46bac1994f3e7b910778a00e04157c255ec0c0cb02cc28ece4075db7590",
+      "git_status": "?? configs/workshop_v1/conditions.yaml",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "configs/workshop_v1/judge_contract.json",
+      "sha256": "01da728039a05750e72de95ba596ece84f1fc9f0c78829d14f19c899977c31db",
+      "git_status": "?? configs/workshop_v1/judge_contract.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "configs/workshop_v1/judge_model.yaml",
+      "sha256": "3868b8b83a1ca87f0fa9e7c7301878e4a2858839d82c43184603ebb3dc823f0b",
+      "git_status": "?? configs/workshop_v1/judge_model.yaml",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "configs/workshop_v1/languages.yaml",
+      "sha256": "1e1aff15ed929fec0fc24614efc4d132a420da15f92205ea6e9ff9fec03aa5c9",
+      "git_status": "?? configs/workshop_v1/languages.yaml",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "configs/workshop_v1/models.yaml",
+      "sha256": "4d473976e5d909e086e054b5c1dff712c2c165069eaa59d721e015dc3b32ef11",
+      "git_status": "?? configs/workshop_v1/models.yaml",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "configs/workshop_v1/monitoring.yaml",
+      "sha256": "968a916f857fd00a2891e10de40ea973549bcab4c487d530ecea72efefedc340",
+      "git_status": "?? configs/workshop_v1/monitoring.yaml",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "configs/workshop_v1/study.yaml",
+      "sha256": "f5554d5de7e3d8f87c434fc3d1bfde63de1470a1cd75db639af587b87c11cf13",
+      "git_status": "?? configs/workshop_v1/study.yaml",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/ADJUDICATOR_INSTRUCTIONS.md",
+      "sha256": "56a496fdac85d14fa3342b2d052efd461735cececd6ce2216da095c3a71b2617",
+      "git_status": "M docs/rater_package/ADJUDICATOR_INSTRUCTIONS.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/AGREEMENT_REPORTING.md",
+      "sha256": "80fc838feb2ff01ebe6b978ec24c61e315d2f001ea5a7005b5a435a33f8e71f0",
+      "git_status": "?? docs/rater_package/AGREEMENT_REPORTING.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/ANNOTATION_DECISION_TREE.md",
+      "sha256": "6f1bd72502403a3cf95f5b86d85cc40d441cac8e9548d5a7bd06ab429bd69656",
+      "git_status": "M docs/rater_package/ANNOTATION_DECISION_TREE.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/RATER_FAQ.md",
+      "sha256": "638cfda06d74d50cf35c447e9f0c170c447de98450132fd9739d60510acdd8ed",
+      "git_status": "M docs/rater_package/RATER_FAQ.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/RATER_INSTRUCTIONS.md",
+      "sha256": "ec48c7a6db54ed0d26fabf4cbdf6803e27fbc0babb00d43205d1d578a224da00",
+      "git_status": "M docs/rater_package/RATER_INSTRUCTIONS.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/RATER_ONBOARDING.md",
+      "sha256": "d75dfe1554bb5350c13961071ac892021bf3c96a3052a54d095ef2b6841ae044",
+      "git_status": "M docs/rater_package/RATER_ONBOARDING.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/RATER_QUALIFICATION_TEMPLATE.md",
+      "sha256": "edc6dd11b633bfa1b2e48809cb449c584af266dfd24fec8a5cd31ef09e3d7407",
+      "git_status": "M docs/rater_package/RATER_QUALIFICATION_TEMPLATE.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/RECRUITMENT_KIT.md",
+      "sha256": "c8cc2c521a39ca380e73dbc5c8acc6f86e965b8ecc5dc3e41184afff9b324645",
+      "git_status": "?? docs/rater_package/RECRUITMENT_KIT.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/TRAINING_TUTORIAL.md",
+      "sha256": "a1ebaae44a0a2362eb03bdfec65ae3ff100a19d6e5d408be4c1a186bec37c96e",
+      "git_status": "?? docs/rater_package/TRAINING_TUTORIAL.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "docs/rater_package/URDU_TRAINING_EXAMPLES_NATIVE_REVIEW.md",
+      "sha256": "031077e632e57ae5bdebae15c91369bd6000ec243452b288c20d182ba8b34ce6",
+      "git_status": "?? docs/rater_package/URDU_TRAINING_EXAMPLES_NATIVE_REVIEW.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/INVESTIGATOR_HUMAN_ANNOTATION_AUTHORIZATION_TEMPLATE.json",
+      "sha256": "90a7bc68354e289314fa49cc911833d4ef7e14b9d8fcca1208cce9af6cb521c0",
+      "git_status": "?? engineering/INVESTIGATOR_HUMAN_ANNOTATION_AUTHORIZATION_TEMPLATE.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/INVESTIGATOR_TRANSLATION_AUTHORIZATION.json",
+      "sha256": "35b948df4f9ca7a2df59db3d7293f0744a0f6b03c57a2ba45ecf3f71a2775bac",
+      "git_status": "uncommitted",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/indictrans2_artifact_inventory.json",
+      "sha256": "e5efd86990116e8bd6304d07ff7875502dc44768342f47309b63f4f5e85a6b2e",
+      "git_status": "uncommitted",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/indictrans2_final_contract.json",
+      "sha256": "28731c786c5ac67995abc7ffbc606e2cf3c5b50f25fd113ccdd2d8fa4b29f401",
+      "git_status": "?? engineering/indictrans2_final_contract.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/indictrans2_runtime_inventory.json",
+      "sha256": "659f44c1e98189e8e2d8783906efcf0464e8e9506558c71ec008e21b632941b3",
+      "git_status": "uncommitted",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/provenance/AMNA_TRAINING_REVIEW_CANONICAL.json",
+      "sha256": "b89394fc365a38ebeb80b39f116df6e943cd9d61bd5ac8dc62e6a6287b2db2cd",
+      "git_status": "uncommitted",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/provenance/WORKSHOP_V1_GOVERNANCE_TIMELINE_ERRATA.json",
+      "sha256": "2d85e06b5711e2be68bdff268f00e0cba1f3ef7352023ce14f68d290f443187c",
+      "git_status": "uncommitted",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_analysis_contract.json",
+      "sha256": "d6c88f6bc8fc15456dc85272cdffd8abfb212ccdcc77a9ad38484708036e3276",
+      "git_status": "?? engineering/workshop_v1_analysis_contract.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_analysis_contract_audit.json",
+      "sha256": "47903e5d154d227a08af8612878b762929e0152440fcc25aa8b900de5cdd6c44",
+      "git_status": "?? engineering/workshop_v1_analysis_contract_audit.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_cue_b_manifest.json",
+      "sha256": "e18b48b6be7c2fa86df1ff00712943ac5cee218977a3bb6ee05d8bdd949b9891",
+      "git_status": "?? engineering/workshop_v1_cue_b_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_english_direct_judge_manifest.json",
+      "sha256": "b06fac58846113951e2503a5d85e3cb1bb5a9209ad47843a2af6aa0780367b2a",
+      "git_status": "?? engineering/workshop_v1_english_direct_judge_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_judge_prompt_v2.json",
+      "sha256": "84018985c67036f00c4eb03a135dea04595b54fee37c56d900e44d2f70f94b60",
+      "git_status": "?? engineering/workshop_v1_judge_prompt_v2.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_main_launch_manifest.json",
+      "sha256": "3ecd7583c05764419681ca5027630da2ff103b97965e65f69b265a5edd469551",
+      "git_status": "?? engineering/workshop_v1_main_launch_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_main_manifest.json",
+      "sha256": "576a991f9f96e1bad95d1775bc1f177604e13c8903416befee75dd2d3f277f6f",
+      "git_status": "?? engineering/workshop_v1_main_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_pilot_manifest.json",
+      "sha256": "063a530e9ff5c91dfff9baaa0253327c915172998ff90796ded3c9300ee357a9",
+      "git_status": "?? engineering/workshop_v1_pilot_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_pilot_v2_manifest.json",
+      "sha256": "3379ece11b5517dc0d2e44dbbb70ad4b57512c579785a80cb26ec9bb4cc4599e",
+      "git_status": "?? engineering/workshop_v1_pilot_v2_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_population_manifest.json",
+      "sha256": "e012bdd1e99642912b6c40014ec0b0d1a54d4e2825fdd5ca2c82b1c8f9f433b0",
+      "git_status": "?? engineering/workshop_v1_population_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_preprint_artifact_manifest.json",
+      "sha256": "140c40091f01031d3d2f3c2e47e39584216f3b8e928b1b0e2bf5e6eba83d4230",
+      "git_status": "?? engineering/workshop_v1_preprint_artifact_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_stage_hash_plan.json",
+      "sha256": "9f00e7e3b76937e99196a30588be7ea6a92cdebc1a6fd2c21d89276889db301c",
+      "git_status": "?? engineering/workshop_v1_stage_hash_plan.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_translated_urdu_judge_manifest.json",
+      "sha256": "9467b4da6da5ce940b41a47db999aaec337de0a748e1ac353a03923dfe20a84e",
+      "git_status": "?? engineering/workshop_v1_translated_urdu_judge_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_translation_manifest.json",
+      "sha256": "51de95249d1b24b7c23711ea5e00d04026dad8d506ff46dbacf8a065d109ac38",
+      "git_status": "?? engineering/workshop_v1_translation_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "engineering/workshop_v1_urdu_direct_judge_manifest.json",
+      "sha256": "7d7d6f5ea216f3a029c79fa320d40399f6a7f9ec0b6838a9a6a80d9f12870bcc",
+      "git_status": "?? engineering/workshop_v1_urdu_direct_judge_manifest.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/FINAL_SCIENTIFIC_READINESS.md",
+      "sha256": "4e5115df869b43802cac2654e0ee9c426906d0dfbb31572d421623b31b721c80",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_ATTEMPT_2_UNICODE_FAILURE_FORENSICS.md",
+      "sha256": "d2c484860262e2315110f0dce93e842dc2adbcc0a907440abd802b22fef36c30",
+      "git_status": "?? research/WORKSHOP_V1_ATTEMPT_2_UNICODE_FAILURE_FORENSICS.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_AUTHORSHIP_DECISION_SHEET.md",
+      "sha256": "4a4ec2e55860cef23bfe46da3d56062bea77b4fba30d1e7f169e65453a5dd34d",
+      "git_status": "?? research/WORKSHOP_V1_AUTHORSHIP_DECISION_SHEET.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_CLAIM_LEDGER_FINAL.md",
+      "sha256": "7a24b1e20a031214ca1d7402cfbb7d418ba5d0e99226971a610a06c6bc7cd984",
+      "git_status": "?? research/WORKSHOP_V1_CLAIM_LEDGER_FINAL.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_DISCUSSION_DECISION_TREE.md",
+      "sha256": "6e3b27ce18c84796abbf6b94a10d2252bd327353a1c0614506ed7ca8f322150e",
+      "git_status": "?? research/WORKSHOP_V1_DISCUSSION_DECISION_TREE.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_DOCUMENT_RECONCILIATION.md",
+      "sha256": "53da3ceb2c8d2964466d669c800e7dc834ab3017512f74a50200db2375dbddc1",
+      "git_status": "?? research/WORKSHOP_V1_DOCUMENT_RECONCILIATION.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_DOWNSTREAM_CLOSURE_2026-10-04.md",
+      "sha256": "b995d3aff1c885e6c5c8aaad0c1c82943fbfecd3fddd7d1e0aa4e8699954057e",
+      "git_status": "?? research/WORKSHOP_V1_DOWNSTREAM_CLOSURE_2026-10-04.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_DPG6_APPROVAL_BLOCK.md",
+      "sha256": "11f33d2b53d5df490da3ee6926221fa3a1e8d9a27d10f307e6387001866fe3ea",
+      "git_status": "?? research/WORKSHOP_V1_DPG6_APPROVAL_BLOCK.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_GOVERNANCE_DECISION_PACK.md",
+      "sha256": "052a5a8eef1e548c4c42c7f43b4768d8df7b0bf89e28f580847c8a8fdd473496",
+      "git_status": "?? research/WORKSHOP_V1_GOVERNANCE_DECISION_PACK.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_HUMAN_INPUT_AND_CITATION_QUEUE.md",
+      "sha256": "7b27df172d76de4737cde2302f13817c87056089e5c55a28ce45a0ee89bc3d64",
+      "git_status": "?? research/WORKSHOP_V1_HUMAN_INPUT_AND_CITATION_QUEUE.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md",
+      "sha256": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31",
+      "git_status": "?? research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_MAIN_GENERATION_INFRASTRUCTURE_FAILURE.md",
+      "sha256": "46b0e69fc1dd7baea438297b74b119ae922750c34cf33b8930d38efa74684a66",
+      "git_status": "?? research/WORKSHOP_V1_MAIN_GENERATION_INFRASTRUCTURE_FAILURE.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_MAIN_RETRY_PREPARATION.md",
+      "sha256": "456c00af7e394fe3dc5400f97ea58414a4af1e524b88e2dbf5b07bbb568c166e",
+      "git_status": "?? research/WORKSHOP_V1_MAIN_RETRY_PREPARATION.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_PARALLEL_PREPRINT_ACCELERATION.md",
+      "sha256": "89105e68ceedd859d29457a629cb7c7233ce0f52e01e0a07cebe9b28dd52bf62",
+      "git_status": "?? research/WORKSHOP_V1_PARALLEL_PREPRINT_ACCELERATION.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_POST_GENERATION_RECONCILIATION.md",
+      "sha256": "63178943adb4399765efdcbbc0bfad04b0f5fe98fc01fa28a8be5c0837984beb",
+      "git_status": "?? research/WORKSHOP_V1_POST_GENERATION_RECONCILIATION.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_POST_GENERATION_SCIENTIFIC_AUDIT.md",
+      "sha256": "a08d871e0b3d1cbd9d37ef38142d5f768e812457d0d1e2727d9fca4cd885b0b7",
+      "git_status": "?? research/WORKSHOP_V1_POST_GENERATION_SCIENTIFIC_AUDIT.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_PRE_RESULT_FREEZE_CHECKLIST.md",
+      "sha256": "55cc982b72101f06fc82e4fee9228a8306ee448fd226dcef6d5e88b5cb5fb5ab",
+      "git_status": "?? research/WORKSHOP_V1_PRE_RESULT_FREEZE_CHECKLIST.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_PRE_UNSEAL_FREEZE_RECORD.json",
+      "sha256": "baf237284fcc57a5d43c14edf9688388facd21cd38e1dfbe37d9dd44fe84084f",
+      "git_status": "?? research/WORKSHOP_V1_PRE_UNSEAL_FREEZE_RECORD.json",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_PUBLICATION_STRATEGY.md",
+      "sha256": "c72efd93418d7ce5bcb90d03cc5eb7d70474e513adf46bf7abe0195737326129",
+      "git_status": "?? research/WORKSHOP_V1_PUBLICATION_STRATEGY.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_RAPID_FILL.md",
+      "sha256": "78c9eebbc1d85d9f05a4b0597cf5f60811a876434251d8d161983d3715ca3ce3",
+      "git_status": "?? research/WORKSHOP_V1_RAPID_FILL.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_RESULTS_FILL_GUIDE.md",
+      "sha256": "cceb0fbc379d0e68976c7c2eea23d7977d1693b8deeceff02cdcc97c6fb5a20a",
+      "git_status": "?? research/WORKSHOP_V1_RESULTS_FILL_GUIDE.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_RESULTS_WRITING_MATRIX.md",
+      "sha256": "bd0035c62d8a621cfee05d5d7d7e20621dd2c1d14f8db14284b550f9bd5a32eb",
+      "git_status": "?? research/WORKSHOP_V1_RESULTS_WRITING_MATRIX.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_REVIEWER_DEFENSE_MATRIX.md",
+      "sha256": "2f600cf16061eec00bd5696a43f96f2d75e997c90dd18a0ffcc5ac3f87a2e718",
+      "git_status": "?? research/WORKSHOP_V1_REVIEWER_DEFENSE_MATRIX.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "research/WORKSHOP_V1_SUBMISSION_LADDER.md",
+      "sha256": "03327859cef1fae3ee8fe9b1eba2e4f146623d2d1755abbcde57b723f42c3c8b",
+      "git_status": "?? research/WORKSHOP_V1_SUBMISSION_LADDER.md",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/__init__.py",
+      "sha256": "f412fd5b983e751dbc4d50461e4000a1fd5cba414e1324a5bdec297765efb81d",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/__main__.py",
+      "sha256": "60e202c2f5e551bbe1db9a62d7355e39a9c56944012f698c5bfba9c3bb731206",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/agreement.py",
+      "sha256": "c5b206f68d8a04cbf1fd7b77ed78259e8bbe9428ad8b382ad5d8f444fc2abbab",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/analysis.py",
+      "sha256": "62b94e21fa948e374ae2c8c9aecff636f4ea22ce2cc472295f8a58d40d247079",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/annotation.py",
+      "sha256": "f077ddfa709828514cb83f623bd86ce0a423280287df32e167cc79da83dba454",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/calibration.py",
+      "sha256": "11bf37467f70a421047b1b71f6e298f98c0f90daf76402d62d1491d39e0dbd10",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/contracts.py",
+      "sha256": "83c8a0bce1778396056e4a0c5f333123e0ec57109496d7b90075b8855e3ef9e2",
+      "git_status": "M src/clsm/downstream/contracts.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/dry_run.py",
+      "sha256": "a89d2cac8436c80d342c073e67a5d46eec5e36914d4de8f8e7724c6affb091d6",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/fixtures.py",
+      "sha256": "1cfe5f9246bc806f091035a240240cba8a47147522f412195aa9d766bbdd8eb9",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/matching.py",
+      "sha256": "0ebe3ebf169cd16fc187a4be756d6bb9f744019c4ddfb73813357e35b572a7e9",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/mcq.py",
+      "sha256": "58f2bae344d1ec96bf0665557616fdd4270a1d201057ce93181e3023d84704fd",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/partitions.py",
+      "sha256": "fa786067f467b89aea9ecbb242072be2bc4ec59a3a9cdeaadc7fef91a0af9829",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/power.py",
+      "sha256": "0072db8d6d47a52f30bd255a9107ab3a845e183f9a6d8a3cdaa0c1e3e21b47e7",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/reporting.py",
+      "sha256": "4cc5000a966235477e86e694ac4300c3fe4d3f40e28ecf691d009f345f160f36",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/reproducibility.py",
+      "sha256": "d255faf417c79c3e283854882d8226440187abc9a918c60221c28b03428af078",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/simulation_validation.py",
+      "sha256": "37f64d54dd28a9d1796e98e13e4ac8b5663f49909fb00f2fb3cadf9684f6c68d",
+      "git_status": "M src/clsm/downstream/simulation_validation.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/stage_gates.py",
+      "sha256": "90c4b9c746b652a7b8a04d1a40a7f3b56277aedc9a53d6c850abd25f62ecd029",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/downstream/translation.py",
+      "sha256": "768f76501b2e93aa80c6db368b650b56ddc25cbaead12ad4a0c98bbc602c526e",
+      "git_status": "tracked_clean",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/__init__.py",
+      "sha256": "4d34d3620f08e2abd19f81695a4c4c420b4222986d06c8bfdcd9f6236956cd6a",
+      "git_status": "?? src/clsm/workshop_v1/__init__.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/analysis.py",
+      "sha256": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+      "git_status": "?? src/clsm/workshop_v1/analysis.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/annotation_io.py",
+      "sha256": "ceb428d10c96a0b755837569b3a417dbb576c2fc5c611e7825b331eccee5483d",
+      "git_status": "?? src/clsm/workshop_v1/annotation_io.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/artifact_contract.py",
+      "sha256": "4b96faa7f16fed242852e8138ed40d02a417106a70e1601fd81974955bc053da",
+      "git_status": "?? src/clsm/workshop_v1/artifact_contract.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/completion.py",
+      "sha256": "57cd3bc48fcc46ace953ab88459a1e979702cb5b1f6d098e4da9d846af2a176b",
+      "git_status": "?? src/clsm/workshop_v1/completion.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/config.py",
+      "sha256": "1314e0caea7034b9bf4499f97158a01748a890d0602d0b3b6400ee3921a09a6c",
+      "git_status": "?? src/clsm/workshop_v1/config.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/cue_rule.py",
+      "sha256": "423f7c0dd808ccc971dbc61b6a6f540b48e140b4211b94071a738860d6406e48",
+      "git_status": "?? src/clsm/workshop_v1/cue_rule.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/d5_repilot.py",
+      "sha256": "77899b980774107fd1b43d532dbbbd4f685495ceb2d410ab803692d3805da4ec",
+      "git_status": "?? src/clsm/workshop_v1/d5_repilot.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/dataset_validation.py",
+      "sha256": "3dcfabb80b5b0a4495dc969d42796e95cf179ca5b17bc8bc11039728e612d1ed",
+      "git_status": "?? src/clsm/workshop_v1/dataset_validation.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/direct_judge_launcher.py",
+      "sha256": "0a97be6251a22ae3c6a5700296479b67eedff102e6755f2a5b76b04b6c8666d8",
+      "git_status": "?? src/clsm/workshop_v1/direct_judge_launcher.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/direct_judge_post_qc.py",
+      "sha256": "44291228ed5c97bce7a384dccd97d4ea64173e0ed41286e1567f01df1694a38a",
+      "git_status": "?? src/clsm/workshop_v1/direct_judge_post_qc.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/dry_run.py",
+      "sha256": "fd4fba696f38cac34a87b5957a681e1595c46510c5b142841639b52ea1b8a416",
+      "git_status": "?? src/clsm/workshop_v1/dry_run.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/excluded_pilot.py",
+      "sha256": "59973e813ca2550680f3f7257f42349211c1146c3d12dba845dfd3674505f6e4",
+      "git_status": "?? src/clsm/workshop_v1/excluded_pilot.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/fixtures.py",
+      "sha256": "c6b8d9b8102231ddfa866b381b13e33e21991076e13dc73018e72e35f99997b2",
+      "git_status": "?? src/clsm/workshop_v1/fixtures.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/frozen_validation.py",
+      "sha256": "337a17ab80a164ee1d17958ec314dee494e3545bb41a9830f4479bdd8b89268f",
+      "git_status": "?? src/clsm/workshop_v1/frozen_validation.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/gemma_download.py",
+      "sha256": "e15d4453ba0f0e80d0ef395b01617b89c36e988288679287192935344e149599",
+      "git_status": "?? src/clsm/workshop_v1/gemma_download.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/human_agreement.py",
+      "sha256": "38f1d7313fcf7575064c57a8f69c1a0520ad1abe3eabab4b5a41b969937ac476",
+      "git_status": "?? src/clsm/workshop_v1/human_agreement.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/human_pool.py",
+      "sha256": "95ffc130d82cf67b4d817713c4db341a86acbfa517715a4a3fa324f43cf3cbc0",
+      "git_status": "?? src/clsm/workshop_v1/human_pool.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/judge.py",
+      "sha256": "a9c744e43765e0b7721577a11d1113f9657846c5d205768f0908231dfaf93b6f",
+      "git_status": "?? src/clsm/workshop_v1/judge.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/judge_executor.py",
+      "sha256": "9bbc9da1bd0305f506e47a51e90081ad2dcb38a7365c792ea460a2521a70599e",
+      "git_status": "?? src/clsm/workshop_v1/judge_executor.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/judge_fixtures.py",
+      "sha256": "41b3cedec0135511491dc82b814f82835d15e546f288130317440c2fcff218d1",
+      "git_status": "?? src/clsm/workshop_v1/judge_fixtures.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/judge_plan.py",
+      "sha256": "63bc3c0d440d3e092b8dc0cf2c01550d7050a58547d65eacdacf8e17bf14b1ab",
+      "git_status": "?? src/clsm/workshop_v1/judge_plan.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/llamacpp_generation.py",
+      "sha256": "8c37a1653619a8bcc929ef3ba834bb2db48bf8d3bcc2148e35b7f933332cadcb",
+      "git_status": "?? src/clsm/workshop_v1/llamacpp_generation.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/local_artifacts.py",
+      "sha256": "7b470f21087b930b9e344e35f68b9409330ea513a756e99d132c9446b1f73855",
+      "git_status": "?? src/clsm/workshop_v1/local_artifacts.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/local_ingest.py",
+      "sha256": "823d694ac402a7c7524789313b433c6d7d299dbe776f441fada2c233faade36f",
+      "git_status": "?? src/clsm/workshop_v1/local_ingest.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/local_runtime.py",
+      "sha256": "f9d7eb11466baf39148491f0d1160507249f4a020cde068a6f8176fd97f22ea1",
+      "git_status": "?? src/clsm/workshop_v1/local_runtime.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/main_generation.py",
+      "sha256": "62c35418be0cd0c91f850bb91e244971f1014611c36e764036d0b7863ce9f721",
+      "git_status": "?? src/clsm/workshop_v1/main_generation.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/main_launcher.py",
+      "sha256": "520c7261523518924db282ec4cf2f705dd7d883dbc4acdc64ff16963552592e4",
+      "git_status": "?? src/clsm/workshop_v1/main_launcher.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/main_retry.py",
+      "sha256": "3b72391300253985ec661d5965a32dc6b7a8c099c5ca810057d0dd14b7039906",
+      "git_status": "?? src/clsm/workshop_v1/main_retry.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/monitoring.py",
+      "sha256": "b41c93ca7e8c4b7931fe5554beec6fcb2f6f541d10e89d4ed7b8f1c147f8119f",
+      "git_status": "?? src/clsm/workshop_v1/monitoring.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/openbookqa_adapter.py",
+      "sha256": "110e8385d9c52c12f519c9011121f597cda57b0cfee63d1a9b87d9f39121f1da",
+      "git_status": "?? src/clsm/workshop_v1/openbookqa_adapter.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/output_parsing.py",
+      "sha256": "3bf0c003db1628645e21913a24e258d7d14cca65f10c0003d808c88cd8be71e8",
+      "git_status": "?? src/clsm/workshop_v1/output_parsing.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/population.py",
+      "sha256": "871116198fc2ff247948f111ce0834f713ae97fda3b3a2599e883b5f5caa63c4",
+      "git_status": "?? src/clsm/workshop_v1/population.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/post_generation_qc.py",
+      "sha256": "cdd90596299c4ef3fdf0904fd6f91b81bfdbd5766ee1d50b6062c1a263634f38",
+      "git_status": "?? src/clsm/workshop_v1/post_generation_qc.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/preflight.py",
+      "sha256": "6207cdd743d05f3c146b5097594a7e112aa1bbce05d9dcd221d7e815ca332b5f",
+      "git_status": "?? src/clsm/workshop_v1/preflight.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/prepare_population.py",
+      "sha256": "e0cf34c86ef5708ec39bc3d60edd800c520c16086831e9af06189b3eff75d2f8",
+      "git_status": "?? src/clsm/workshop_v1/prepare_population.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/prompt_contract.py",
+      "sha256": "a252a42275aef51b7d2ff6e655d0506e8c3ddcf1e006d187bf479ff3ee946d50",
+      "git_status": "?? src/clsm/workshop_v1/prompt_contract.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/records.py",
+      "sha256": "6abe6241d7360ad77c0c1e79092d14f2131bb059097c7099c4240c05a225f5c5",
+      "git_status": "?? src/clsm/workshop_v1/records.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/runner.py",
+      "sha256": "aa5e5376a46effd108c596fa85a3141f191a28e1e1d9bede52730055de13ec1e",
+      "git_status": "?? src/clsm/workshop_v1/runner.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/runtime_estimator.py",
+      "sha256": "97208613369d34345a0402a0184c28c09dd2fe5ea675a8b1cbe97014c2520034",
+      "git_status": "?? src/clsm/workshop_v1/runtime_estimator.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/scientific_executor.py",
+      "sha256": "aec78767a2f428a185926236349ea24966dd8f66ae84b0ba3ba7d2e015ee3d52",
+      "git_status": "?? src/clsm/workshop_v1/scientific_executor.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/synthetic_adapter_e2e.py",
+      "sha256": "ab18cec48e99776a5614ca61f16a195a737a20f95c0adce4cb5fee9422fb98dd",
+      "git_status": "?? src/clsm/workshop_v1/synthetic_adapter_e2e.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/synthetic_main_rehearsal.py",
+      "sha256": "e71a20ec1ec320e79de103c257b24a9ed6167647a38ef9e15e225491e41e39d4",
+      "git_status": "?? src/clsm/workshop_v1/synthetic_main_rehearsal.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/synthetic_readiness.py",
+      "sha256": "f24395a1c803fdd6e3045b703c6f35b849014f025734fb2f12d409e74fdac446",
+      "git_status": "?? src/clsm/workshop_v1/synthetic_readiness.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/tables.py",
+      "sha256": "ff6708f1fc259ab6813f8485878793265957d4a379c96fc9382a6a9c18540d0e",
+      "git_status": "?? src/clsm/workshop_v1/tables.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translated_context.py",
+      "sha256": "0297ba1c908d870d6a712f873e55d1202354bf2760619cf6338bbe1b97072d42",
+      "git_status": "?? src/clsm/workshop_v1/translated_context.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translated_judge_launcher.py",
+      "sha256": "4eb7adefd4db007d0fdaf0cdbedb270bb363a6205064c2fa9c0e70ba0320c3c4",
+      "git_status": "?? src/clsm/workshop_v1/translated_judge_launcher.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translation.py",
+      "sha256": "679a628421813f9eb75721b29e951c8c0a2dacc808f9e71f34ac02f4336c51d6",
+      "git_status": "?? src/clsm/workshop_v1/translation.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translator_executor.py",
+      "sha256": "fe7d33cf9f8dedab3a5beef75aedc4ae039ab0edccb29a2607766b7a60ba8a00",
+      "git_status": "?? src/clsm/workshop_v1/translator_executor.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translator_launcher.py",
+      "sha256": "0aba66d64d99bf9396a136f583c646f4369e7700404e1a8fc721b9658540e49c",
+      "git_status": "?? src/clsm/workshop_v1/translator_launcher.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/urdu_review_ingest.py",
+      "sha256": "9411dfef14bf194d963da4117315da6f8a973d37e1cc879ca90e229afbb370b0",
+      "git_status": "?? src/clsm/workshop_v1/urdu_review_ingest.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    },
+    {
+      "path": "src/clsm/workshop_v1/workload.py",
+      "sha256": "cc526ef55ecedadbabd69a1c2a6446d66d69be1877427e589e020a724af46f03",
+      "git_status": "?? src/clsm/workshop_v1/workload.py",
+      "base_commit": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0"
+    }
+  ],
+  "snapshot_hash": "4e005c9f04806bb8f11fcfdcb39208efdfee81e00d90de8b85b7b8f87f338542"
+}

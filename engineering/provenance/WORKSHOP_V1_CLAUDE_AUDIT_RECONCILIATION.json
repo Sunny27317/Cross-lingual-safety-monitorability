@@ -1,0 +1,19 @@
+{
+  "schema_version": "workshop-v1-audit-reconciliation/1",
+  "status": "CURRENT_CANONICAL_POINTERS_WITH_HISTORY_PRESERVED",
+  "scientific_outputs_modified": false,
+  "items": {
+    "C1": {"status": "IMPLEMENTED", "resolution": "D-TR-2 identity translations are accepted only with explicit identity fields and zero_urdu_script_letters reason; unexplained equality fails closed; six-record bound is enforced."},
+    "C2": {"status": "IMPLEMENTED", "resolution": "Translated judging requires translation QC PASS, immutable stage seal, matching stage/config/task hashes, complete population and zero unresolved failures."},
+    "C3": {"status": "IMPLEMENTED", "resolution": "Either disagreement or either abstention triggers adjudication; final adjudication may be unresolved."},
+    "C4": {"status": "CORRECTED_DOCUMENTATION", "resolution": "Packet manifest now records shown/hidden fields and condition metadata blinding explicitly."},
+    "C5": {"status": "HISTORICAL_RECORD", "resolution": "Earlier forensics remain unchanged; this record is the current reconciliation pointer."},
+    "C6": {"status": "PENDING_POST_TRANSLATION_REFRESH", "resolution": "Existing saved segmentation artifact is historical; refresh is to be run only after the active translation stage ends."},
+    "C7": {"status": "CORRECTED_PROVENANCE", "resolution": "Archival state now retains prior hash history and records final artifact/config references without claiming an execution commit."},
+    "C8": {"status": "HISTORICAL_RECORD", "resolution": "Superseded overflow wording is retained; current D-TR-5 contract is authoritative."},
+    "C9": {"status": "ERRATUM_REQUIRED", "resolution": "Current canonical judge context is Urdu question/options/suggestion; older English-input wording remains historical."},
+    "C10": {"status": "DOCUMENTATION_REVIEW_REQUIRED", "resolution": "Paper text is not used as an execution contract; current method pointers govern until prose reconciliation."},
+    "C11": {"status": "ERRATUM_RECORD_ONLY", "resolution": "Artifact timestamps and approval records govern chronology; nominal historical dates are not rewritten."},
+    "C12": {"status": "DOCUMENTED", "resolution": "No archival commit is claimed; source snapshot records base commit plus uncommitted changes."}
+  }
+}

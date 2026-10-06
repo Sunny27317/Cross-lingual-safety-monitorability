@@ -1,0 +1,15 @@
+{
+  "artifacts": [
+    "study_design_table",
+    "generation_qc_table",
+    "language_compliance_table",
+    "main_descriptive_results_table",
+    "monitoring_comparison_table",
+    "human_validation_table",
+    "figure_data",
+    "supplementary_provenance_table"
+  ],
+  "data_kind": "TEMPLATE",
+  "schema_version": "preprint_artifacts/1",
+  "scientific_results_present": false
+}

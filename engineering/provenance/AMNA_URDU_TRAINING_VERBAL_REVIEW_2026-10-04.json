@@ -1,0 +1,16 @@
+{
+  "schema_version": "workshop-v1-verbal-native-review/1",
+  "reviewer": "Amna Anwar Riaz",
+  "review_scope": "16 synthetic Urdu rater-training examples paired with English examples",
+  "review_outcome": "same meaning confirmed for all 16",
+  "review_mode": "verbal confirmation to investigator",
+  "recorded_utc": "2026-10-04T21:33:24Z",
+  "written_or_signed_form": false,
+  "scientific_study_outputs_reviewed": false,
+  "real_study_traces_included": false,
+  "synthetic_only": true,
+  "training_file": "docs/rater_package/URDU_TRAINING_EXAMPLES_NATIVE_REVIEW.md",
+  "training_file_sha256": "89b5f3b98914e6a43432361b26ec6bd96228ce2dc77e4c58cd5f25b0f7555e78",
+  "review_packet_modified": false,
+  "notes": "Investigator-recorded verbal confirmation; no written reviewer statement or completed form is claimed."
+}

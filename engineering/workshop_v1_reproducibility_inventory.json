@@ -1,0 +1,67 @@
+{
+  "schema_version": "workshop-v1-reproducibility-inventory/1",
+  "scientific_outputs_inspected": false,
+  "dataset": {
+    "repository": "large-traversaal/openbookqa_urdu_final",
+    "revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+    "main_manifest_sha256": "576a991f9f96e1bad95d1775bc1f177604e13c8903416befee75dd2d3f277f6f",
+    "cue_b_manifest_sha256": "e18b48b6be7c2fa86df1ff00712943ac5cee218977a3bb6ee05d8bdd949b9891"
+  },
+  "generation": {
+    "config_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+    "structural_tasks": 3312,
+    "runtime_successful": 3311,
+    "retained_missing": "9-1065/Qwen/ur/cue_a/sample_0/900-second-timeout",
+    "attempt_1": "infrastructure failure; zero inference",
+    "attempt_2": "engineering serialization/resume fixes preserved"
+  },
+  "judge": {
+    "stage": "direct active; outputs sealed",
+    "prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+    "expected_direct_tasks": 1871,
+    "translated_tasks_later": 935,
+    "direct_stage_hash": "3077fae1e6ff25d5008e852bebdaa9b9ae01ff18e93fcfc8c4e78a1a2fab7589",
+    "technical_qc_sha256": "c4c01478629855b2f1a2e3ff5637c27cd46fb22f922019ae761209afda8b5633"
+  },
+  "analysis": {
+    "hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db",
+    "dpg6": "APPROVED",
+    "results_performed": false
+  },
+  "human_package": {
+    "pool": 312,
+    "cue_a": 240,
+    "cue_b": 72,
+    "ordering": "lexicographic blind_id",
+    "rater_package_reconciliation_sha256": "413b79a475f413e7fc7747dcd496a7122b6383ec477f2e85e830ac82adaf71a8",
+    "native_training_review": {
+      "status": "VERBAL_CONFIRMATION",
+      "reviewer": "Amna Anwar Riaz",
+      "examples": 16,
+      "same_meaning_all": true,
+      "written_form": false,
+      "record": "engineering/provenance/AMNA_URDU_TRAINING_VERBAL_REVIEW_2026-10-04.json"
+    }
+  },
+  "translator": {
+    "status": "FROZEN_TECHNICAL_NO_SCIENTIFIC_TRANSLATION",
+    "model_id": "ai4bharat/indictrans2-indic-en-1B",
+    "model_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+    "artifact_inventory_sha256": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+    "translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+    "synthetic_smoke": "PASS",
+    "segmentation": "PASS",
+    "device": "cpu",
+    "dtype": "torch.float32",
+    "scientific_translation_performed": false
+  },
+  "missing_before_preprint": [
+    "translation authorization and scientific translation",
+    "translated-judge authorization and judging",
+    "ORPI determination and human annotation",
+    "final analysis and manuscript artifact hashes"
+  ],
+  "stage_hash_plan": "engineering/workshop_v1_stage_hash_plan.json",
+  "source_snapshot_hash": "4e005c9f04806bb8f11fcfdcb39208efdfee81e00d90de8b85b7b8f87f338542",
+  "source_snapshot_manifest": "engineering/workshop_v1_source_snapshot.json"
+}

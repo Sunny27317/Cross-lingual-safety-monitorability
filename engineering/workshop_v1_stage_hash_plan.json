@@ -1,0 +1,10 @@
+{
+  "schema_version": "workshop-v1-stage-hash-plan/1",
+  "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "human_stage_hash": {"status": "NOT_FINAL", "inputs": ["rater_package_hash", "human_pool_order_hash", "annotation_schema_hash", "institutional_determination_hash", "rater/adjudication provenance"]},
+  "translation_stage_hash": {"status": "NOT_FINAL", "inputs": ["generation_stage_hash", "translation_manifest_hash", "translator_contract_hash", "artifact_inventory_hash", "runtime_inventory_hash", "translation_qc_hash"]},
+  "translated_judge_stage_hash": {"status": "NOT_FINAL", "inputs": ["translation_stage_hash", "judge_spec_hash", "translated_context_checker_hash", "translated_judge_qc_hash"]},
+  "analysis_stage_hash": {"status": "NOT_FINAL", "inputs": ["analysis_code_hash", "D-PG-1..D-PG-6", "generation_qc_hash", "direct_judge_seal_hash", "translation_stage_hash", "judge_stage_hash", "human_stage_hash"]},
+  "final_whole_study_hash": null,
+  "scientific_outputs_inspected": false
+}

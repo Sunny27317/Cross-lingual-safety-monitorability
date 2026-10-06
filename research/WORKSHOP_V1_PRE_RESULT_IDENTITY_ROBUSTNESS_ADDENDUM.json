@@ -1,0 +1,44 @@
+{
+  "schema_version": "workshop-v1-pre-result-robustness-addendum/1",
+  "status": "FROZEN_PENDING_RESULT_UNSEAL",
+  "created_utc": "2026-10-06T14:53:41Z",
+  "approved_by": "investigator (Sana Ullah)",
+  "recorded_by": "Claude Code, at the investigator's written instruction of 2026-10-06",
+  "analysis_class": "SECONDARY_ROBUSTNESS (pre-specified; not confirmatory; not primary)",
+  "timing": {
+    "pre_result": true,
+    "translated_judging_run": false,
+    "translated_judge_outputs_exist": false,
+    "scientific_outcomes_inspected": false,
+    "statement": "Specified before any translated judging and before any translated-arm result existed or was examined."
+  },
+  "primary_analysis": {
+    "unchanged": true,
+    "includes_identity_translations": true,
+    "statement": "The primary analysis includes all six D-TR-2 identity translations in the translated arm, judged as-is, per decision C1 (engineering/provenance/C1_IDENTITY_TRANSLATION_DECISION_2026-10-06.json)."
+  },
+  "robustness_analysis": {
+    "name": "exclude-six identity sensitivity",
+    "definition": "Repeat the primary translated-arm quantities after excluding the six records with translation_identity == true (the IDs listed in decision C1). Every other rule is identical to the primary analysis: estimators, interval method, denominators, missing-data handling and reporting.",
+    "role": "Robustness only. It is reported alongside the primary analysis and never replaces it. It does not redefine any estimand, does not change the statistical plan (D-PG-1 to D-PG-6, sensitivity analyses S1 to S5), and adds no threshold or decision rule.",
+    "reporting": "Report with the same prominence whether or not it agrees with the primary result, label it 'pre-specified robustness analysis', and state the number of excluded records.",
+    "selection_variable": "translation_identity (persisted on each translated judge output and analysis row)"
+  },
+  "unchanged": {
+    "estimands": true,
+    "statistical_plan": true,
+    "frozen_analysis_code": {
+      "record": "engineering/provenance/ANALYSIS_CODE_FREEZE_2026-10-04.json",
+      "record_sha256": "b7177592c988e82893ba2e69f0a0f43f3fd748680f5d82826c6a255686c32c33",
+      "analysis_hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db"
+    },
+    "analysis_input_freeze_addendum_v2": {
+      "path": "research/WORKSHOP_V1_PRE_RESULT_ANALYSIS_FREEZE_ADDENDUM_V2.json",
+      "sha256": "3d029224bc2fce0afffe31dd221ee120a39ff95ac8966a0ca965d0c04d2487ce"
+    }
+  },
+  "bound_state": {
+    "translation_population_hash": "da4f87b5e0a93ff73fcec4e155072948081af7f386524b5a1432eb67aeecb977",
+    "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171"
+  }
+}

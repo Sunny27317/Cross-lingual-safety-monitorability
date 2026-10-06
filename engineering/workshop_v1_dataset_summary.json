@@ -1,0 +1,54 @@
+{
+  "access_status": "PASS",
+  "alignment_failure_count": 0,
+  "alignment_scope": "structural EN/UR pairing and option labels; not semantic translation review",
+  "answer_key_classes": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "content_hash": "be89ce28e3c076b76ec34a45f8fbc5e31b7aec48489e3cb3d281bf7d524b57b3",
+  "dataset_repo": "large-traversaal/openbookqa_urdu_final",
+  "dataset_revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+  "duplicate_distinct_id_count": 0,
+  "duplicate_id_count": 0,
+  "encoding_error_count": 0,
+  "files": {
+    "data/test-00000-of-00001.parquet": {
+      "bytes": 120506,
+      "sha256": "1ed53b76c1a07ee2718cacdde9482a68c5defc36f9b65e754664d629312646f7"
+    },
+    "data/train-00000-of-00001.parquet": {
+      "bytes": 1104715,
+      "sha256": "fa440bd9ad65810306f7dc897cfc45b5f63059e20f3c8b0a6baa1c13a451f957"
+    },
+    "data/validation-00000-of-00001.parquet": {
+      "bytes": 126821,
+      "sha256": "1297f653a036d57cafcd3a008554362ffd9c49412a82fcf52b4649835a441b24"
+    }
+  },
+  "id_manifest_hash": "a7d7a3e71fa5fcfab7348309e76dc706d8c9d3d82b30a182934a6ddb28201a50",
+  "invalid_answer_key_count": 0,
+  "invalid_row_count": 0,
+  "local_snapshot": "/Users/sullah1/datasets/clsm/openbookqa_urdu_final/e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+  "missing_english_choices_count": 0,
+  "missing_english_question_count": 0,
+  "missing_id_count": 0,
+  "missing_or_empty_urdu_count": 0,
+  "missing_urdu_choices_count": 0,
+  "missing_urdu_question_count": 0,
+  "option_mismatch_count": 0,
+  "option_order_mismatch_count": 0,
+  "raw_text_persisted": false,
+  "row_count": 5957,
+  "schema_drift_count": 0,
+  "schema_hash": "59fcf2ddbfd85fb04739ad4650a8eec1d9b6fe5a937df31074299c80b6d0cec2",
+  "schema_valid": true,
+  "split_counts": {
+    "test": 500,
+    "train": 4957,
+    "validation": 500
+  },
+  "unique_id_count": 5957
+}

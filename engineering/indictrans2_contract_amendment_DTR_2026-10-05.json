@@ -1,0 +1,37 @@
+{
+  "amendment_hash": "3a054e8bac831a1cbbfd25b545c15562bbc76b82824266ba707798e104720dc5",
+  "amendment_id": "D-TR-1..6",
+  "base_contract_unchanged": true,
+  "base_translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "decided_by": "investigator",
+  "decision_date_utc": "2026-10-05",
+  "decisions": {
+    "D-TR-1": "Whitespace-only segments are structural separators; not sent to the model; reinserted exactly and in order.",
+    "D-TR-2": "Segments with zero Urdu-script letters (Arabic-script Unicode letters) bypass translation and are preserved exactly; any segment containing an Urdu-script letter is translated. Arabic-block punctuation/digits are not letters.",
+    "D-TR-3": "Reversible reassembly: all separators, whitespace, line breaks and ordering preserved; only the stripped core of translatable segments is replaced; units are additionally cut at line breaks so no line break lies inside a translated span.",
+    "D-TR-4": "Translation source = parsed.reasoning_span, identical to the span scored by the direct judge (verified mechanically 2026-10-05: 936/936 EN and 935/935 UR direct-judge prompts contain exactly parsed.reasoning_span; 0 contain generated_completion).",
+    "D-TR-5": "After line/sentence/clause/whitespace-token segmentation, any piece still over 200 source tokens undergoes one deterministic greedy character-preserving re-split into maximal prefixes within the limit; otherwise fail closed. Output reaching max_length without EOS fails closed (no output-side re-split).",
+    "D-TR-6": "Tasks with failed attempts 1-2 may receive attempt 3 only under explicit investigator resume authorization; historical attempts immutable; preflight validates contiguous numbered attempt history."
+  },
+  "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+  "historical_records": "attempts 1-2 for 3 tasks were produced under the base contract with the batched implementation; they remain immutable failure records.",
+  "implementation": {
+    "executor": "clsm.workshop_v1.translator_launcher._translate_task (batch_size=1 per unit)",
+    "segmentation_and_reassembly": "clsm.workshop_v1.translation.translation_units + reassemble",
+    "translation_py_sha256": "755185ac77f45ef34592221309fabb8f1362878ce5947ae479f161601c6c5951"
+  },
+  "schema_version": "workshop-v1-translation-contract-amendment/1",
+  "status": "APPROVED_PENDING_RESUME_AUTHORIZATION",
+  "unchanged": {
+    "batch_size": 1,
+    "device": "cpu",
+    "direction": "urd_Arab->eng_Latn",
+    "dtype": "torch.float32",
+    "fallback_policy": "unchanged (base contract)",
+    "max_length": 256,
+    "max_source_tokens": 200,
+    "model": "ai4bharat/indictrans2-indic-en-1B",
+    "num_beams": 5,
+    "revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a"
+  }
+}

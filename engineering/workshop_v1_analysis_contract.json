@@ -1,0 +1,9 @@
+{
+  "schema_version": "workshop-v1-analysis-contract/2",
+  "primary_analysis": {"compliance_inclusion_exclusion_floor": false},
+  "compliance": {"reported_as": ["quality", "covariate"], "sensitivity": {"allowed": true, "threshold": 0.5, "label": "exploratory"}},
+  "cue_grouping": "Cue-A and Cue-B remain separate; Cue-B is a 36-item subset.",
+  "confirmatory_testing": false,
+  "paraphrase_control": {"implemented": false, "claim_boundary": "R may be descriptive only; no stronger causal/mechanistic claim requiring the absent control."},
+  "real_analysis_performed": false
+}

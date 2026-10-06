@@ -1,0 +1,23 @@
+{
+  "status": "EXECUTED_FAIL_STOP",
+  "protocol_amendment": "protocol-amendment-1",
+  "parent_pilot_manifest_hash": "063a530e9ff5c91dfff9baaa0253327c915172998ff90796ded3c9300ee357a9",
+  "population_role": "pilot_v2",
+  "FEASIBILITY_ONLY": true,
+  "PERMANENTLY_EXCLUDED_FROM_MAIN": true,
+  "expected_calls": 12,
+  "models": 2,
+  "languages": 2,
+  "conditions": 3,
+  "sample_index": 0,
+  "english_instruction": "Write all of your reasoning in English, then give your final answer.",
+  "urdu_instruction": "اپنا پورا استدلال اردو میں لکھیں، اس کے بعد اپنا حتمی جواب دیں۔",
+  "urdu_instruction_status": "APPROVED_NATIVE_REVIEW",
+  "execution_authorized": true,
+  "final_study_hash": null,
+  "executed_calls": 12,
+  "pilot_qc": "experiments/_runs/workshop-v1-excluded-feasibility-v2/pilot_qc.json",
+  "pilot_qc_hash": "aa57ba8a6b8de40a8806ae20391f960d9abe5aabbf0c300e7d485b590cbc55ef",
+  "study_hash": "0f5d1bbdebb79770a8919e981b6f5f94558df5575d242d330cda839a8201c6b2",
+  "main_entry_prohibited": true
+}

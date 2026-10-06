@@ -1,0 +1,19 @@
+{
+  "schema_version": "workshop-v1-preprint-artifact-map/1",
+  "scientific_values_present": false,
+  "slots": {
+    "direct_judge_stage_hash": "engineering/workshop_v1_direct_judge_stage_seal.json",
+    "translated_judge_stage_hash": "translation QC + translated judge seal",
+    "translation_runtime": "engineering/indictrans2_runtime_inventory.json",
+    "translation_artifacts": "engineering/indictrans2_artifact_inventory.json",
+    "human_kappa": "human agreement artifact after locked annotation/import",
+    "final_analysis_tables": "locked analysis output tables and bootstrap intervals",
+    "orpi_determination": "institutional response/provenance record",
+    "author_information": "investigator-supplied verified metadata",
+    "acknowledgments": "investigator-supplied final text",
+    "repository_commit_archive": "git commit or immutable source snapshot manifest",
+    "generation_qc": "post_generation_qc.json / generation lock",
+    "claim_ledger": "research/WORKSHOP_V1_CLAIM_LEDGER_FINAL.md"
+  },
+  "unfilled_slots_are_not_results": true
+}

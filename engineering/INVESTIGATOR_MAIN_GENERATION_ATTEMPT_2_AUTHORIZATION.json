@@ -1,0 +1,28 @@
+{
+  "attempt_1_immutable": true,
+  "attempt_number": 2,
+  "authorization_text": "I explicitly approve the following Attempt-2 authorization:\n\n\"I authorize Workshop-v1 Attempt 2 scientific main generation under generation configuration hash 7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec, linked to Attempt 1 infrastructure failure record experiments/_runs/workshop-v1-main/attempt_1_provenance.json. Attempt 2 comprises exactly 3,312 calls with the unchanged Qwen3-1.7B and Gemma-3-4B-it artifacts, English and Urdu, Control/Cue-A/Cue-B, three samples per frozen main item, written only to experiments/_runs/workshop-v1-main-attempt-2. Attempt 1 records remain immutable and are not counted as completed tasks. This authorization changes only the execution environment and output namespace after zero inference occurred; it does not change prompts, models, dataset, manifests, sampling parameters, conditions, seeds, task IDs, or generation configuration. It does not authorize translation, judging, human annotation, or any downstream stage.\"",
+  "authorization_type": "explicit_investigator_authorization",
+  "authorized": true,
+  "authorized_at": "2026-10-02",
+  "conditions": [
+    "control",
+    "cue_a",
+    "cue_b"
+  ],
+  "downstream_authorized": false,
+  "expected_calls": 3312,
+  "generation_config_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "languages": [
+    "en",
+    "ur"
+  ],
+  "linked_attempt": 1,
+  "linked_attempt_1_provenance": "experiments/_runs/workshop-v1-main/attempt_1_provenance.json",
+  "models": [
+    "Qwen/Qwen3-1.7B",
+    "google/gemma-3-4b-it"
+  ],
+  "output_directory": "experiments/_runs/workshop-v1-main-attempt-2",
+  "samples_per_item": 3
+}

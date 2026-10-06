@@ -1,0 +1,53 @@
+{
+  "schema_version": "workshop-v1-investigator-decision/1",
+  "decision_id": "C1",
+  "title": "D-TR-2 identity translations remain in the primary translated arm",
+  "status": "APPROVED",
+  "decided_by": "investigator (Sana Ullah)",
+  "recorded_utc": "2026-10-06T14:53:41Z",
+  "recorded_by": "Claude Code, at the investigator's written instruction of 2026-10-06",
+  "timing": {
+    "pre_result": true,
+    "translated_judging_run": false,
+    "translated_judge_outputs_exist": false,
+    "translation_stage_sealed": false,
+    "scientific_outcomes_inspected": false,
+    "statement": "This decision was made and recorded before any translated judging and before any translated-arm result existed or was examined."
+  },
+  "decision": [
+    "The six D-TR-2 identity translations, selected by the deterministic frozen rule below, remain in the primary translated arm (T).",
+    "They are judged as-is: the Judge V2 input is the unchanged source span, exactly as persisted.",
+    "They are not treated as missing.",
+    "Explicit identity provenance stays attached downstream: translation_identity, translation_changed, identity_translation_reason, translation_stage_hash, effective_translation_config_hash and translation_record_sha256 must be present on every judge output and analysis row."
+  ],
+  "selection_rule": {
+    "source": "D-TR-2, engineering/indictrans2_contract_amendment_DTR_2026-10-05.json",
+    "amendment_record_sha256": "28c84bb0d07f4f90522f1b2ceab79b9aeb00149a5310e28d349b2eeb55daf0fe",
+    "rule": "A translation is an identity translation if and only if its source reasoning span contains zero Urdu-script letters (Arabic-script Unicode letters) and the persisted translated text is byte-identical to that span. Any other equal-text record fails QC closed.",
+    "deterministic": true,
+    "maximum_authorized": 6,
+    "implementation": [
+      "src/clsm/workshop_v1/post_translation_pipeline.py: translation_qc",
+      "src/clsm/workshop_v1/translated_judge_launcher.py: identity_translation"
+    ]
+  },
+  "identity_translation_ids": [
+    "translation-4405606506d6c760d3f40b2968fd668b180ef9063e9bff931225240985d9c4de",
+    "translation-4982d35d947e789e554c2384708bec7c4ab6d15d26325b4b91769f1f623c8d85",
+    "translation-55538cbd9e6123018de241fb4279447f3177f2059653181f88b14c37a751d017",
+    "translation-5c8674c57b6cc46c2f0edb614cab2c2f5af9f0d4774c3a4fd0c32a6664176a30",
+    "translation-615d63187e3473274c98e8c39152c47d6e3283527e1b7d3aa8a417105085f6d0",
+    "translation-86308c86fe9d61ecb1b009c35cf16a1c4f57daddc3ef7df305c1f808459717af"
+  ],
+  "identity_ids_provenance": "Output of translator_launcher.canonical_qc() (read-only technical QC) on 2026-10-06. No list of the six existed before this date; the set is defined by the rule, not chosen by hand.",
+  "bound_state": {
+    "translation_population_hash": "da4f87b5e0a93ff73fcec4e155072948081af7f386524b5a1432eb67aeecb977",
+    "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+    "task_manifest_hash": "635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d",
+    "translation_stage_provenance_record_sha256": "e900858ce2c39e8fa0bcffaeb97da630f4d64a752d107f849536e48f4a16f3db"
+  },
+  "related": {
+    "robustness_addendum": "research/WORKSHOP_V1_PRE_RESULT_IDENTITY_ROBUSTNESS_ADDENDUM.json",
+    "checklist": "research/WORKSHOP_V1_TRANSLATED_JUDGE_PRE_AUTHORIZATION_CHECKLIST.md"
+  }
+}

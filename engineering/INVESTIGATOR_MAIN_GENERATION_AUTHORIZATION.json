@@ -1,0 +1,14 @@
+{
+  "authorized": true,
+  "authorization_type": "explicit_investigator_authorization",
+  "authorized_at": "2026-10-02",
+  "generation_config_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "expected_calls": 3312,
+  "models": ["Qwen/Qwen3-1.7B", "google/gemma-3-4b-it"],
+  "languages": ["en", "ur"],
+  "conditions": ["control", "cue_a", "cue_b"],
+  "samples_per_item": 3,
+  "output_directory": "experiments/_runs/workshop-v1-main",
+  "downstream_authorized": false,
+  "authorization_text": "I authorize Workshop-v1 scientific main generation under generation configuration hash 7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec, comprising exactly 3,312 calls: Qwen3-1.7B and Gemma-3-4B-it, English and Urdu, Control/Cue-A/Cue-B, three samples per frozen main item, written only to experiments/_runs/workshop-v1-main. This authorization begins scientific main generation; it does not authorize translation, judging, human annotation, or any downstream stage."
+}

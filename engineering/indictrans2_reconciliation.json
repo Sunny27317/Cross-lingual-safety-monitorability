@@ -1,0 +1,29 @@
+{
+  "primary_model": "ai4bharat/indictrans2-indic-en-1B",
+  "backup_model": "facebook/nllb-200-distilled-600M",
+  "direction": "Urdu -> English",
+  "language_codes": {"source": "urd_Arab", "target": "eng_Latn"},
+  "components": {
+    "model_family": {"status": "AGREE", "value": "IndicTrans2"},
+    "exact_checkpoint_or_revision": {"status": "UNVERIFIED", "value": null},
+    "tokenizer_revision": {"status": "UNVERIFIED", "value": null},
+    "backend": {"status": "SCIENTIFIC_DECISION_REQUIRED", "value": null,
+      "candidate": "reference Transformers + IndicTransToolkit"},
+    "preprocessing": {"status": "SCIENTIFIC_DECISION_REQUIRED", "value": null,
+      "candidate": "author reference preprocessing"},
+    "postprocessing": {"status": "SCIENTIFIC_DECISION_REQUIRED", "value": null,
+      "candidate": "author reference postprocessing"},
+    "decoding": {"status": "SCIENTIFIC_DECISION_REQUIRED", "value": null,
+      "candidate": {"num_beams": 5, "max_length": 256}},
+    "batching": {"status": "ENGINEERING_DEFAULT", "value": 1},
+    "device_runtime": {"status": "INVESTIGATOR_DECISION_REQUIRED", "value": null},
+    "package_versions": {"status": "UNVERIFIED", "value": null},
+    "artifact_hashes": {"status": "UNVERIFIED", "value": null},
+    "fallback_activation": {"status": "SCIENTIFIC_DECISION_REQUIRED", "value": null,
+      "candidate": "backup only after documented primary technical failure"},
+    "failure_resume": {"status": "ENGINEERING_DEFAULT",
+      "value": "immutable per-task checkpoints; retry only documented technical failures"}
+  },
+  "translation_task_count": 936,
+  "scientific_translation_performed": false
+}

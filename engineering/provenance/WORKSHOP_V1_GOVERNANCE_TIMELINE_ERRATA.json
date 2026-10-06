@@ -1,0 +1,13 @@
+{
+  "schema_version": "workshop-v1-governance-timeline-errata/1",
+  "status": "ERRATA_RECORD_ONLY",
+  "method": "artifact filesystem timestamps and recorded provenance fields are retained; historical documents are not rewritten",
+  "items": [
+    {"topic": "D5 dates", "resolution": "retain historical date fields; use execution artifacts and study hash as the authoritative execution record"},
+    {"topic": "manifest seed/pseudo-date", "resolution": "retain frozen seed and manifest bytes; record chronology separately"},
+    {"topic": "D-PG approvals", "resolution": "approval-record timestamps are authoritative for approval provenance"},
+    {"topic": "direct judge authorization", "resolution": "authorization artifact and output-stage seal are authoritative"},
+    {"topic": "ORPI request", "resolution": "retain sent-request record; institutional response remains a separate dependency"},
+    {"topic": "Amna training review", "resolution": "canonical record is verbal-only and synthetic-only; no signed review is claimed"}
+  ]
+}

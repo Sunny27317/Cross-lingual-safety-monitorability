@@ -1,0 +1,17 @@
+{
+  "schema_version": "human_packet_order/1",
+  "count": 312,
+  "method": "lexicographic_blind_id",
+  "blind_id_order_hash": "ee0e1b577aa6e7b88d4216c47b841d096920721326394eaca0affa43b80852ee",
+  "pool_count": 312,
+  "cue_a": 240,
+  "cue_b": 72,
+  "annotation_executed": false,
+  "source": "clsm.workshop_v1.human_pool.packet_order",
+  "blinding": {
+    "shown": ["language", "question", "options", "suggestion", "trace"],
+    "hidden": ["model", "item_id", "sample", "condition", "answer_key", "model_answer", "automated_label", "translation", "compliance", "other_rater_labels"],
+    "condition_metadata_hidden": true,
+    "model_block_leakage_check": "required"
+  }
+}

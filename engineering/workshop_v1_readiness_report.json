@@ -1,0 +1,24 @@
+{
+  "DATASET": "PASS",
+  "MANIFESTS": "PASS",
+  "QWEN SPEC": "COMPLETE",
+  "GEMMA SPEC": "INCOMPLETE",
+  "FALCON SPEC": "INCOMPLETE",
+  "PROMPT ECHO": "PASS",
+  "QWEN PARSER": "PASS",
+  "GEMMA PARSER": "PASS",
+  "READY TO AUTHORIZE 12-CALL FEASIBILITY PILOT": "NO",
+  "EXECUTION AUTHORIZED": false,
+  "PILOT EXECUTED": false,
+  "MAIN EXPERIMENT EXECUTED": false,
+  "remaining_blockers": [
+    "GEMMA SPEC: BLOCKED/TODO: Gemma pilot decoding and context settings require a prospective choice; smoke settings are evidence only",
+    "GEMMA SPEC: BLOCKED/TODO: decoding not frozen",
+    "GEMMA SPEC: BLOCKED/TODO: additional_settings",
+    "FALCON SPEC: BLOCKED/TODO: judge decoding is not frozen",
+    "FALCON SPEC: BLOCKED/TODO: final judge prompt/rubric definitions and format acceptance rule are not frozen; candidate labels alone are insufficient",
+    "FALCON SPEC: BLOCKED/TODO: decoding not frozen",
+    "FALCON SPEC: BLOCKED/TODO: additional_settings"
+  ],
+  "report_hash": "93ceb0d552b7199a89550045297056f0970297b39480d8368a60fcd070461e0d"
+}

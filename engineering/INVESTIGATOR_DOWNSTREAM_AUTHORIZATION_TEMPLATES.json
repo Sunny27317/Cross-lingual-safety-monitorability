@@ -1,0 +1,16 @@
+{
+  "translation": {
+    "status": "NOT_READY_TRANSLATOR_CONTRACT_UNRESOLVED",
+    "exact_tasks": 935,
+    "output_directory": "experiments/_runs/workshop-v1-translation",
+    "authorization_text_template": "I authorize exactly 935 Workshop-v1 Urdu Cue-A/Cue-B translation tasks under the locked generation stage hash 7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec, using the separately frozen IndicTrans2 contract and writing only to experiments/_runs/workshop-v1-translation. This does not authorize judging, human annotation, or analysis."
+  },
+  "direct_judge": {
+    "status": "READY_AWAITING_EXPLICIT_AUTHORIZATION",
+    "english_direct": 936,
+    "urdu_direct": 935,
+    "total": 1871,
+    "output_directory": "experiments/_runs/workshop-v1-direct-judge",
+    "authorization_text_template": "I authorize direct Falcon Judge V2 evaluation of exactly 1,871 eligible records: 936 English-direct and 935 Urdu-direct, using the locked Judge V2 contract and manifests, writing only to experiments/_runs/workshop-v1-direct-judge. This does not authorize translated-Urdu judging, human annotation, or analysis."
+  }
+}
