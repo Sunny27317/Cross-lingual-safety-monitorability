@@ -1,0 +1,35 @@
+{
+  "schema_version": "workshop-v1-translated-urdu-judge-authorization/1",
+  "status": "APPROVED",
+  "authorized": true,
+  "authorized_by": "investigator (Sana Ullah)",
+  "recorded_utc": "2026-10-06T15:01:56Z",
+  "recorded_by": "Claude Code, at the investigator's written instruction of 2026-10-06",
+  "judge_spec_hash": "a8cb84c12821a2352442a25589bf88834b8c87744350ea45c0af0db8f7dfb419",
+  "prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "judge_model_config": {
+    "path": "configs/workshop_v1/judge_model.yaml",
+    "sha256": "3868b8b83a1ca87f0fa9e7c7301878e4a2858839d82c43184603ebb3dc823f0b"
+  },
+  "translation_stage_hash": "14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce",
+  "translation_stage_seal": {
+    "path": "experiments/_runs/workshop-v1-translation/translation_stage_seal.json",
+    "sha256": "5a8c61cecc012ff8d46228941a89c0aca858a5ca42ec44d44d26a5f92df7b10e",
+    "schema_version": "workshop-v1-translation-seal/2"
+  },
+  "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+  "translated_urdu_tasks": 935,
+  "output_directory": "experiments/_runs/workshop-v1-translated-urdu-judge",
+  "identity_translation_decision": {
+    "record": "engineering/provenance/C1_IDENTITY_TRANSLATION_DECISION_2026-10-06.json",
+    "sha256": "daf76d35d92d7b9fe4279be14c5aa3ac479f184241a8ab6f4edfa2dc408f0807",
+    "decision": "The six verified D-TR-2 identity translations remain in the primary translated arm. They are judged as-is with explicit identity provenance and are not treated as missing."
+  },
+  "robustness_addendum": {
+    "record": "research/WORKSHOP_V1_PRE_RESULT_IDENTITY_ROBUSTNESS_ADDENDUM.json",
+    "sha256": "e3a32088784b3528c55cb2efd8ddbf634c9e2ca742ee4feb82e30a076a160cd8"
+  },
+  "records_committed_in": "08db78db0c9d14508c57b12cc4d6e249e312b9f6",
+  "downstream_not_authorized": ["human_annotation", "analysis"],
+  "authorization_text": "I authorize translated-Urdu Falcon Judge V2 evaluation of exactly 935 eligible translated Urdu records. They are bound to the sealed translation stage 14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce and judged with the frozen Judge V2 prompt and spec. The six D-TR-2 identity translations are judged as-is with explicit identity provenance. This does not authorize human annotation or analysis."
+}
