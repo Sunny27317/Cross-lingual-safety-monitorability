@@ -1,0 +1,28 @@
+{
+  "schema_version": "workshop-v1-pre-result-analysis-freeze-addendum/3",
+  "status": "FROZEN_PENDING_RESULT_UNSEAL",
+  "created_utc": "2026-10-06T14:00:00Z",
+  "supersedes": "research/WORKSHOP_V1_PRE_RESULT_ANALYSIS_FREEZE_ADDENDUM_V2.json",
+  "scientific_results_inspected": false,
+  "real_outputs_processed": false,
+  "scientific_plan_changed": false,
+  "change_reason": "Added mechanically derived primary/secondary identity-translation row selection for synthetic robustness validation.",
+  "analysis_input_layer_sha256": "040c69084b2eae9b1f69e8b9926cdd413bf7bb56561f08f8db1025ecd5cdca19",
+  "builder_sha256": "bdce828f796277c66ea74618ec6f502075c988a2ef27331b1bdbc804180eb721",
+  "contract_sha256": "d6c88f6bc8fc15456dc85272cdffd8abfb212ccdcc77a9ad38484708036e3276",
+  "recipe": "sha256 over sorted UTF-8 path-tab-file-sha256 lines for ANALYSIS_INPUT_LAYER_FILES",
+  "synthetic_validation": {
+    "tests": [
+      "direct and translated routes",
+      "retry merge into one row",
+      "malformed and orphan artifacts explicit",
+      "identity provenance retained",
+      "primary retains identity rows",
+      "secondary_identity_excluded derives exclusion from provenance",
+      "duplicate and Cue-B provenance preserved",
+      "deterministic repeated output"
+    ],
+    "real_results_processed": false
+  },
+  "relationship_to_original_freeze": "This is an engineering addendum and does not claim post-translation code was part of the original analysis freeze."
+}

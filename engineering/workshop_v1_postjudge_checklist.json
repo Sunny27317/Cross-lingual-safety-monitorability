@@ -1,0 +1,17 @@
+{
+  "schema_version": "workshop-v1-postjudge-checklist/1",
+  "independent_audit": "PENDING",
+  "stages": [
+    {"stage": "translated_judging_complete", "required": true, "evidence": "935-task technical QC"},
+    {"stage": "technical_qc", "required": true, "evidence": "machine-readable QC PASS"},
+    {"stage": "retry_resolution", "required": true, "evidence": "no retryable or unresolved state"},
+    {"stage": "judge_stage_seal", "required": true, "evidence": "immutable stage hash"},
+    {"stage": "human_annotation", "required": true, "evidence": "approved packet and locked files"},
+    {"stage": "annotation_qc", "required": true, "evidence": "packet-bound import QC"},
+    {"stage": "analysis_authorization", "required": true, "evidence": "investigator approval"},
+    {"stage": "frozen_analysis", "required": true, "evidence": "analysis code/input hashes"},
+    {"stage": "results_sealing", "required": true, "evidence": "immutable results artifact"},
+    {"stage": "manuscript_update", "required": true, "evidence": "claim/audit review"},
+    {"stage": "archival_bundle", "required": true, "evidence": "reproducibility manifest"}
+  ]
+}

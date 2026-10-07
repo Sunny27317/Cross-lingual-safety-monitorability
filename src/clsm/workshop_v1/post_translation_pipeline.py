@@ -48,6 +48,15 @@ def analysis_input_layer_sha256(root: Path = ROOT) -> str:
     return hashlib.sha256(lines.encode("utf-8")).hexdigest()
 
 
+def identity_robustness_rows(rows: list[dict[str, Any]], *, mode: str = "primary") -> list[dict[str, Any]]:
+    """Primary retains all rows; secondary excludes only flagged identities."""
+    if mode not in {"primary", "secondary_identity_excluded"}:
+        raise ValueError("unknown identity robustness mode")
+    if mode == "primary":
+        return [dict(row) for row in rows]
+    return [dict(row) for row in rows if row.get("translation_identity") is not True]
+
+
 def _load_manifest(path: Path = TRANSLATION_MANIFEST) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     tasks = value.get("tasks", [])
