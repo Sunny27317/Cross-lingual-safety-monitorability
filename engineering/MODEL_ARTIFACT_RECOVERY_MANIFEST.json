@@ -1,0 +1,67 @@
+{
+  "schema_version": "workshop-v1-model-artifact-recovery/1",
+  "generated": "2026-10-06",
+  "entries": [
+    {
+      "logical_name": "Qwen3-1.7B",
+      "provider_repository": "Qwen/Qwen3-1.7B GGUF release",
+      "revision": "see local model provenance; not recorded in tracked manifest",
+      "filename": "Qwen3-1.7B-Q8_0.gguf",
+      "expected_sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+      "size_bytes": 1834426016,
+      "license": "verify upstream release terms",
+      "stage": "main generation",
+      "backup_required": true,
+      "redownloadable": true
+    },
+    {
+      "logical_name": "Gemma-3-4B-it",
+      "provider_repository": "google/gemma-3-4b-it GGUF release",
+      "revision": "see local model provenance; not recorded in tracked manifest",
+      "filename": "gemma-3-4b-it-q4_0.gguf",
+      "expected_sha256": "76aed0a8285b83102f18b5d60e53c70d09eb4e9917a20ce8956bd546452b56e2",
+      "size_bytes": 3155051328,
+      "license": "verify upstream release terms",
+      "stage": "main generation",
+      "backup_required": true,
+      "redownloadable": true
+    },
+    {
+      "logical_name": "Falcon-H1-7B-Instruct",
+      "provider_repository": "tiiuae/Falcon-H1-7B-Instruct-GGUF",
+      "revision": "058c8c8f08e57da131ba5f070f9ff1280d141c39",
+      "filename": "Falcon-H1-7B-Instruct-Q4_K_M.gguf",
+      "expected_sha256": "145def0b4cd36500bf538ed7ac895b5c1851e02e802b2d1c12ffa6afdbaff25d",
+      "size_bytes": 4598344960,
+      "license": "Falcon-LLM License 2.0; verify current terms",
+      "stage": "judge",
+      "backup_required": true,
+      "redownloadable": true
+    },
+    {
+      "logical_name": "IndicTrans2",
+      "provider_repository": "ai4bharat/indictrans2-indic-en-1B",
+      "revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+      "filename": "model.safetensors",
+      "expected_sha256": "9b030cdd001e669a4043ea70ebb39a59630f5af58e0d0329ac9edc663ce98448",
+      "size_bytes": 4092117552,
+      "license": "see downloaded LICENSE and upstream terms",
+      "stage": "translation",
+      "backup_required": true,
+      "redownloadable": true,
+      "full_manifest": "engineering/indictrans2_artifact_inventory.json"
+    },
+    {
+      "logical_name": "OpenBookQA Urdu dataset",
+      "provider_repository": "large-traversaal/openbookqa_urdu_final",
+      "revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+      "filename": "dataset parquet files",
+      "expected_sha256": "see engineering/workshop_v1_dataset_summary.json",
+      "size_bytes": 1352042,
+      "license": "verify dataset license and redistribution terms",
+      "stage": "selection/generation",
+      "backup_required": true,
+      "redownloadable": true
+    }
+  ]
+}

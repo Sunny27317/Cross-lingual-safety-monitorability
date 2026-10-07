@@ -1,0 +1,69 @@
+{
+  "analysis": "INDEPENDENT_WORKTREE_DO_NOT_EDIT",
+  "branch": "research/workshop-v1-post-translation-pipeline",
+  "files": [
+    {
+      "path": "src/clsm/workshop_v1/translated_judge_launcher.py",
+      "sha256": "6bc4447d4c87f7b1d7f087b407cc8674112d2d467644fbb0ef44d00721ef34d3"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translated_context.py",
+      "sha256": "f8715c604acd425e14ad306139aff5b27c8ae0d025d24a27e82683609be38dd2"
+    },
+    {
+      "path": "src/clsm/workshop_v1/judge.py",
+      "sha256": "f63fa16b453f6cacf4a5b68afb27f9e3a99bc8d33d3e826aaa0e6eb688969419"
+    },
+    {
+      "path": "engineering/workshop_v1_translated_urdu_judge_manifest.json",
+      "sha256": "9467b4da6da5ce940b41a47db999aaec337de0a748e1ac353a03923dfe20a84e"
+    },
+    {
+      "path": "engineering/INVESTIGATOR_TRANSLATED_URDU_JUDGE_AUTHORIZATION.json",
+      "sha256": "267b67351078e51634a7de2ec97574fc7295d690139eaabaf252728d17488ca5"
+    },
+    {
+      "path": "engineering/workshop_v1_direct_judge_stage_seal_v2.json",
+      "sha256": "4476b66c599735aac503c683e351a4542db4eb0e9b9221b86dbd9acf08e54b07"
+    },
+    {
+      "path": "engineering/indictrans2_final_contract.json",
+      "sha256": "28731c786c5ac67995abc7ffbc606e2cf3c5b50f25fd113ccdd2d8fa4b29f401"
+    },
+    {
+      "path": "engineering/provenance/TRANSLATION_HASH_LINEAGE_AUDIT.md",
+      "sha256": "eb4c1322a9248a2fd31454c15e6b6e1d6acd42dd419d53b279b47f68a530f752"
+    },
+    {
+      "path": "engineering/workshop_v1_pre_unseal_validator.py",
+      "sha256": "899e4d0af24be068d20dd97aa0a15c9f2c5eed28a4ab22de12c9760dc0daa875"
+    },
+    {
+      "path": "engineering/workshop_v1_translated_judge_post_qc.py",
+      "sha256": "4db37f9829018219888a5a428128a17cbc9b5449da960edcbcd4a833cb496d93"
+    }
+  ],
+  "frozen": {
+    "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+    "generation_config_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+    "judge_prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+    "judge_spec_hash": "a8cb84c12821a2352442a25589bf88834b8c87744350ea45c0af0db8f7dfb419",
+    "translation_stage_hash": "14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce"
+  },
+  "human_stage": "BLOCKED_PENDING_ORPI",
+  "known_errata": [
+    "translation hash lineage",
+    "public privacy exposure",
+    "historical nominal dates"
+  ],
+  "live_stage": {
+    "expected_tasks": 935,
+    "path": "experiments/_runs/workshop-v1-translated-urdu-judge",
+    "qc_status": "NOT_RUN_LIVE_STAGE_ACTIVE"
+  },
+  "platform": "macOS-26.6-arm64-arm-64bit-Mach-O",
+  "python": "3.14.5",
+  "repository_base_commit": "b44636eaf9a549281008e1469e46d12800380d7b",
+  "schema_version": "workshop-v1-reproducibility-manifest/1",
+  "scientific_content_inspected": false
+}

@@ -1,0 +1,79 @@
+{
+  "created_utc": "2026-10-07",
+  "notes": [
+    "Technical counts and hashes only. No labels, traces, distributions or scientific outcomes were inspected.",
+    "Generation seal is explicitly retrospective."
+  ],
+  "schema_version": "workshop-v1-all-stage-technical-status/1",
+  "scientific_content_inspected": false,
+  "stages": [
+    {
+      "authorization": "engineering/INVESTIGATOR_MAIN_GENERATION_ATTEMPT_2_AUTHORIZATION.json",
+      "authorization_sha256": "6fbcaa1a78a60f73d449296af8da2096f5393700c44fabe988038374a5d3678c",
+      "config_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+      "corrupt": 0,
+      "duplicates": 0,
+      "expected": 3312,
+      "manifest": "engineering/workshop_v1_main_manifest.json",
+      "manifest_sha256": "576a991f9f96e1bad95d1775bc1f177604e13c8903416befee75dd2d3f277f6f",
+      "missing": 0,
+      "observed": 3312,
+      "stage": "generation",
+      "stage_seal": "engineering/provenance/GENERATION_STAGE_RETROSPECTIVE_TECHNICAL_VERIFICATION_SEAL_2026-10-07.json",
+      "stage_seal_sha256": "a44e3051eb0df156a5d4371cf5c4914fe0d8ee05cc6636dcf56b5c79be02e45a",
+      "status": "LOCKED_WITH_RETAINED_MISSING_TIMEOUT",
+      "technical_failures": 1
+    },
+    {
+      "authorization": "engineering/INVESTIGATOR_DIRECT_JUDGE_AUTHORIZATION.json",
+      "authorization_sha256": "65bf8f1b983d00f47b5153c2b343053036359143e3132270bb765a4b6dc0275b",
+      "config_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+      "corrupt": 0,
+      "duplicates": 0,
+      "expected": 1871,
+      "manifest": "engineering/INVESTIGATOR_DIRECT_JUDGE_AUTHORIZATION.json",
+      "manifest_sha256": "65bf8f1b983d00f47b5153c2b343053036359143e3132270bb765a4b6dc0275b",
+      "missing": 0,
+      "observed": 1871,
+      "stage": "direct_judge",
+      "stage_seal": "engineering/workshop_v1_direct_judge_stage_seal_v2.json",
+      "stage_seal_sha256": "4476b66c599735aac503c683e351a4542db4eb0e9b9221b86dbd9acf08e54b07",
+      "status": "SEALED",
+      "technical_failures": 0
+    },
+    {
+      "authorization": "engineering/INVESTIGATOR_TRANSLATION_AUTHORIZATION_AMENDED_2026-10-05.json",
+      "authorization_sha256": "75e69dd7c3e909a1ec706fae3a70adff15b667639374315b430fdb8b330a5b13",
+      "config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+      "corrupt": 0,
+      "duplicates": 0,
+      "expected": 935,
+      "manifest": "engineering/workshop_v1_translation_manifest_final.json",
+      "manifest_sha256": "d11f6c74e999d7aa96e1c480ae9b2eb7e3d09ba2b70447901bc3318e44c7453c",
+      "missing": 0,
+      "observed": 935,
+      "stage": "translation",
+      "stage_seal": "experiments/_runs/workshop-v1-translation/translation_stage_seal.json",
+      "stage_seal_sha256": "5a8c61cecc012ff8d46228941a89c0aca858a5ca42ec44d44d26a5f92df7b10e",
+      "status": "SEALED",
+      "technical_failures": 0
+    },
+    {
+      "authorization": "engineering/INVESTIGATOR_TRANSLATED_URDU_JUDGE_AUTHORIZATION.json",
+      "authorization_sha256": "267b67351078e51634a7de2ec97574fc7295d690139eaabaf252728d17488ca5",
+      "config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+      "corrupt": 0,
+      "duplicates": 0,
+      "expected": 935,
+      "manifest": "engineering/workshop_v1_translated_urdu_judge_manifest.json",
+      "manifest_sha256": "9467b4da6da5ce940b41a47db999aaec337de0a748e1ac353a03923dfe20a84e",
+      "missing": 0,
+      "observed": 935,
+      "stage": "translated_judge",
+      "stage_seal": "engineering/workshop_v1_translated_urdu_judge_stage_seal.json",
+      "stage_seal_sha256": "22dc513699343d07b578ed4d4e29f8bb8ee6e5fe7484531a27b2f969e07efb4c",
+      "status": "SEALED",
+      "technical_failures": 0
+    }
+  ]
+}

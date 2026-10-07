@@ -1,0 +1,36 @@
+{
+  "authorization_path": "engineering/INVESTIGATOR_TRANSLATED_URDU_JUDGE_AUTHORIZATION.json",
+  "authorization_sha256": "267b67351078e51634a7de2ec97574fc7295d690139eaabaf252728d17488ca5",
+  "base_commit": "b44636eaf9a549281008e1469e46d12800380d7b",
+  "code_hashes": {
+    "src/clsm/workshop_v1/judge.py": "f63fa16b453f6cacf4a5b68afb27f9e3a99bc8d33d3e826aaa0e6eb688969419",
+    "src/clsm/workshop_v1/translated_context.py": "f8715c604acd425e14ad306139aff5b27c8ae0d025d24a27e82683609be38dd2",
+    "src/clsm/workshop_v1/translated_judge_launcher.py": "6bc4447d4c87f7b1d7f087b407cc8674112d2d467644fbb0ef44d00721ef34d3"
+  },
+  "created_utc": "2026-10-07T01:59:23.705471Z",
+  "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+  "expected_tasks": 935,
+  "judge_model_provenance": {
+    "config_path": "configs/workshop_v1/judge_model.yaml",
+    "config_sha256": "3868b8b83a1ca87f0fa9e7c7301878e4a2858839d82c43184603ebb3dc823f0b",
+    "runtime_commits": [
+      "5266f24da75dc449bd56cbed7addb9c8e4a6a73e"
+    ]
+  },
+  "judge_prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "judge_spec_hash": "a8cb84c12821a2352442a25589bf88834b8c87744350ea45c0af0db8f7dfb419",
+  "missing_task_count": 0,
+  "output_manifest_path": "engineering/workshop_v1_translated_urdu_judge_output_manifest.json",
+  "output_manifest_sha256": "8ceb1c983f8ca0977e097ab2ef67fd65b532e29ced50daa53d2069e3fdbd2e58",
+  "parity_contract_reference": "src/clsm/workshop_v1/translated_context.py",
+  "post_qc_report_sha256": "d73508dcf9c4fcc5d7bdf87e9df689d52effe113400a8d41645e5abe7f34f6df",
+  "schema_version": "workshop-v1-translated-judge-seal/1",
+  "scientific_content_inspected": false,
+  "seal_sha256": "ca85f8d273f872f8d4fe01415880041e89a7e47d67961e8077670ccb41dcc250",
+  "stage": "translated_urdu_judge",
+  "task_manifest_sha256": "9467b4da6da5ce940b41a47db999aaec337de0a748e1ac353a03923dfe20a84e",
+  "technical_failure_count": 0,
+  "translation_stage_hash": "14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce",
+  "valid_task_count": 935,
+  "working_tree_status": "uncommitted_worktree_snapshot"
+}
