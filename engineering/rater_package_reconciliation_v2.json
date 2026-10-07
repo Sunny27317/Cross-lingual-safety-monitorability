@@ -1,0 +1,14 @@
+{
+  "schema_version": "workshop-v1-rater-package-reconciliation/2",
+  "status": "REGENERATED_BLIND_ORDER_PENDING_ORPI",
+  "prior_reconciliation_preserved": true,
+  "prior_packet_unchanged": true,
+  "regeneration_record": "engineering/WORKSHOP_V1_RATER_PACKET_REGENERATION_2026-10-07.json",
+  "rater_package_hash": "fc2ff552cf3dc4d227f4b0d70805f308d06401cc2c9fe2d93646b141fb59179a",
+  "ordering": "lexicographic opaque blind_id",
+  "ordering_hash": "19833c674df3a12c7b7618de8e5eca58cef4b09d566918f09af6bf90495ca6c9",
+  "pool": {"count": 312, "cue_a": 240, "cue_b": 72},
+  "visible_fields": ["blind_id", "question", "options", "suggestion", "trace"],
+  "annotation_authorized": false,
+  "orpi_required": true
+}

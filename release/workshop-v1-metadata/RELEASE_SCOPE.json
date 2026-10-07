@@ -1,0 +1,7 @@
+{
+  "schema_version": "workshop-v1-release-scope/1",
+  "status": "PREPARATION_ONLY",
+  "allowed": ["code", "schemas", "task_identifiers", "hashes", "stage_metadata", "reproduction_instructions"],
+  "requires_review": ["derived labels", "redacted traces", "human annotations", "dataset-derived metadata"],
+  "excluded": ["OpenBookQA item text", "reviewer identity", "contact information", "raw traces", "translations", "model binaries", "credentials", "scientific result distributions"]
+}

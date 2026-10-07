@@ -55,6 +55,7 @@ track-a-config-validate:
 
 verify-workshop-v1:
 	@echo "Offline Workshop-v1 verification only; no inference, translation, judging, or analysis."
+	PYTHONPATH=.:src $(PYTHON) engineering/verify_workshop_v1_static.py
 	PYTHONPATH=.:src $(PYTHON) -m engineering.workshop_v1_pre_unseal_validator --root .
 	PYTHONPATH=.:src $(PYTHON) -m pytest -q tests/workshop_v1/test_translated_judge_retry.py tests/workshop_v1/test_canonical_seal_gate.py tests/workshop_v1/test_post_translation_pipeline.py
 	$(PYTHON) -m ruff check engineering/workshop_v1_translated_judge_post_qc.py engineering/workshop_v1_pre_unseal_validator.py

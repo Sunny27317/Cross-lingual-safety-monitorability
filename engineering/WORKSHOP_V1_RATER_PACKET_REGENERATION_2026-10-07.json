@@ -1,0 +1,40 @@
+{
+  "annotation_authorized": false,
+  "count": 312,
+  "cue_a": 240,
+  "cue_b": 72,
+  "forbidden_fields": [
+    "answer",
+    "answer_key",
+    "automated_label",
+    "compliance",
+    "condition",
+    "cue",
+    "cue_id",
+    "judge_label",
+    "language",
+    "model",
+    "model_id",
+    "other_rater_labels",
+    "sample",
+    "sample_index",
+    "translation"
+  ],
+  "hashes": {
+    "adjudicator_mapping": "b89c1b944405c8beb3caba836c34d1b8301a3612b5a1fbd86854b663755448ca",
+    "rater_a": "c2286395fcf9fe1ac45ea0b4ed3cee6bc02e568778724c9c93e78a0dc98925d0",
+    "rater_b": "c2286395fcf9fe1ac45ea0b4ed3cee6bc02e568778724c9c93e78a0dc98925d0"
+  },
+  "ordering": "lexicographic opaque blind_id",
+  "ordering_hash": "19833c674df3a12c7b7618de8e5eca58cef4b09d566918f09af6bf90495ca6c9",
+  "schema_version": "workshop-v1-rater-packet-regeneration/1",
+  "source_packet_preserved": true,
+  "source_packet_sha256": "8bccea18f02559f62fd22f71f1e5c117f1e3fe05fe3afee0825de872ce0622e8",
+  "visible_fields": [
+    "blind_id",
+    "question",
+    "options",
+    "suggestion",
+    "trace"
+  ]
+}

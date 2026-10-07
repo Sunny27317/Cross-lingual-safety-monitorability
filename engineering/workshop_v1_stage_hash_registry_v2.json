@@ -1,0 +1,52 @@
+{
+  "analysis": {
+    "branch": "research/workshop-v1-final-analysis-implementation",
+    "freeze_v3_commit": "c35785cd7375e9075e0d31b5c2a7d865c4870c71",
+    "freeze_v4_commit": "faa0f9ca",
+    "freeze_v4_hash": "824738d413523a6e01045ce60bbe48d017e16bfe485f77fc049b2a3b5b3d4572",
+    "head": "1985cab",
+    "implementation_hash": "7320a1dd66f4b60f3211a208d7fac4b64bd1d8cbc6a6345ae5c5525aab1ef1cd",
+    "status": "FROZEN_ON_SEPARATE_BRANCH"
+  },
+  "commit_binding": {
+    "analysis_branch": "research/workshop-v1-final-analysis-implementation",
+    "analysis_head": "1985cab",
+    "head": "db043c38b89adf041aa1c166eb95d4fe49f3cf38",
+    "merged": false,
+    "technical_branch": "research/workshop-v1-post-translation-pipeline"
+  },
+  "created_utc": "2026-10-07",
+  "direct_judge": {
+    "seal": "engineering/workshop_v1_direct_judge_stage_seal_v2.json",
+    "seal_sha256": "4476b66c599735aac503c683e351a4542db4eb0e9b9221b86dbd9acf08e54b07",
+    "stage_hash": "3077fae1e6ff25d5008e852bebdaa9b9ae01ff18e93fcfc8c4e78a1a2fab7589",
+    "status": "SEALED"
+  },
+  "generation": {
+    "seal": "engineering/provenance/GENERATION_STAGE_RETROSPECTIVE_TECHNICAL_VERIFICATION_SEAL_2026-10-07.json",
+    "seal_sha256": "a44e3051eb0df156a5d4371cf5c4914fe0d8ee05cc6636dcf56b5c79be02e45a",
+    "stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+    "status": "RETROSPECTIVE_TECHNICAL_VERIFIED"
+  },
+  "human": {
+    "ordering_hash": "19833c674df3a12c7b7618de8e5eca58cef4b09d566918f09af6bf90495ca6c9",
+    "orpi_required": true,
+    "pool_count": 312,
+    "rater_package_hash": "fc2ff552cf3dc4d227f4b0d70805f308d06401cc2c9fe2d93646b141fb59179a",
+    "status": "NOT_AUTHORIZED"
+  },
+  "schema_version": "workshop-v1-stage-hash-registry/2",
+  "scientific_content_inspected": false,
+  "translated_judge": {
+    "seal": "engineering/workshop_v1_translated_urdu_judge_stage_seal.json",
+    "seal_sha256": "22dc513699343d07b578ed4d4e29f8bb8ee6e5fe7484531a27b2f969e07efb4c",
+    "stage_hash": "ca85f8d273f872f8d4fe01415880041e89a7e47d67961e8077670ccb41dcc250",
+    "status": "SEALED"
+  },
+  "translation": {
+    "seal": "experiments/_runs/workshop-v1-translation/translation_stage_seal.json",
+    "seal_sha256": "5a8c61cecc012ff8d46228941a89c0aca858a5ca42ec44d44d26a5f92df7b10e",
+    "stage_hash": "14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce",
+    "status": "SEALED"
+  }
+}
