@@ -21,7 +21,7 @@ SAFE TO RETURN UNIVERSITY LAPTOP: NO
 
 Current local archive: `$HOME/clsm-workshop-v1-scientific-runs-2026-10-07.tar.gz`.
 Current archive SHA-256: `861cea8f793f2ecc0dceb1c608e0be025133047230c810879938250bd429b87b`.
-Current local Git bundle: `$HOME/clsm-full-repository-2026-10-07.bundle`.
+Current local Git bundle: `$HOME/clsm-full-repository-FINAL-2026-10-07.bundle`.
 Current Git bundle SHA-256 is recorded in the adjacent `.bundle.sha256` file.
-Local-only documentation archive: `$HOME/clsm-private-workshop-v1-docs-2026-10-07.tar.gz`.
+Local-only documentation archive: `$HOME/clsm-private-recovery-docs-2026-10-07.tar.gz`.
 Neither scientific archive nor Git bundle is off-device verified yet; the final decision remains NO.

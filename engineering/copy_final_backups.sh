@@ -11,8 +11,8 @@ dest="$1"
 
 repo_root="${REPO_ROOT:-$(cd "$(dirname "$0")/.." && pwd)}"
 archive="${SCIENTIFIC_ARCHIVE:-$HOME/clsm-workshop-v1-scientific-runs-2026-10-07.tar.gz}"
-bundle="${GIT_BUNDLE:-$HOME/clsm-full-repository-2026-10-07.bundle}"
-private_docs="${PRIVATE_RECOVERY_DOCS:-$HOME/clsm-private-workshop-v1-docs-2026-10-07.tar.gz}"
+bundle="${GIT_BUNDLE:-$HOME/clsm-full-repository-FINAL-2026-10-07.bundle}"
+private_docs="${PRIVATE_RECOVERY_DOCS:-$HOME/clsm-private-recovery-docs-2026-10-07.tar.gz}"
 for source in "$archive" "$bundle" "$private_docs"; do
   [[ -f "$source" ]] || { echo "missing backup source: $source" >&2; exit 5; }
 done
