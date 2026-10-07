@@ -21,3 +21,33 @@ clear and the second judge is run before unseal. Do not expand Workshop-v1 itsel
 5. **Larger or frontier models**, and native reasoning channels where available.
 6. **More tasks and cue wordings.** These separate the task and wording dependence of
    disclosure.
+
+
+## Workshop targets (classes; verify current calls before choosing — no venue information was refreshed online for this note)
+
+- **AI-safety / oversight workshops** at major ML conferences (NeurIPS, ICLR, ICML), e.g.
+  workshops on monitoring, interpretability or reliable/trustworthy ML. Fit: the monitor
+  measurement-validity framing.
+- **Multilingual and low-resource NLP workshops** at ACL / EMNLP / NAACL (e.g. the recurring
+  multilingual-representation and low-resource-language workshops). Fit: the native-reader
+  reference and the Urdu evaluation.
+- **Evaluation / LLM-as-judge workshops** (e.g. on evaluation methodology or human
+  evaluation in NLP). Fit: judge validation against human readers.
+
+**Requirements for a Findings-style submission:**
+- G with the human reference;
+- κ reported with its CIs;
+- the translation audit (S4) completed;
+- ideally the prospective second judge, frozen before unseal;
+- 4–8 pages with a tight related-work section;
+- the claim ladder enforced.
+
+**Future expanded version:**
+- ≥ 3 languages including different scripts;
+- ≥ 2 independent judges;
+- an English human reference;
+- a paraphrase control with validated fidelity;
+- larger models and native reasoning channels;
+- more tasks and cue wordings.
+
+Candidate venues: TMLR or a main-track ACL/EMNLP paper.

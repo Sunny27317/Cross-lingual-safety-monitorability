@@ -17,18 +17,21 @@ records live in `engineering/` and `engineering/provenance/`.
 | Translation | `engineering/indictrans2_final_contract.json` (base `74b81473…`) + `engineering/indictrans2_contract_amendment_DTR_2026-10-05.json` (D-TR-1–6); effective `106f366c…`; seal stage hash `14175ab5…`; provenance `engineering/provenance/TRANSLATION_STAGE_PROVENANCE_2026-10-06.json`; C6 validation `engineering/indictrans2_amended_path_validation_2026-10-06.json` |
 | Identity translations | Record A `engineering/provenance/C1_IDENTITY_TRANSLATION_DECISION_2026-10-06.json`; Record B `research/WORKSHOP_V1_PRE_RESULT_IDENTITY_ROBUSTNESS_ADDENDUM.json` |
 | Translated judge | Authorization `engineering/INVESTIGATOR_TRANSLATED_URDU_JUDGE_AUTHORIZATION.json` (`267b6735…`); QC `engineering/workshop_v1_translated_urdu_judge_post_qc.json`; seal `engineering/workshop_v1_translated_urdu_judge_stage_seal.json` (`seal_sha256` `ca85f8d2…`). The QC and seal records are in the main worktree and still to be committed |
-| Human annotation | `research/WORKSHOP_V1_HUMAN_ANNOTATION_FINAL_PACKAGE.md`, plus the frozen rater documents in `docs/rater_package/` (hashes in `engineering/rater_package_reconciliation.json`); summary `research/WORKSHOP_V1_HUMAN_STAGE_FROZEN_SUMMARY.md` |
-| Ethics / ORPI | `research/WORKSHOP_V1_ORPI_SUBMISSION_PACKET.md`, `research/WORKSHOP_V1_ORPI_RESPONSE_PLAYBOOK.md`; request record `engineering/provenance/ORPI_REQUEST_SENT_2026-10-04.json` |
+| Human annotation | **`research/WORKSHOP_V1_HUMAN_ANNOTATION_CANONICAL_PROTOCOL.md`**; packet: `research/WORKSHOP_V1_RATER_PACKET_FINAL_SPEC.md`; consent template in `…HUMAN_ANNOTATION_FINAL_PACKAGE.md` §6; plus the frozen rater documents in `docs/rater_package/` (hashes in `engineering/rater_package_reconciliation.json`); summary `research/WORKSHOP_V1_HUMAN_STAGE_FROZEN_SUMMARY.md` |
+| Ethics / ORPI | `research/WORKSHOP_V1_ORPI_SUBMISSION_PACKET.md`, `research/WORKSHOP_V1_ORPI_CLARIFICATION_RECORD.md`, `research/WORKSHOP_V1_ORPI_RESPONSE_PLAYBOOK.md`; request record `engineering/provenance/ORPI_REQUEST_SENT_2026-10-04.json` |
 | **Analysis authority (ordered)** | 1. `research/frozen_sources/ANALYSIS_PLAN_FREEZE.md`; 2. D-PG-1 to D-PG-6 (`engineering/provenance/INVESTIGATOR_DOWNSTREAM_APPROVALS_2026-10-04.json`, `DPG6_APPROVAL_2026-10-04.json`); 3. Records A and B; 4. `docs/rater_package/AGREEMENT_REPORTING.md`; 5. `research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md` (locked, `ac28af75…`). Governance: `engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json`, `…_D-FA-6_2026-10-06.json` |
 | Primary estimand and sensitivities (readable guide) | `research/WORKSHOP_V1_CANONICAL_ANALYSIS_SPECIFICATION.md` (derived; no authority of its own); worked example `research/WORKSHOP_V1_G_WORKED_EXAMPLE.md` |
-| **Analysis code** | `src/clsm/workshop_v1/final_analysis.py` (`9b1797bc…`), `final_analysis_loader.py`, `final_tables.py`; freeze `research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V3_2026-10-07.json`; commit binding `engineering/provenance/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V3_COMMIT_BINDING_2026-10-07.json` (commit `c35785cd`). The primitives `analysis.py`/`metrics.py` (`1671bc3c…`) are unchanged |
+| **Analysis code** | `src/clsm/workshop_v1/final_analysis.py` (`9b1797bc…`), `final_analysis_loader.py`, `final_tables.py`; freeze **V4** `research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V4_2026-10-07.json` and its commit binding (V3 `c35785cd` superseded but retained). The primitives `analysis.py`/`metrics.py` (`1671bc3c…`) are unchanged |
 | Data contract | `research/WORKSHOP_V1_FINAL_ANALYSIS_DATA_CONTRACT.md` |
-| Unseal procedure | `research/WORKSHOP_V1_RESULT_UNSEAL_PROTOCOL.md` + **Addendum A1** `research/WORKSHOP_V1_RESULT_UNSEAL_PROTOCOL_ADDENDUM_A1_2026-10-07.md`; checklist `research/WORKSHOP_V1_FINAL_PRE_UNSEAL_CHECKLIST.md` |
-| Second judge (prospective; not run) | `research/WORKSHOP_V1_SECOND_JUDGE_ROBUSTNESS_PROTOCOL.md` |
+| Unseal procedure | `research/WORKSHOP_V1_RESULT_UNSEAL_PROTOCOL.md` + **Addenda A1 and A2** (`…_ADDENDUM_A1_2026-10-07.md`, `…_ADDENDUM_A2_2026-10-07.md`); checklist `research/WORKSHOP_V1_FINAL_PRE_UNSEAL_CHECKLIST.md` |
+| Second judge (prospective; not run) | `research/WORKSHOP_V1_SECOND_JUDGE_ROBUSTNESS_PROTOCOL.md`; recommendation `…SECOND_JUDGE_FINAL_RECOMMENDATION.md` |
+| Translation audit (S4) | `research/WORKSHOP_V1_TRANSLATION_AUDIT_CANONICAL_PROTOCOL.md` (`audit_flag` = proposed D-FA-7) |
+| Tables and figures | `research/WORKSHOP_V1_FINAL_TABLES_FIGURES_SPEC.md` |
+| Final audit / submission | `research/WORKSHOP_V1_FINAL_SCIENTIFIC_AUDIT_2026-10-07.md`; `research/WORKSHOP_V1_SUBMISSION_MASTER_CHECKLIST.md` |
 | Paraphrase control (decision memo) | `research/WORKSHOP_V1_PARAPHRASE_CONTROL_DECISION.md` |
 | **Paper** | `paper/WORKSHOP_V1_PREPRINT.md` (canonical manuscript). Results scaffold `paper/WORKSHOP_V1_RESULTS_SCAFFOLD.md` |
-| Claims | `research/WORKSHOP_V1_CLAIM_LADDER_FINAL.md` (safe / conditional / prohibited); detail `research/WORKSHOP_V1_CLAIM_LEDGER_V2.md` |
-| Discussion selection | `research/WORKSHOP_V1_DISCUSSION_SCENARIOS.md` and framework §3 |
+| Claims | `research/WORKSHOP_V1_CLAIM_LADDER_FINAL.md` (safe / conditional / prohibited); detail `…CLAIM_LEDGER_V2.md`; audit `…FINAL_CLAIM_HARDENING_AUDIT.md` |
+| Discussion | Selection: framework §3. Wording: `research/WORKSHOP_V1_DISCUSSION_DECISION_TREE_FINAL.md` |
 | Governance timeline | Publication: `research/WORKSHOP_V1_ONE_PAGE_GOVERNANCE_TIMELINE.md`. Full detail (Appendix J): `research/WORKSHOP_V1_GOVERNANCE_TIMELINE.md` |
 | Reproducibility | `paper/WORKSHOP_V1_DATA_ETHICS_REPRODUCIBILITY.md`; stage seals listed above |
 | Release | `research/WORKSHOP_V1_PREPRINT_RELEASE_GUARD_V2.md` |
@@ -46,7 +49,9 @@ records live in `engineering/` and `engineering/provenance/`.
 | `research/WORKSHOP_V1_PREPRINT_RELEASE_GUARD.md` | SUPERSEDED (its `may_post` stays false) | Release guard V2 |
 | `research/WORKSHOP_V1_PRE_RESULT_ANALYSIS_FREEZE_ADDENDUM.json` | SUPERSEDED | `…_ADDENDUM_V2.json` (analysis-input builder) |
 | `research/WORKSHOP_V1_PRE_RESULT_ANALYSIS_IMPLEMENTATION_ADDENDUM.json` | SUPERSEDED (proposal) | Freeze V3 |
-| `research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_2026-10-06.json`, `…_V2_…json` | SUPERSEDED | Freeze V3 + commit binding |
+| `research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_2026-10-06.json`, `…_V2_…json`, `…_V3_2026-10-07.json` (+ V3 binding) | SUPERSEDED | Freeze V4 + commit binding |
+| `research/WORKSHOP_V1_DISCUSSION_SCENARIOS.md` | Background | `…DISCUSSION_DECISION_TREE_FINAL.md` |
+| `research/WORKSHOP_V1_HUMAN_ANNOTATION_FINAL_PACKAGE.md` | Superseded, except §6 (consent template) and §7 | `…HUMAN_ANNOTATION_CANONICAL_PROTOCOL.md` |
 | `engineering/provenance/ANALYSIS_CODE_FREEZE_2026-10-04.json` | Still valid for the primitives only | Freeze V3 for the full implementation |
 | `research/WORKSHOP_V1_GOVERNANCE_DECISION_PACK.md`, `WORKSHOP_V1_DPG6_APPROVAL_BLOCK.md` | Proposals; the approvals live in the JSON records | D-PG approval JSONs |
 | `research/WORKSHOP_V1_TERMINOLOGY.md` | Current (Appendix A1), extended by | `…TERMINOLOGY_POLICY_V2.md` |

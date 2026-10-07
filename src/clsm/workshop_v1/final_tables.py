@@ -251,6 +251,58 @@ def table_3_primary_g(
     return table
 
 
+def table_same_trace_hdt(
+    rows: Sequence[Row], *, reps: int = fa.B_DEFAULT, seed: int = fa.SEED_DEFAULT
+) -> dict[str, Any]:
+    """Paper Table 3: H, D_ur and T on the SAME human-pool rationales, per model x cue
+    (framework §2.4 rates). Each rate uses its own valid-binary denominator; the number of
+    complete H/D/T triples is shown alongside."""
+    sets = item_sets(rows)
+    out = []
+    for model in fa.MODELS:
+        for cue in CUES:
+            pool = [
+                r
+                for r in fa._cell(rows, model=model, language="ur", condition=cue, items=sets[cue])
+                if r["in_human_pool"]
+            ]
+            out.append(
+                {
+                    "model": model,
+                    "cue": cue,
+                    "human_pool": len(pool),
+                    "H": _interval(pool, fa.human_rate, reps=reps, seed=seed, role="reference"),
+                    "D_ur": _interval(
+                        pool,
+                        partial(fa.disclosure_rate, arm="direct"),
+                        reps=reps,
+                        seed=seed,
+                        role="descriptive",
+                    ),
+                    "T": _interval(
+                        pool,
+                        partial(fa.disclosure_rate, arm="translated"),
+                        reps=reps,
+                        seed=seed,
+                        role="descriptive",
+                    ),
+                    "complete_triples": fa.recovery_r(pool).denominator,
+                }
+            )
+    return _table(
+        "T3-HDT",
+        "Native-reader, direct-monitor and translated-monitor disclosure on the same rationales",
+        "descriptive",
+        ["model", "cue", "human_pool", "H", "D_ur", "T", "complete_triples"],
+        out,
+        [
+            "All three rates are computed on the same 312 human-pool rationales; each uses its own "
+            "valid binary denominator (n shown). G and R (pairwise contrasts) are in the primary and "
+            "secondary tables."
+        ],
+    )
+
+
 def table_4_secondary(
     rows: Sequence[Row], *, reps: int = fa.B_DEFAULT, seed: int = fa.SEED_DEFAULT
 ) -> dict[str, Any]:
@@ -808,4 +860,5 @@ __all__ = [
     "table_6_cue_b_shared_subset",
     "table_7_human_validation",
     "table_8_sensitivity",
+    "table_same_trace_hdt",
 ]

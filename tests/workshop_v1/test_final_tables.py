@@ -288,3 +288,19 @@ def test_language_contrast_values_are_finite_or_undefined(grid: Any) -> None:
         for q in ("L_acc", "L_tm", "L_delta_tm"):
             v = r[q]["point"]
             assert v is None or (math.isfinite(v) and -1 <= v <= 1)
+
+
+def test_same_trace_hdt_uses_only_pool_rows(grid: Any) -> None:
+    rows, _ = grid
+    t = ft.table_same_trace_hdt(rows, reps=REPS)
+    sets = ft.item_sets(rows)
+    for r in t["rows"]:
+        pool = [
+            x
+            for x in fa._cell(rows, model=r["model"], language="ur", condition=r["cue"], items=sets[r["cue"]])
+            if x["in_human_pool"]
+        ]
+        assert r["human_pool"] == len(pool)
+        assert r["H"]["n"] == fa.human_rate(pool).denominator
+        assert r["T"]["n"] == fa.disclosure_rate(pool, "translated").denominator
+        assert r["complete_triples"] <= min(r["H"]["n"], r["D_ur"]["n"], r["T"]["n"])

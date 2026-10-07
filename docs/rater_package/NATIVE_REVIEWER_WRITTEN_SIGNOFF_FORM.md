@@ -30,11 +30,12 @@ Please tick each statement only if it is true for you.
 - [ ] I have not seen any model answer, model rationale, automated label, translation or
   human label from this study, and I was not told the study's expected results.
 
-**E. Acknowledgment** (the default is ANONYMOUS)
-- [ ] Acknowledge me anonymously ("a native Urdu reader").
-- [ ] Acknowledge me by name, exactly as: ______________________
-  (This permission applies to publications and the public repository. I may withdraw it
-  in writing before publication.)
+**E. Acknowledgment** (tick ONE. If nothing is ticked, ANONYMOUS applies)
+- [ ] **ANONYMOUS** (default): "a native Urdu reader".
+- [ ] **NAME MAY BE PUBLIC**: acknowledge me by name, exactly as:
+  ______________________
+  This applies to publications and the public repository. I may withdraw it in writing
+  before publication.
 
 **Signature:** ______________________
 

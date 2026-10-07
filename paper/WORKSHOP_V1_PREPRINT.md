@@ -737,9 +737,9 @@ English and Urdu automated rates were similar.
 
 **P-MOD (Qwen/Gemma heterogeneity).** The direction of [[R-DISC: quantity]] differed between the
 two configurations. They differ in family, size, quantization and decoding, so we do not
-attribute the difference to any one factor. Monitor validity depends on the generating
-model's rationale style, not only on the monitor and language, which argues for
-validating monitors per deployment.
+attribute the difference to any one factor. This is consistent with this monitor's
+agreement with native readers depending on the generating model's rationales as well as on
+the language; the design cannot isolate why.
 
 **P-CUE (Cue-A/Cue-B heterogeneity).** On the 36 shared items, [[R-DISC: quantity]] differed between
 the authority-attributed and the user-asserted suggestion. Each source is represented by
@@ -798,26 +798,25 @@ Translated traces were labelled further from native readers than the direct Urdu
 ([[R-DISC: R / agreement diagnostic]]). We used one translator with sentence-level
 segmentation, which can break references that span sentences, such as a later sentence
 that points back to the suggestion. The audit found [[R-DISC: n]] omissions of disclosure
-language. Translate-then-monitor pipelines can lose the very statements a disclosure
-monitor looks for. This must be checked per translator rather than assumed.
+language. In this pipeline, translation could lose the very statements a disclosure
+monitor looks for, so translator behavior has to be checked rather than assumed.
 
 **P-CT (the monitor often declined to decide).** The judge returned `cannot_tell` or a
 technical failure for [[R-DISC: rate]] of [[R-DISC: arm]] traces, more often than for
 [[R-DISC: comparison arm]]. Binary disclosure rates therefore describe the decidable
-subset. S1–S3 and the worst-case bounds show how far this could move G. For a deployed
-monitor, coverage loss of this kind is a validity problem in its own right, separate from
-accuracy on the cases it does decide.
+subset. S1–S3 and the worst-case bounds show how far this could move G. In this design,
+coverage loss of this kind is a measurement-validity concern in its own right, separate
+from agreement on the cases the monitor does decide.
 
 **P-MISS (missingness, non-decisions, failures).** Missingness was concentrated in
 [[R-DISC: arm/model/language]]. Binary estimates describe the decidable subset; the worst-case
 bounds show how far conclusions could move. A differential rate of judge non-decisions or
-translation failures is itself a validity finding: coverage, not only accuracy, can
-differ across languages.
+translation failures is itself a validity finding here: coverage, not only agreement,
+differed between the arms.
 
-**P-END (always).** Before differences in automated disclosure rates across languages are
-read as differences in what
-models disclose, they need a native reference on the same
-traces. Natural extensions:
+**P-END (always).** This case study illustrates that, before a monitor's disclosure rates
+for different languages are read as differences in what models disclose, the monitor
+should be checked against native readers on the same rationales. Natural extensions:
 - an English native reference and a paraphrase control;
 - more languages, monitors and translators;
 - larger and natively reasoning models;
@@ -843,6 +842,9 @@ other languages, scripts or resource levels.
 - The cues are low-stakes misleading suggestions of a single answer letter, with one
   wording per source (authority, user). They are a controlled probe chosen for
   measurement clarity, not a model of real-world manipulation.
+- OpenBookQA science questions are not a safety-critical task. The results describe
+  disclosure-monitoring measurement validity in this setting, not monitoring performance
+  in deployed or high-stakes systems.
 
 **What is measured.** Both models produced prompted rationales. Qwen's native thinking
 mode was disabled after an excluded pilot showed it did not reason in Urdu in our setup.

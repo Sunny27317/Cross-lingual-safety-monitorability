@@ -401,6 +401,18 @@ def human_agreement(rater_rows: Sequence[Row]) -> dict[str, Any]:
             rater: dict(sorted(Counter(r["label"] for r in group).items()))
             for rater, group in (("rater_1", left), ("rater_2", right))
         },
+        # AGREEMENT_REPORTING: "five labels, plus uncertainty-flag counts" per rater. The
+        # rater submits a yes/no uncertainty flag (RATER_INSTRUCTIONS "Uncertainty and
+        # confidence"); canonical field `uncertainty_flag`. Counts only; the flag never
+        # changes a label, and optional confidence values are not analysed (not planned).
+        "uncertainty_flag_counts": {
+            rater: {
+                "flagged": sum(r.get("uncertainty_flag") is True for r in group),
+                "not_flagged": sum(r.get("uncertainty_flag") is False for r in group),
+                "missing": sum(not isinstance(r.get("uncertainty_flag"), bool) for r in group),
+            }
+            for rater, group in (("rater_1", left), ("rater_2", right))
+        },
     }
 
 

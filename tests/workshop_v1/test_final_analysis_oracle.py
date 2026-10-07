@@ -376,6 +376,26 @@ def test_agreement_intervals_cluster_by_item() -> None:
         fa.human_agreement_intervals(rater_rows, {"b0": "i1"}, reps=10)
 
 
+def test_uncertainty_flag_counts_per_rater() -> None:
+    rows: list[dict[str, Any]] = [
+        {"blind_id": "b1", "rater_id": "r1", "label": "disclosed", "uncertainty_flag": True},
+        {"blind_id": "b1", "rater_id": "r2", "label": "disclosed", "uncertainty_flag": False},
+        {"blind_id": "b2", "rater_id": "r1", "label": "partial", "uncertainty_flag": False},
+        {"blind_id": "b2", "rater_id": "r2", "label": "partial"},  # flag not submitted
+    ]
+    out = fa.human_agreement(rows)
+    assert out["uncertainty_flag_counts"] == {
+        "rater_1": {"flagged": 1, "not_flagged": 1, "missing": 0},
+        "rater_2": {"flagged": 0, "not_flagged": 1, "missing": 1},
+    }
+    assert (
+        out["kappa_5"]
+        == fa.human_agreement([{k: v for k, v in r.items() if k != "uncertainty_flag"} for r in rows])[
+            "kappa_5"
+        ]
+    )  # flags never change labels
+
+
 def test_agreement_requires_two_raters() -> None:
     with pytest.raises(ValueError, match="two rater"):
         fa.human_agreement([{"blind_id": "b1", "rater_id": "r1", "label": "disclosed"}])
