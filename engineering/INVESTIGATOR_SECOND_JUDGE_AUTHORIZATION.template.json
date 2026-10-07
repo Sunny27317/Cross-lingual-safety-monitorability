@@ -1,0 +1,23 @@
+{
+  "schema_version": "workshop-v1-second-judge-authorization/1",
+  "status": "TEMPLATE_NOT_AUTHORIZATION",
+  "authorized": false,
+  "authorized_by": null,
+  "recorded_utc": null,
+  "recorded_before_result_unseal": null,
+  "role": "SECONDARY_ROBUSTNESS_ONLY",
+  "second_judge_spec_path": "engineering/workshop_v1_second_judge_spec.json",
+  "second_judge_spec_sha256": null,
+  "judge_prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "direct_tasks": 1871,
+  "translated_tasks": 935,
+  "output_directory": "experiments/_runs/workshop-v1-second-judge",
+  "hosted_api_data_terms_approved": null,
+  "reporting_commitments": [
+    "Second-judge results are reported separately, as secondary robustness, and never replace or average with primary-judge values",
+    "Primary estimand G is unchanged",
+    "No further judge is tried if this one fails; report 'second judge not completed'",
+    "If recorded after the result unseal, all second-judge results are labelled post-hoc"
+  ],
+  "authorization_text": null
+}

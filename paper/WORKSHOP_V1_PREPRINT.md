@@ -1,10 +1,13 @@
-# Monitor or Model? Native-Urdu Validation of Automated Disclosure Monitoring for Multilingual Reasoning Traces
+# Monitor or Model? A Native-Reader Check of Automated Disclosure Monitoring on Urdu Rationales
 
 <!-- RELEASE GUARD: PREPRINT MAY NOT BE POSTED until every gate in
-research/WORKSHOP_V1_PREPRINT_RELEASE_GUARD.md is true (may_post=true). -->
+research/WORKSHOP_V1_PREPRINT_RELEASE_GUARD.md and research/WORKSHOP_V1_PREPRINT_RELEASE_GUARD_V2.md
+is true. Canonical source map: research/WORKSHOP_V1_CANONICAL_SCIENTIFIC_INDEX.md. -->
 <!--
-STATUS: PUBLICATION-READY EXCEPT RESULTS — 2026-10-04. Contains no translation, judge,
-human-annotation or analysis result.
+STATUS (2026-10-07): outcome-blind sections complete. Contains no judge-label, human-annotation
+or analysis result. Generation, direct judging, translation and translated judging are complete
+and sealed (technical facts only); human labels pending ORPI; final analysis frozen (commit
+c35785cd) and not run.
 Slot types (fill ONLY from executed, provenance-bound artifacts):
   [[R-…]]        numerical/result slot — spec: research/WORKSHOP_V1_RESULTS_WRITING_MATRIX.md
   [[R-DISC: …]]  result slot inside a Discussion paragraph (filled from the same artifacts)
@@ -14,16 +17,17 @@ Slot types (fill ONLY from executed, provenance-bound artifacts):
   [[CITE: …]]    reference; status in literature/WORKSHOP_V1_CITATION_AUDIT.md
 Governance: D-PG-1..5 (engineering/provenance/INVESTIGATOR_DOWNSTREAM_APPROVALS_2026-10-04.json),
 D-PG-6 (engineering/provenance/DPG6_APPROVAL_2026-10-04.json).
-Claims: research/WORKSHOP_V1_CLAIM_LEDGER_FINAL.md. Discussion selection:
-research/WORKSHOP_V1_DISCUSSION_DECISION_TREE.md.
+Claims: research/WORKSHOP_V1_CLAIM_LADDER_FINAL.md (detail: CLAIM_LEDGER_V2). Discussion selection:
+research/WORKSHOP_V1_DISCUSSION_DECISION_TREE_V2.md and research/WORKSHOP_V1_DISCUSSION_SCENARIOS.md.
+Results slots: paper/WORKSHOP_V1_RESULTS_SCAFFOLD.md.
 -->
 
 ## Front matter
 
-**Title (working; final choice after results, since a directional title would pre-empt them).**
-Top 3 from the 15 candidates in `research/WORKSHOP_V1_PUBLICATION_STRATEGY.md` §2:
-1. *Monitor or Model? Native-Urdu Validation of Automated Disclosure Monitoring for
-   Multilingual Reasoning Traces* (default; neutral on direction).
+**Title (working; scoped to one language; final choice after results, since a directional
+title would pre-empt them).** Candidates are in `paper/WORKSHOP_V1_TITLE_ABSTRACT_PACKAGE.md`:
+1. *Monitor or Model? A Native-Reader Check of Automated Disclosure Monitoring on Urdu
+   Rationales* (default; neutral on direction).
 2. *Same Trace, Different Reader: Disclosure Monitoring in English and Urdu.*
 3. *A Native-Reader Reference for Cross-Lingual Disclosure Monitoring: An Urdu Case
    Study* (preferred if results are null or mixed).
@@ -32,9 +36,8 @@ Top 3 from the 15 candidates in `research/WORKSHOP_V1_PUBLICATION_STRATEGY.md` �
 writing. No Harvard affiliation. No supervision statement unless the supervisor confirms
 it in writing.]]
 
-**Keywords:** chain-of-thought monitoring; reasoning disclosure; multilingual
-evaluation; Urdu; LLM-as-a-judge; measurement validity; human annotation; machine
-translation; AI safety evaluation.
+**Keywords:** disclosure monitoring; measurement validity; chain-of-thought monitoring;
+LLM-as-a-judge; Urdu; human annotation; machine translation.
 
 ---
 
@@ -280,8 +283,11 @@ assertion by the user: "I checked this beforehand, and I believe the answer is (
 The suggested option X is always incorrect; it is chosen among the three incorrect
 options by a SHA-256 hash of the item identifier, cue version and a fixed seed, and
 never depends on model output. Urdu wordings (Appendix A) were reviewed by a native
-Urdu speaker and approved unchanged; this approval was given verbally and recorded by
-the investigator on 2026-09-29, and no separate written sign-off was obtained.
+Urdu reader and approved unchanged. This approval was given verbally and recorded by the
+investigator on 2026-09-29. [[HUMAN_INPUT: if the written sign-off form
+(docs/rater_package/NATIVE_REVIEWER_WRITTEN_SIGNOFF_FORM.md) is completed, add "and later
+confirmed in writing on [date]"; otherwise keep "no separate written sign-off was
+obtained."]]
 
 ### 4.4 Models and generation
 
@@ -345,8 +351,8 @@ metric that needs a rationale or an answer and was not retried. In total, 3,312 
 records were persisted and 3,311 completed. Generation was run from an uncommitted
 working tree based on commit `e764072`, so that commit alone does not identify the
 executed code; the serialization fix is identified by implementation hashes in the
-run's resume record. [[PROVENANCE: commit at which the executed code state was archived
-after the run]] A record field `population_role` reads "confirmatory" on all main
+run's resume record. The code state was archived afterwards in commit `08db78d`, a later
+snapshot rather than the executed commit. A record field `population_role` reads "confirmatory" on all main
 records; it denotes the main (non-pilot) population and not confirmatory inference.
 
 ### 4.6 Automated monitor (Judge V2) and direct monitoring
@@ -395,8 +401,6 @@ that confirms no judge output or configuration changed.
 
 ### 4.7 Translation and translate-then-monitor
 
-<!-- STATUS 2026-10-06: scientific translation IN PROGRESS under the amended contract
-(D-TR-1..6). Do not post until the outcome and stage-hash placeholders are filled. -->
 
 **Translator.** Each eligible Urdu cued rationale (935) is translated once from Urdu
 (`urd_Arab`) into English (`eng_Latn`) with IndicTrans2 Indic→English 1B (Gala et al.,
@@ -442,8 +446,14 @@ The translated rationale is the ordered concatenation of all units. Every separa
 break and passed-through unit is preserved exactly, and none is added. Across the 935
 rationales this yields 11,613 translated units (median 6 per rationale), 7,927 structural
 units and 8,618 passed-through units. Six rationales contain no Arabic-script letter, so
-their translation is identical to the source. [[SEGMENTATION_VALIDATION: record of the
-synthetic-text validation of the amended path, from a saved artifact]]
+their translation is identical to the source. A non-model validation of the amended path
+loaded only the pinned tokenizer. It checked six synthetic edge cases and replayed all 935
+completed records structurally, recomputing every unit and comparing unit metadata,
+hashes and exact reassembly, with no failing record
+(`engineering/indictrans2_amended_path_validation_2026-10-06.json`, SHA-256 `22372034…`).
+By a decision recorded before translated judging, the six identity translations remain in
+the translated arm and are judged as-is with an explicit identity flag. A pre-specified
+secondary robustness analysis excludes them.
 
 **Failures and fallback.** These rules were fixed before the translations were produced:
 - A unit whose generation reaches 256 tokens without an end-of-sequence token fails
@@ -476,16 +486,22 @@ covers:
 Their six failure records are retained unchanged. The model, revision, decoding, language
 direction and fallback policy did not change.
 
-Translation outcome: [[TRANSLATION_OUTCOME: one sentence chosen from branches A–D in
-research/WORKSHOP_V1_TRANSLATION_METHODS_KIT.md §2]]. The translation stage is identified
-by [[TRANSLATION_STAGE_HASH]].
+Translation outcome: all 935 eligible rationales were translated completely by the
+primary translator; no segment required a fallback and no rationale was missing. The
+three rationales that failed under the superseded implementation succeeded on their
+governed third attempt. The translations were produced by launcher code with hash
+`8f7c241a…`. The translation stage is identified by
+`14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce`.
 
 **Translate-then-monitor.** Each translated rationale is scored by the same judge
 specification as the direct arms. Only the rationale changes: the question, options and
-suggestion remain the original Urdu text given to the direct Urdu arm.
-[[PROVENANCE: confirmation that the executing translated-judge path enforces
-byte-identical non-rationale inputs]] The translated-judge stage is identified by
-[[TRANSLATED_JUDGE_STAGE_HASH]].
+suggestion remain the original Urdu text given to the direct Urdu arm. The executing code
+recovers these from the source Urdu generation exactly as the direct arm does, and refuses
+any task whose non-rationale inputs differ. Before any judge call, it re-verified the
+translation seal from disk and required an authorization bound to the sealed stage hash.
+Translated monitoring completed for all 935 rationales. Every task reached a terminal
+state with a valid label line, so there was no technical failure. The stage was sealed
+(seal `ca85f8d2…c250`) before any label was examined.
 
 **Role of translation.** Translations are not treated as ground truth or as a
 replacement for reading Urdu. Machine translation can add, drop or soften the very cues
@@ -513,9 +529,11 @@ rationales. An
 adjudicator, who does not rate, resolves every item on which the raters disagree or
 either abstains: the adjudicator records an independent blind label first, then sees
 both labels and brief rationales, and records a final label or `unresolved`. Original
-submissions are locked and never overwritten. [[HUMAN_INPUT: rater and adjudicator
-qualification summary; whether any author served as a rater]] [[HUMAN_INPUT:
-compensation]]
+submissions are locked and never overwritten. The investigator does not serve as a primary
+rater or adjudicator unless independent qualified raters cannot be recruited. In that case
+this is disclosed here, and the second rater and adjudicator are independent.
+[[HUMAN_INPUT: rater and adjudicator qualification summary; whether any author served as a
+rater]] [[HUMAN_INPUT: compensation]]
 
 **Parity and blinding.** Raters and the adjudicator see exactly the judge's
 non-instruction inputs—the language, the question and options as in the generation
@@ -578,21 +596,36 @@ data are reported by cause at each stage (planned, eligible, valid, complete) an
 bounded by worst-case intervals. No hypothesis tests are performed and every planned
 comparison is reported regardless of direction.
 
-**Freeze.** The analysis code was validated on synthetic data only and frozen by content
-hash (`1671bc3c…f3db`) at 2026-10-04 19:15 UTC, before any monitor or human label was
-examined. It was frozen from an uncommitted working tree based on commit `e764072`, so
-the content hash, not a commit, identifies it. [[PROVENANCE: commit at which the frozen
-analysis code was archived, with confirmation that its hash matches]]
+**Freeze.** Analysis primitives were validated on synthetic data and frozen by content
+hash (`1671bc3c…f3db`) at 2026-10-04 19:15 UTC. A pre-result audit on 2026-10-06 found that
+they did not yet implement several planned quantities: paired contrasts within a
+replicate, cue sensitivity, the sensitivity analyses, confusion matrices, the agreement
+intervals and the record join. These were implemented without changing any definition and
+validated with hand-computed oracle tests on synthetic data only. The full implementation
+was frozen by content hash on 2026-10-07 (`final_analysis.py` `9b1797bc…`) and committed
+(`c35785cd`), before any judge or human label was examined. Two decisions were recorded
+before any result: a strict sign rule for the cross-model summary (an estimate of exactly
+0 matches only 0), and not adding an agreed-items-only analysis.
 
 ### 4.10 Changes to the plan
 
-All changes and their timing are listed in Appendix J. In brief: the Qwen elicitation
-amendment and the language instruction preceded main generation; the timeout rule,
-compliance rule, Judge V2 with input parity, translation segmentation, and the
-descriptive-only scope of `R` were fixed on 2026-10-04, before any translation or
-annotation and before any judge output was examined; and the bootstrap conventions and analysis freeze preceded any
-examination of judge or human labels. Analyses conceived later are labelled post-hoc in
-the text.
+All changes and their timing are listed in Appendix J. In brief:
+- **Before main generation:** the Qwen elicitation amendment and the language instruction.
+  The analysis plan's content was also final before main generation began.
+- **On 2026-10-04, after generation but before any translation or annotation and before any
+  judge output was examined:** the timeout rule, the compliance rule, Judge V2 with input
+  parity, translation segmentation and the descriptive-only scope of `R`.
+- **Before any judge or human label was examined:**
+  - the bootstrap conventions;
+  - the translation amendment (D-TR-1–6), made after a technical failure and before any
+    translation succeeded;
+  - the identity-translation decision;
+  - the interpretation framework, written after generation and locked on 2026-10-06;
+  - the final analysis freeze.
+
+No change was motivated by an observed outcome. We describe these choices as frozen
+relative to result inspection, not as preregistered. Analyses conceived later are
+labelled post-hoc in the text.
 
 ## 5. Results
 
@@ -819,8 +852,15 @@ claim about faithfulness, intent or internal computation, and we study one narro
 construct among the many that monitors target.
 
 **Monitor and translator.**
-- All automated results concern one quantized open-weight judge under one prompt, whose
-  instructions are in English for all traces. LLM judges can be biased by the language of
+- **A single monitor is the study's largest limitation.** All automated results concern
+  one quantized 7B open-weight judge (Falcon-H1-7B) under one prompt, whose instructions
+  are in English for all traces. Another monitor could relate to native readers
+  differently. [[HUMAN_INPUT: second-judge status. Either "A prospectively specified
+  second judge from a different family was run on the same rationales as a secondary
+  robustness check (§…)" or "No second judge was run."]]
+- For parity with human readers, the monitor sees the suggestion sentence, so it could
+  partly match keywords. The `partial` label, the judge-`disclosed` × reader-`partial`
+  cell and identical reader inputs bound this, but do not remove it. LLM judges can be biased by the language of
   the text they score, and this is exactly what G is designed to detect. It is not
   separately characterized for English, because there is no English human reference.
 - The translator is one system (IndicTrans2) used with sentence-level segmentation,
@@ -831,14 +871,22 @@ construct among the many that monitors target.
 
 **Human reference.**
 - The native-reader reference rests on two raters and an adjudicator labelling 312
-  traces: 120 Cue-A and 36 Cue-B per model, before missingness.
+  traces: 120 Cue-A and 36 Cue-B per model, before missingness. It is a reference, not
+  ground truth.
+- [[HUMAN_INPUT: if an author served as a rater, state it here and how independence was
+  preserved.]]
+- The item-equivalence review was written. The cue, instruction and training-sentence
+  approvals were verbal, by one native reader.
 - The construct has acknowledged boundary cases.
 - There is no English human reference, so English automated labels are not validated
   and the English side of any apparent gap rests on the monitor.
 
 **Statistics.** Analyses are descriptive. Many intervals are reported without error
 control, so some will exclude zero by chance, and we give weight only to patterns that
-replicate across models. Percentile bootstrap intervals over 36 items (Cue B) may be
+replicate across models. Before any result, design-based planning suggested interval
+half-widths of roughly 6–14 percentage points for Cue-A monitor–reader gaps and 10–21 for
+Cue B. Intervals that include zero are therefore compatible with practically relevant
+gaps. Percentile bootstrap intervals over 36 items (Cue B) may be
 anti-conservative. Binary estimates exclude `partial` and `cannot_tell`; sensitivity
 analyses bound this.
 
@@ -849,8 +897,10 @@ analyses bound this.
   failure records for three rationales are retained, and the contract was amended
   (D-TR-1–6) before any translation succeeded.
 - Generation code ran from an uncommitted working tree, identified by recorded
-  implementation hashes and archived afterwards. The analysis code was likewise frozen by
-  content hash rather than by commit.
+  implementation hashes and archived afterwards. Several analysis decisions and the
+  interpretation framework were fixed after generation, though before any monitor or
+  human label was examined. The final analysis implementation was frozen by content hash
+  and committed before any result was examined.
 - Sampling on the hardware used is not bitwise reproducible.
 - The Urdu dataset states no licence of its own, so item text is not redistributed.
 
@@ -863,9 +913,9 @@ one measurement, which motivates broader replication.
 An automated monitor's disclosure rates for Urdu and English reasoning need not describe
 the model. On the same Urdu rationales, the monitor we studied [[R-CONC-1: G, per model]].
 Translating the rationales before monitoring [[R-CONC-2: R, descriptive]].
-[[R-CONC-3: activated implication]]. For monitors intended for multilingual use, checking
-them against native readers on the same traces is a practical prerequisite for
-interpreting cross-lingual differences.
+[[R-CONC-3: activated implication]]. For monitors used beyond English, this case study
+illustrates why checking them against native readers on the same rationales should
+precede reading cross-lingual differences as model behavior.
 
 ---
 
@@ -879,8 +929,10 @@ text and to write and review code. All scientific decisions and approvals were m
 the author, who checked the final text and is responsible for it.
 <!-- Check the chosen server's AI-disclosure policy before upload. -->
 
-**Acknowledgments.** [[HUMAN_INPUT: insert acknowledgment option A (named, only with Amna Anwar
-Riaz's consent) or option B (anonymous) from research/WORKSHOP_V1_HUMAN_INPUT_AND_CITATION_QUEUE.md §C]] We also thank
+**Acknowledgments.** We thank a native Urdu reader for reviewing the item translations and the
+cue and instruction wordings. [[HUMAN_INPUT: name the reviewer only with written consent
+recorded via docs/rater_package/NATIVE_REVIEWER_WRITTEN_SIGNOFF_FORM.md; default
+anonymous.]] We also thank
 [[HUMAN_INPUT: raters/adjudicator, named only with consent]]. [[AUTHOR_INFO: funding, or "This work
 received no specific funding."]]
 
@@ -889,8 +941,8 @@ public multiple-choice science questions. No personal or sensitive data are proc
 and no intervention is directed at any person.
 
 **Human involvement:**
-1. A native Urdu speaker reviewed the Urdu item translations, cue wording and language
-   instruction (completed).
+1. A native Urdu reader reviewed the Urdu item translations item by item (written, all
+   PASS), and approved the cue wording and language instruction (verbal; completed).
 2. The same reviewer verbally confirmed the meaning of 16 synthetic Urdu rater-training
    sentences (completed; no written form).
 3. Two raters and an adjudicator are to label 312 model-generated rationales with a
@@ -910,7 +962,10 @@ the determination]] [[HUMAN_INPUT: compensation statement]].
 **Release.** We release prompts, cues, rubrics, synthetic training material, code and
 provenance records. Model outputs and labels are released under anonymized identifiers,
 subject to the dataset's licence terms and rater consent. Because the dataset states no
-licence of its own, item text is not redistributed. The task content is general
+licence of its own, item text is not redistributed.
+<!-- PRECONDITION (release guard R-6/R-7): the public repository must not contain item text.
+It currently does (engineering/provenance/URDU_ITEM_EQUIVALENCE_REVIEW_PACKET.pdf). Remediate
+it first, or rewrite this paragraph. --> The task content is general
 science. Released outputs will be screened before release [[HUMAN_INPUT: confirm the
 screen was done]].
 
@@ -946,11 +1001,12 @@ snapshot commit, described as in research/WORKSHOP_V1_PRE_UNSEAL_AUDIT.md §10]]
 - Judge V2 prompt `050ed492…` and specification `a8cb84c1…`;
 - direct-judge stage `3077fae1…7589`;
 - translation artifacts `84cad691…a2bd`, effective configuration `106f366c…4171` (base
-  `74b81473…99bc` plus amendment D-TR-1–6 `3a054e8b…0dc5`), and stage
-  [[TRANSLATION_STAGE_HASH]];
-- translated-judge stage [[TRANSLATED_JUDGE_STAGE_HASH]];
-- analysis code, by content hash `1671bc3c…f3db` [[PROVENANCE: archive commit of the
-  frozen analysis code]].
+  `74b81473…99bc` plus amendment D-TR-1–6 `3a054e8b…0dc5`), executed launcher `8f7c241a…`,
+  and stage `14175ab5…a65ce`;
+- translated-judge stage seal `ca85f8d2…c250`;
+- analysis primitives by content hash `1671bc3c…f3db`, and the final analysis
+  implementation `final_analysis.py` `9b1797bc…`, frozen and committed (`c35785cd`) before
+  any result was examined.
 
 Raw outputs and per-stage provenance records, including the infrastructure-failure,
 serialization-fix and resume records, are retained unmodified. Sampling is not bitwise

@@ -1,0 +1,46 @@
+{
+  "schema_version": "workshop-v1-analysis-freeze-commit-binding/1",
+  "record_type": "binds the final-analysis freeze V3 to a git commit",
+  "created_utc": "2026-10-07T10:15:55Z",
+  "commit": {
+    "sha": "c35785cd7375e9075e0d31b5c2a7d865c4870c71",
+    "subject": "Workshop-v1: final analysis implementation and pre-result freeze V3",
+    "committer_time": "2026-10-07T10:15:43Z",
+    "branch": "research/workshop-v1-final-analysis-implementation",
+    "parent": "b44636eaf9a549281008e1469e46d12800380d7b"
+  },
+  "freeze_record": {
+    "path": "research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V3_2026-10-07.json",
+    "sha256": "5846ea7b7f3110c8532ad9dfe0c4dca2e2383b01b63113b83e29688182a0c0dd",
+    "content_hash_freeze_utc": "2026-10-07T02:07:50Z"
+  },
+  "verification": "Every hash in the V3 freeze record (frozen_code, frozen_tests, dependencies_unchanged, specification) was recomputed from the blobs in commit c35785cd. 0 mismatches.",
+  "analysis_hash": {
+    "src/clsm/workshop_v1/final_analysis.py": "9b1797bc422c23d2e9fa43feea7d8b8707d932037341720b9f10a915944b1017",
+    "src/clsm/workshop_v1/final_analysis_loader.py": "424ed81cc94a1aeb12720d833c53d2afcf97f6f0cc1a274d4b55cee0c99d4391",
+    "src/clsm/workshop_v1/final_tables.py": "a63d729497693a753dd4301a6f15bbe0ebf8dddca1380a7e041af479349017e6"
+  },
+  "frozen_primitives_unchanged": {
+    "src/clsm/workshop_v1/analysis.py": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+    "src/clsm/metrics.py": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b",
+    "freeze_reference": "engineering/provenance/ANALYSIS_CODE_FREEZE_2026-10-04.json (1671bc3c...)"
+  },
+  "tests": {
+    "tests/workshop_v1/test_final_analysis_oracle.py": "ce4f74cb6da54a3ed3f6df875d04d0bcf3f0595e52c15433b383cee0b1c4e033",
+    "tests/workshop_v1/test_final_analysis_loader.py": "31d932872c4617db875d6a8ae756341a29532c89f135a01f1356cf884f0c789f",
+    "tests/workshop_v1/test_final_tables.py": "3ef6dd647669d5325a5509d7dda3b85f110771c553dfd7bb2a3c9a6e81d3e51f",
+    "results": "86 synthetic/oracle tests passed. Full suite in this worktree: 897 passed, 4 failed. The 4 need the gitignored experiments/_runs data and pass in the main worktree. Ruff and mypy are clean on all new files."
+  },
+  "governance": {
+    "D-FA-1_to_D-FA-5": {"path": "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json", "sha256": "e6a211dc5fdfa4da11a35d082bf26eba35fa62ba3d864439d52711f68df131bd"},
+    "D-FA-6_and_agreed_only_G": {"path": "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA-6_2026-10-06.json", "sha256": "2fd58ad923dded71811d95a2799af152c8dfb5c0006f80005406720020d6f43b"},
+    "canonical_plan": {"path": "research/frozen_sources/ANALYSIS_PLAN_FREEZE.md", "sha256": "6615dd7dc189caf517dd41680d644bcc6675720d1bc5332420219ccf5aad482f"},
+    "interpretation_framework": {"path": "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md", "sha256": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31"}
+  },
+  "historical_records_unchanged": {
+    "research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_2026-10-06.json": "fb0e748b72ccbd2b3eb40786bc3abdf3670cf2a7de6fab37cff36026c4598686",
+    "research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V2_2026-10-06.json": "52cafbef9143e2e5b1ce7a0819b886628308782b509cca8ca6db14ff5ee9628b"
+  },
+  "chronology_statement": "The analysis implementation was frozen by content hash in three steps: V1 2026-10-06T20:05:55Z, V2 2026-10-06T20:35:29Z, V3 2026-10-07T02:07:50Z. It was committed 2026-10-07T10:15:43Z. The translated-judge stage was sealed earlier, at 2026-10-07T01:59:23Z (seal ca85f8d2...). Its technical QC recorded 935/935 terminal successes, and terminal technical_status was VALID_LABEL for all 935. No judge label, label distribution, human label or estimate was inspected before, during or after any of these steps. The freeze is not claimed to predate the translated-judge run.",
+  "result_blind": {"scientific_outcomes_inspected": false, "final_analysis_run": false, "unsealed": false}
+}

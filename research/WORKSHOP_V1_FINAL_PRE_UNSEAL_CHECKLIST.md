@@ -6,13 +6,13 @@
 - The investigator ticks governance items.
 - Unsealing follows `research/WORKSHOP_V1_RESULT_UNSEAL_PROTOCOL.md`: run once and hash the result artifact.
 
-**Legend:** [x] done · [~] partly done · [ ] open. Last updated 2026-10-06, after D-FA-1 to D-FA-5.
+**Legend:** [x] done · [~] partly done · [ ] open. Last updated 2026-10-07, after D-FA-6, the freeze commit and translated-judge sealing.
 
 ## Data stages
 
-- [ ] **U-1. Translated-judge run complete.** 935/935 terminal (running at the time of writing, pid 36796)
-- [ ] **U-2. Technical QC complete.** `translated_judge_launcher --post-qc`: `ready_for_seal`. Technical states only.
-- [ ] **U-3. Translated-judge stage sealed.** Needs a seal writer (none exists yet). It must be immutable and bound to the authorization (`267b6735…`) and the translation seal (`14175ab5…`). Record the hash in `engineering/workshop_v1_stage_hashes.json`.
+- [x] **U-1. Translated-judge run complete.** 935/935 terminal SUCCESS. Terminal technical_status is VALID_LABEL for all 935 (a technical count; no label was read).
+- [x] **U-2. Technical QC complete.** `engineering/workshop_v1_translated_urdu_judge_post_qc.json` (`d73508dc…`): ready_to_seal, 0 missing / duplicate / retry-exhausted. The record is in the main worktree; commit it with the stage.
+- [x] **U-3. Translated-judge stage sealed.** `engineering/workshop_v1_translated_urdu_judge_stage_seal.json` (`seal_sha256` `ca85f8d2…`; 2026-10-07T01:59:23Z), bound to authorization `267b6735…` and translation `14175ab5…`. Still to do: commit the seal and record it in `engineering/workshop_v1_stage_hashes.json` (engineering).
 
 ## Analysis implementation
 
@@ -23,12 +23,10 @@
   - [x] U-4d. Human join implemented (`build_observations`)
   - [x] U-4e. Uncertainty procedures implemented (paired item-cluster bootstrap, D-PG-6)
   - [x] U-4f. Synthetic tests pass
-- [~] **U-5. Analysis implementation frozen.**
-  - Done: frozen by content hash. Record V2 is `research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V2_2026-10-06.json`, which supersedes V1 after the overnight additions.
-  - Open: commit, and the commit SHA must be added to a follow-up record.
+- [x] **U-5. Analysis implementation frozen and committed.** Freeze V3 (`5846ea7b…`); commit `c35785cd`; binding record `engineering/provenance/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V3_COMMIT_BINDING_2026-10-07.json`.
 - [x] **U-6. Real-file loader.** `src/clsm/workshop_v1/final_analysis_loader.py`, 18 tests on synthetic stage directories. It refuses `experiments/_runs` paths without `allow_scientific_runs=True` and an analysis-authorization file. It has never been pointed at real data.
 - [x] **U-7. Table and figure builders.** `src/clsm/workshop_v1/final_tables.py` (T1–T9, F1–F5, plus a deterministic SVG renderer), 10 synthetic tests.
-- [ ] **U-8. Unseal protocol amended** to cite the new implementation hash, in addition to `1671bc3c…`.
+- [x] **U-8. Unseal protocol amended.** `research/WORKSHOP_V1_RESULT_UNSEAL_PROTOCOL_ADDENDUM_A1_2026-10-07.md`.
 
 ## Plan governance
 
