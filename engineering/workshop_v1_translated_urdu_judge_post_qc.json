@@ -1,0 +1,23 @@
+{
+  "duplicate_task_ids": [],
+  "expected_tasks": 935,
+  "human_summary": "technical QC: expected=935 persisted=935 success=935 runtime_failure=0 retry_exhausted=0 missing=0 errors=0 ready_to_seal=YES",
+  "malformed_or_unexpected_files": [],
+  "missing_task_ids": [],
+  "output_manifest_path": "engineering/workshop_v1_translated_urdu_judge_output_manifest.json",
+  "output_manifest_sha256": "8ceb1c983f8ca0977e097ab2ef67fd65b532e29ced50daa53d2069e3fdbd2e58",
+  "persisted_task_ids": 935,
+  "ready_to_seal": true,
+  "retry_exhausted_tasks": 0,
+  "runtime_failure_tasks": 0,
+  "schema_version": "workshop-v1-translated-judge-post-qc/1",
+  "scientific_content_inspected": false,
+  "successful_tasks": 935,
+  "terminal_state_counts": {
+    "MALFORMED_ARTIFACT": 0,
+    "RETRY_EXHAUSTED": 0,
+    "SUCCESS": 935
+  },
+  "unexpected_task_ids": [],
+  "unique_task_ids": true
+}

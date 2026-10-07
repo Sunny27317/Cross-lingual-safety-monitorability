@@ -1,4 +1,7 @@
-# Prospective Workshop-v1 only. No scientific outcomes; not executable.
+# HISTORICAL PLANNING TEMPLATE (not the executed canonical design). No scientific
+# outcomes; not executable. The executed design is represented by the immutable
+# generation/translation/judge manifests and governance records under
+# engineering/ and research/WORKSHOP_V1_PRE_UNSEAL_FREEZE_RECORD.json.
 # TODO — DECISION REQUIRED for every null/empty selection below.
 schema_version: workshop-v1/1
 study_id: workshop-v1

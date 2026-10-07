@@ -1,7 +1,9 @@
 # Milestone-1 scaffold — local validation only. NO target here runs inference or
 # downloads a model/dataset.
 
-.PHONY: help env test lint typecheck check config-validate clean reproduce
+PYTHON ?= .venv/bin/python
+
+.PHONY: help env test lint typecheck check config-validate clean reproduce verify-workshop-v1
 
 help:
 	@echo "make env             - create the dev environment (uv or pip)"
@@ -50,3 +52,11 @@ track-a-fixture-check:
 
 track-a-config-validate:
 	python -c "from clsm.config import load_experiment_config; from clsm.track_a_manifest import build_pilot_manifest, RunStage; c=load_experiment_config('configs/track_a_pilot/pilot.yaml'); print(c.experiment_name, 'generator blockers:', build_pilot_manifest().stage_unresolved(RunStage.GENERATOR))"
+
+verify-workshop-v1:
+	@echo "Offline Workshop-v1 verification only; no inference, translation, judging, or analysis."
+	PYTHONPATH=.:src $(PYTHON) -m engineering.workshop_v1_pre_unseal_validator --root .
+	PYTHONPATH=.:src $(PYTHON) -m pytest -q tests/workshop_v1/test_translated_judge_retry.py tests/workshop_v1/test_canonical_seal_gate.py tests/workshop_v1/test_post_translation_pipeline.py
+	$(PYTHON) -m ruff check engineering/workshop_v1_translated_judge_post_qc.py engineering/workshop_v1_pre_unseal_validator.py
+	$(PYTHON) -m mypy engineering/workshop_v1_translated_judge_post_qc.py engineering/workshop_v1_pre_unseal_validator.py
+	git diff --check

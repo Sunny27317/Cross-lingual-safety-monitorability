@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import asdict
+from pathlib import Path
 from typing import Any
 
 from clsm.track_a_backend import LlamaCppRuntime, verify_runtime_identity
@@ -12,13 +14,29 @@ from clsm.workshop_v1.config import ModelSpec
 from clsm.workshop_v1.llamacpp_generation import _subprocess_invoke
 
 
+def portable_path(value: str) -> str:
+    """Resolve legacy laptop paths through optional portable environment roots.
+
+    The frozen YAML remains byte-identical. This only changes where an already
+    frozen artifact is found on a different machine.
+    """
+    replacements = {
+        "/Users/sullah1/models/clsm": os.environ.get("CLSM_MODEL_ROOT"),
+        "/Users/sullah1/tools/llama.cpp": os.environ.get("CLSM_LLAMA_CPP_ROOT"),
+    }
+    for old, new in replacements.items():
+        if new and value.startswith(old):
+            return str(Path(new) / value[len(old):].lstrip("/"))
+    return os.path.expanduser(os.path.expandvars(value))
+
+
 def runtime_for(spec: ModelSpec) -> LlamaCppRuntime:
     if spec.blockers() or spec.local_path is None or spec.runtime_binary is None:
         raise ValueError("incomplete local model specification")
     settings = spec.additional_settings
     assert settings is not None
     return LlamaCppRuntime(
-        binary_path=spec.runtime_binary, model_path=spec.local_path,
+        binary_path=portable_path(spec.runtime_binary), model_path=portable_path(spec.local_path),
         llama_cpp_commit=PINNED_COMMIT, expected_llama_cpp_build="10809",
         expected_model_sha256=spec.checkpoint_hash, expected_model_bytes=spec.size_bytes,
         n_ctx=int(settings["n_ctx"]), n_gpu_layers=int(settings["n_gpu_layers"]),
