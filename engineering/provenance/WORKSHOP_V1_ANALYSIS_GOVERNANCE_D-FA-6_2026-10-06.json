@@ -1,0 +1,39 @@
+{
+  "schema_version": "workshop-v1-analysis-governance/1",
+  "record_type": "investigator decisions D-FA-6 and agreed-only G (final analysis)",
+  "decided_by": "investigator (Sana Ullah)",
+  "decision_date": "2026-10-06",
+  "recorded_by": "Claude Code, at the investigator's written instruction of 2026-10-06",
+  "relationship_to_earlier_records": "Adds to engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json (D-FA-1 to D-FA-5), which is not edited. Resolves the zero-sign question raised in research/WORKSHOP_V1_DECISION_MEMO_RFULL_AND_ZERO_SIGN.md §2, which is also not edited.",
+  "result_blind": {
+    "results_inspected": false,
+    "final_analysis_run": false,
+    "unsealed": false,
+    "statement": "Both decisions were taken before unseal, without inspecting any judge label, human label, translated output or result distribution."
+  },
+  "D-FA-6": {
+    "title": "Zero-sign convention",
+    "status": "APPROVED",
+    "decision": "STRICT",
+    "definition": "sign(x) = +1 if x > 0; 0 if x = 0; -1 if x < 0. Two signs match only when the sign values are exactly equal.",
+    "consequences": [
+      "positive matches positive",
+      "negative matches negative",
+      "zero matches zero",
+      "zero does NOT match a positive or a negative estimate"
+    ],
+    "scope": "Every analysis that compares effect direction or sign. In the frozen plan this is the cross-model consistency flag (plan §5; framework §2.8) and the replication-in-sign rule (framework §2.1).",
+    "implementation": "src/clsm/workshop_v1/final_analysis.py: sign(), cross_model_flag(). The flag is 'consistent' iff sign(estimate_model_1) == sign(estimate_model_2) and the difference-of-differences interval contains 0. No alternative convention is selectable; the zero_sign parameter and the unapproved 'compatible' option were removed.",
+    "estimates_affected": "None. The convention changes only the cross-model summary wording and Discussion branch selection, never an estimate or an interval."
+  },
+  "agreed_only_G": {
+    "title": "Optional exploratory agreed-only G",
+    "status": "DECIDED_NOT_TO_ADD",
+    "decision": "Do not add agreed-only G as an exploratory analysis. Do not implement or report it.",
+    "reason": "The primary G and the already-frozen validation and sensitivity analyses are sufficient. Avoid an unnecessary post-generation exploratory estimand and extra multiplicity.",
+    "implementation_check": "No agreed-only G estimator exists in final_analysis.py or final_tables.py. The row column human_source ('agreed'/'adjudicated') is provenance only and feeds no estimand."
+  },
+  "still_optional": [
+    "Countersign the R_full paired-mean reading (memo §1). It is determined by the locked framework text and needs no new discretion."
+  ]
+}

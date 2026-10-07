@@ -1,0 +1,54 @@
+{
+  "schema_version": "workshop-v1-final-analysis-freeze/3",
+  "status": "FROZEN_BY_CONTENT_HASH_PENDING_COMMIT",
+  "frozen_utc": "2026-10-07T02:07:50Z",
+  "branch": "research/workshop-v1-final-analysis-implementation",
+  "commit": null,
+  "supersedes": {
+    "path": "research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V2_2026-10-06.json",
+    "sha256": "52cafbef9143e2e5b1ce7a0819b886628308782b509cca8ca6db14ff5ee9628b",
+    "retained_unchanged": true,
+    "why": "D-FA-6 (zero-sign convention: STRICT) is now implemented as a fixed rule: final_analysis.sign() and cross_model_flag(). The undecided state (ZERO_SIGN_UNDECIDED), the zero_sign parameter and the unapproved 'compatible' option were removed. The decision not to add agreed-only G is recorded; no such estimator exists. No estimand definition changed."
+  },
+  "governance": [
+    "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json (D-FA-1 to D-FA-5; e6a211dc...)",
+    "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA-6_2026-10-06.json (D-FA-6; agreed-only G not added; 2fd58ad9...)"
+  ],
+  "result_blind": {
+    "scientific_outcomes_inspected": false,
+    "final_analysis_run": false,
+    "unsealed": false,
+    "loader_pointed_at_real_data": false
+  },
+  "frozen_code": {
+    "src/clsm/workshop_v1/final_analysis.py": "9b1797bc422c23d2e9fa43feea7d8b8707d932037341720b9f10a915944b1017",
+    "src/clsm/workshop_v1/final_analysis_loader.py": "424ed81cc94a1aeb12720d833c53d2afcf97f6f0cc1a274d4b55cee0c99d4391",
+    "src/clsm/workshop_v1/final_tables.py": "a63d729497693a753dd4301a6f15bbe0ebf8dddca1380a7e041af479349017e6"
+  },
+  "frozen_tests": {
+    "tests/workshop_v1/test_final_analysis_oracle.py": "ce4f74cb6da54a3ed3f6df875d04d0bcf3f0595e52c15433b383cee0b1c4e033",
+    "tests/workshop_v1/test_final_analysis_loader.py": "31d932872c4617db875d6a8ae756341a29532c89f135a01f1356cf884f0c789f",
+    "tests/workshop_v1/test_final_tables.py": "3ef6dd647669d5325a5509d7dda3b85f110771c553dfd7bb2a3c9a6e81d3e51f"
+  },
+  "dependencies_unchanged": {
+    "src/clsm/workshop_v1/analysis.py": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+    "src/clsm/metrics.py": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b"
+  },
+  "specification": {
+    "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31",
+    "research/WORKSHOP_V1_CANONICAL_ANALYSIS_SPECIFICATION.md": "447b4abf56008f099096f4ce51aab73ae7fa4f51a4b64e1d40e85fb6a6ab5a36",
+    "research/WORKSHOP_V1_FINAL_ANALYSIS_DATA_CONTRACT.md": "ef69938e3d78deaa1b590b900f6f40fb3ed4e60591e3b6a1d012a1b9723fb40a",
+    "research/WORKSHOP_V1_DECISION_MEMO_RFULL_AND_ZERO_SIGN.md": "09e46020d5eb1742a450b1328c31dc9a84cf0c4cd27ebf7617f6cf6b400ed9d0",
+    "research/WORKSHOP_V1_FINAL_PRE_UNSEAL_CHECKLIST.md": "670ab86910612b4b35d487eaf22ede6183177ded69d59cdcae20abf6a6eb6bd1"
+  },
+  "tests": {
+    "synthetic_new": "86 passed (oracle 58, loader 18, tables 10)",
+    "full_worktree": "897 passed, 4 failed. The 4 need gitignored run data and pass in clsm-codex.",
+    "ruff_new_files": "PASS",
+    "mypy_new_files": "PASS"
+  },
+  "open_before_unseal_not_methodological": [
+    "Commit this branch, then a follow-up record with the commit SHA",
+    "Amend the unseal protocol to cite this freeze"
+  ]
+}

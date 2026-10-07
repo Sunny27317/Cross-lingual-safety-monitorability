@@ -1,0 +1,86 @@
+{
+  "schema_version": "workshop-v1-final-analysis-freeze/1",
+  "status": "FROZEN_BY_CONTENT_HASH_PENDING_COMMIT",
+  "frozen_utc": "2026-10-06T20:05:55Z",
+  "branch": "research/workshop-v1-final-analysis-implementation",
+  "base_commit": "b44636e",
+  "commit": null,
+  "commit_note": "Not committed, per the investigator's instruction. On commit, write a follow-up record with the commit SHA and confirm that every hash below is unchanged. This file is not edited after commit.",
+  "governance": "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json (D-FA-1 to D-FA-5)",
+  "supersedes_proposal": {
+    "path": "research/WORKSHOP_V1_PRE_RESULT_ANALYSIS_IMPLEMENTATION_ADDENDUM.json",
+    "sha256": "53b03ecaf4574dbe3df031d839761156e4c9c3648b767f36beccef7d05e2beb1",
+    "changes_since_proposal": "Per D-FA-4, confusion_matrix now has human rows x judge columns (5 protocol labels x 4 judge labels), with totals and excluded counts by reason; binary_confusion_matrix added; two oracle tests added. No estimand definition changed."
+  },
+  "result_blind": {
+    "scientific_outcomes_inspected": false,
+    "judge_label_distributions_read": false,
+    "translated_outputs_read": false,
+    "human_labels_exist": false,
+    "analysis_run_on_real_data": false,
+    "live_translated_judge_process_touched": false
+  },
+  "frozen_code": {
+    "src/clsm/workshop_v1/final_analysis.py": "8740c7dc75ed7353d9bae23368262cffdad57abb2eea747bf03823593d104ec3"
+  },
+  "frozen_tests": {
+    "tests/workshop_v1/test_final_analysis_oracle.py": "785d94ecdf3e3421574eb6d09a54c190a5d3897530fab1cd725a4cb318115715"
+  },
+  "original_frozen_primitives_unchanged": {
+    "src/clsm/workshop_v1/analysis.py": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+    "src/clsm/metrics.py": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b",
+    "note": "Both match engineering/provenance/ANALYSIS_CODE_FREEZE_2026-10-04.json (analysis hash 1671bc3c...)."
+  },
+  "reused_modules": {
+    "src/clsm/workshop_v1/annotation_io.py": "ba252710786c4f6e7ca43beeaa436578005065a28a568515f0e3e383f61b5d32",
+    "src/clsm/workshop_v1/human_agreement.py": "38f1d7313fcf7575064c57a8f69c1a0520ad1abe3eabab4b5a41b969937ac476",
+    "src/clsm/workshop_v1/human_pool.py": "95ffc130d82cf67b4d817713c4db341a86acbfa517715a4a3fa324f43cf3cbc0"
+  },
+  "analysis_specification": {
+    "authority_hierarchy": {
+      "1_analysis_plan": {"path": "research/frozen_sources/ANALYSIS_PLAN_FREEZE.md", "sha256": "6615dd7dc189caf517dd41680d644bcc6675720d1bc5332420219ccf5aad482f"},
+      "2_dpg_approvals": {
+        "engineering/provenance/INVESTIGATOR_DOWNSTREAM_APPROVALS_2026-10-04.json": "2f62a300fbcf1d7ceb4368cbce55d688328538cecd0b8efd24a4504b8a950429",
+        "engineering/provenance/DPG6_APPROVAL_2026-10-04.json": "466058f825ef000785698f6459d68e3c724256008600685c4e679de990f0615f"
+      },
+      "3_records_a_b": {
+        "engineering/provenance/C1_IDENTITY_TRANSLATION_DECISION_2026-10-06.json": "daf76d35d92d7b9fe4279be14c5aa3ac479f184241a8ab6f4edfa2dc408f0807",
+        "research/WORKSHOP_V1_PRE_RESULT_IDENTITY_ROBUSTNESS_ADDENDUM.json": "e3a32088784b3528c55cb2efd8ddbf634c9e2ca742ee4feb82e30a076a160cd8"
+      },
+      "4_agreement_reporting": {"path": "docs/rater_package/AGREEMENT_REPORTING.md", "sha256": "80fc838feb2ff01ebe6b978ec24c61e315d2f001ea5a7005b5a435a33f8e71f0"},
+      "5_interpretation_framework_locked": {"path": "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md", "sha256": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31"}
+    },
+    "supporting_documents": {
+      "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json": "e6a211dc5fdfa4da11a35d082bf26eba35fa62ba3d864439d52711f68df131bd",
+      "research/frozen_sources/PROVENANCE.json": "81de0ba83d4fa826cb53a79af5290185b32a0ebd73db51eb02c873c60273d718",
+      "research/frozen_sources/JUDGE_GOVERNANCE_RECORD.md": "71c07d9397af800f20b3b373c75f8ae0a3437dba376d5713acbb63f10e83d41e",
+      "research/WORKSHOP_V1_FINAL_ANALYSIS_DATA_CONTRACT.md": "3f21ecab7f09eba67fd6c5813abee6f23c063b29b111727444946cb64e886d37",
+      "research/WORKSHOP_V1_PRE_RESULT_METHODS_COMPLETION.md": "89ef1016e4595f7742b81a47c56f68203eba9285aa53509002ba26715d90dde8",
+      "research/WORKSHOP_V1_FINAL_PRE_UNSEAL_CHECKLIST.md": "9ad801aff1bd9fa885b505f74692530eb5dfba274b9cd8dc6e32a45344453304"
+    }
+  },
+  "estimand_verification": [
+    {"estimand": "G = mean(H - D_ur), PRIMARY", "function": "gap_g", "authority": "Plan §§1-2, 9; framework §2.4; D-PG-6", "oracle": "test_gap_g_on_complete_pairs, test_g_s1_s2_change_denominators, test_bootstrap_paired_identical_arms_is_degenerate", "result": "PASS"},
+    {"estimand": "ΔTM_k = TM_k(cue) - TM_k(Control), Control target from the frozen cue rule", "function": "delta_tm, target_match", "authority": "framework §2.2 (locked)", "oracle": "test_delta_tm_sign_and_value, test_delta_tm_zero_missing_arm_and_grouping, test_cue_b_membership_restricts_items, test_target_match_requires_frozen_target, test_frozen_item_metadata_matches_frozen_plan", "result": "PASS"},
+    {"estimand": "Paired contrasts (R, R_full, A, AG, Cue-B vs Cue-A-on-36, cross-model flag)", "function": "recovery_r, recovery_r_full, agreement_diagnostic, apparent_gap, cue_b_vs_cue_a_on_36, cross_model_flag", "authority": "Plan §§3, 5, 6, 12, 15; D-PG-3; framework §§2.4, 2.6, 2.8", "oracle": "test_r_r_full_and_agreement_diagnostic, test_apparent_gap_is_marginal_difference, test_cue_b_vs_cue_a_on_36_contrast, test_cross_model_flag, test_join_errors_are_explicit", "result": "PASS", "open": "R_full form (paired mean implemented); cross-model flag when a point estimate is exactly 0"},
+    {"estimand": "S1-S5", "function": "variant parameter (S1-S3), exclude_translation_ids (S4), human_agreement (S5)", "authority": "Plan §2; AGREEMENT_REPORTING", "oracle": "test_judge_binary_mapping, test_human_binary_mapping, test_g_s1_s2_change_denominators, test_s3_counts_technical_failures_as_misses, test_s4_excludes_audit_flagged_translations, test_kappa_hand_calculation, test_kappa_binary_subset_excludes_non_binary", "result": "PASS", "note": "S4 needs the translation audit's flagged set"},
+    {"estimand": "Item-cluster bootstrap", "function": "cluster_bootstrap", "authority": "D-PG-6; plan §§1, 10, 11", "oracle": "test_bootstrap_matches_frozen_convention_for_a_rate, test_bootstrap_known_distribution, test_bootstrap_resamples_items_not_rows, test_bootstrap_counts_undefined_replicates_and_is_deterministic", "result": "PASS"},
+    {"estimand": "Missingness cascade and worst-case bounds", "function": "missingness_cascade, worst_case_rate_bounds", "authority": "Plan §§7-8; D-PG-2; D-PG-6", "oracle": "test_missingness_cascade_counts, test_worst_case_bounds", "result": "PASS"},
+    {"estimand": "Identity-translation robustness (exclude-six)", "function": "exclude_six_robustness, identity_translation_ids", "authority": "Records A and B", "oracle": "test_primary_includes_identities_and_robustness_is_separate, test_exclusion_uses_only_the_persisted_flag, test_join_translated_provenance_and_identity_consistency", "result": "PASS"},
+    {"estimand": "Confusion matrices (D-FA-4)", "function": "confusion_matrix, binary_confusion_matrix", "authority": "D-FA-4; framework §2.4", "oracle": "test_confusion_matrix_orientation_and_totals, test_binary_confusion_matrix_equals_g_denominator, test_confusion_matrix_rejects_labels_outside_frozen_sets", "result": "PASS"},
+    {"estimand": "Human join (one row per trace)", "function": "build_observations", "authority": "Human-stage frozen summary; annotation_io.reference_labels", "oracle": "test_join_* (5 tests), test_end_to_end_synthetic_grid", "result": "PASS"}
+  ],
+  "tests": {
+    "oracle": "55 passed (tests/workshop_v1/test_final_analysis_oracle.py)",
+    "full_suite_worktree": "866 passed, 4 failed. The 4 need the gitignored experiments/_runs data, which this worktree lacks.",
+    "those_4_in_main_worktree": "4 passed (clsm-codex, read-only tests)",
+    "ruff_changed_files": "PASS",
+    "mypy_changed_files": "PASS",
+    "repo_wide_preexisting": "Ruff findings in untouched files and 2 mypy unused-ignore errors (provenance.py, gemma_download.py) exist at HEAD and were not introduced here."
+  },
+  "not_frozen_yet": [
+    "Real-file loader into build_observations inputs (checklist U-6)",
+    "Table and figure builders (U-7)",
+    "Unseal-protocol amendment citing this freeze (U-8)"
+  ]
+}

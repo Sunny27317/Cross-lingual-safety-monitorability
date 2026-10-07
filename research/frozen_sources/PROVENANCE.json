@@ -1,0 +1,41 @@
+{
+  "schema_version": "workshop-v1-frozen-source-import/1",
+  "imported_utc": "2026-10-06T17:40:29Z",
+  "imported_by": "Claude Code (pre-result methods completion, 2026-10-06)",
+  "purpose": "Bring two governance sources that existed only as untracked files in another worktree into this repository verbatim, so that the analysis plan the paper relies on is version-controlled. The files are byte-identical copies. Their internal date labels are NOT corrected.",
+  "files": [
+    {
+      "path": "research/frozen_sources/ANALYSIS_PLAN_FREEZE.md",
+      "sha256": "6615dd7dc189caf517dd41680d644bcc6675720d1bc5332420219ccf5aad482f",
+      "origin": "/Users/sullah1/clsm-claude/research/ANALYSIS_PLAN_FREEZE.md (untracked in that worktree, branch research/workshop-v1-scientific)",
+      "origin_mtime_local": "2026-10-01T11:51",
+      "internal_date_labels": ["session 21, 2026-10-13 (title)", "session 22, 2026-10-15 (§8b)"],
+      "write_history_from_session_log": [
+        {"utc": "2026-09-29T23:01:01.781Z", "operation": "Write (full file, 8,067 characters, includes S1-S5)"},
+        {"utc": "2026-10-01T15:51:26.935Z", "operation": "Edit (adds §8b compliance-floor reconstruction)"}
+      ],
+      "session_log": "~/.claude/projects/-Users-sullah1/472babe1-*.jsonl",
+      "replay_check": "Replaying the Write and the Edit from the session log reproduces the current file byte-for-byte (sha256 6615dd7d...). No other write to this file appears in any local session log."
+    },
+    {
+      "path": "research/frozen_sources/JUDGE_GOVERNANCE_RECORD.md",
+      "sha256": "71c07d9397af800f20b3b373c75f8ae0a3437dba376d5713acbb63f10e83d41e",
+      "origin": "/Users/sullah1/clsm-claude/research/JUDGE_GOVERNANCE_RECORD.md (untracked)",
+      "origin_mtime_local": "2026-09-29T18:59",
+      "internal_date_labels": ["session 21, 2026-10-13 (title)"],
+      "write_history_from_session_log": [
+        {"utc": "2026-09-29T22:59:07.751Z", "operation": "Write (single write; never edited)"}
+      ],
+      "replay_check": "Replay reproduces the current file byte-for-byte."
+    }
+  ],
+  "date_label_finding": "The 'session N, YYYY-MM-DD' labels used across the Claude-side research documents follow a fixed counter: session 11 = 2026-09-23, then +2 days per session (session 22 = 2026-10-15). They are sequence labels, not calendar dates. For sessions 17 to 22 the labels are later than the files' own modification times and later than the actual date. The real authoring times above come from file modification times and timestamped session logs.",
+  "pre_result_status": "Content final by 2026-10-01T15:51Z. That is before the first main-generation record (2026-10-02T19:53Z), before generation was locked (2026-10-04), and before the first direct-judge output (2026-10-04T18:20Z). The direct-judge labels remain unexamined.",
+  "superseded_or_contradicted_parts": [
+    "§6 'R is never reported without the paraphrase-control comparison' is superseded by approved D-PG-3 (2026-10-04): no paraphrase control; R descriptive only.",
+    "§8/§8b compliance floor ('open', 'not approved') is resolved by approved D-PG-1 (2026-10-04): no primary floor; one exploratory recomputation using the pre-existing >=0.50 parser flag.",
+    "§1 lists monitor arm P (paraphrase); P does not exist in Workshop-v1 (D-PG-3).",
+    "§10 'disclosure rates, G, R' intervals: refined by approved D-PG-6 (B = 10,000, seed 0, paired in the same replicate)."
+  ],
+  "action_required": "The investigator should confirm in writing that this verbatim copy is the canonical analysis plan, read together with D-PG-1 to D-PG-6, and that the date labels are sequence labels (see research/WORKSHOP_V1_PRE_RESULT_METHODS_COMPLETION.md §1)."
+}

@@ -1,0 +1,72 @@
+{
+  "schema_version": "workshop-v1-pre-result-analysis-implementation-addendum/1",
+  "status": "PROPOSED_PENDING_INVESTIGATOR_REVIEW_AND_COMMIT",
+  "created_utc": "2026-10-06T19:03:07Z",
+  "branch": "research/workshop-v1-final-analysis-implementation",
+  "base_commit": "b44636e",
+  "result_blind": {
+    "scientific_outcomes_inspected": false,
+    "judge_label_distributions_read": false,
+    "human_labels_exist": false,
+    "real_analysis_run": false,
+    "data_used": "synthetic fixtures only, plus frozen design data (manifests, generation plan, source snapshot answer keys, human-pool hash rule)",
+    "live_translated_judge_run": "running during this work (pid 36796) and not touched"
+  },
+  "why_needed": "The analysis primitives frozen on 2026-10-04 (hash 1671bc3c...) cannot compute the planned estimands: they bootstrap single rates only. D-PG-6 requires analysis code frozen after synthetic-only validation and before unsealing, so the missing functions are added now, before any result is examined.",
+  "frozen_files_unchanged": {
+    "src/clsm/workshop_v1/analysis.py": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+    "src/clsm/metrics.py": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b"
+  },
+  "new_code": {
+    "src/clsm/workshop_v1/final_analysis.py": "df80d4dcb214b101b066a7a23ee2fc43ad723f98eaf7bd86c7e12139b9bb6060"
+  },
+  "new_tests": {
+    "tests/workshop_v1/test_final_analysis_oracle.py": "3c2d702d55f709f28eb4ccfcfe6a31b1ab4e1960ec61a03ecf1d8f7b2c3f0c3e",
+    "result": "53 passed; full repository suite in this worktree 864 passed, 4 failed. The 4 failures need the gitignored experiments/_runs data and pass in the main worktree."
+  },
+  "reused_frozen_or_committed_modules": {
+    "src/clsm/workshop_v1/annotation_io.py": "ba252710786c4f6e7ca43beeaa436578005065a28a568515f0e3e383f61b5d32",
+    "src/clsm/workshop_v1/human_agreement.py": "38f1d7313fcf7575064c57a8f69c1a0520ad1abe3eabab4b5a41b969937ac476",
+    "src/clsm/workshop_v1/human_pool.py": "95ffc130d82cf67b4d817713c4db341a86acbfa517715a4a3fa324f43cf3cbc0"
+  },
+  "functions_filled": [
+    "judge_binary / human_binary: primary, S1, S2 and S3 label mappings",
+    "accuracy, parse_failure_rate, target_match (Control uses the frozen cue-k target), delta_tm, delta_accuracy, answer_switch_rate",
+    "disclosure_rate (D_en, D_ur, T), human_rate (H), gap_g (G, primary), recovery_r (R), recovery_r_full (R_full), agreement_diagnostic (A, exploratory), apparent_gap (AG)",
+    "confusion_matrix (judge x human, full superset)",
+    "human_agreement (raw agreement, Cohen's kappa five-category and binary subset, contingency table) via the frozen human_agreement functions",
+    "cluster_bootstrap: paired contrasts in the same replicate; undefined replicates counted; frozen percentile index rule",
+    "cross_model_flag; cue_b_vs_cue_a_on_36",
+    "build_observations: one row per generation_id; retry collapse; explicit errors; reconciled accounting; human reference via annotation_io.reference_labels",
+    "missingness_cascade; worst_case_rate_bounds (D-PG-2)",
+    "identity_translation_ids; exclude_six_robustness (Record B)",
+    "compliance_exploratory_rows (D-PG-1, trace-level)",
+    "frozen_item_metadata; frozen_human_pool (design-data adapters)"
+  ],
+  "definitions_sources": [
+    "research/frozen_sources/ANALYSIS_PLAN_FREEZE.md (sha256 6615dd7d...; verbatim import; see research/frozen_sources/PROVENANCE.json)",
+    "engineering/provenance/INVESTIGATOR_DOWNSTREAM_APPROVALS_2026-10-04.json (D-PG-1 to D-PG-6)",
+    "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md section 2 (PROPOSED; lock required)",
+    "docs/rater_package/AGREEMENT_REPORTING.md",
+    "Records A and B (commit 08db78d)"
+  ],
+  "statistical_plan_changed": false,
+  "estimands_added": [],
+  "discrepancies_found_not_resolved_here": [
+    "The frozen analysis.compliance_sensitivity_rows filters on item-level scores, but D-PG-1 is trace-level. The new code follows D-PG-1.",
+    "R_full form (paired mean vs difference of marginals): implemented as the paired mean ('the same contrast' as R). Investigator to confirm.",
+    "Confusion-matrix layout: the full superset is implemented, not a strict 4x5. Investigator to confirm.",
+    "Cross-model flag when a point estimate is exactly 0. Investigator to confirm.",
+    "The interpretation framework (source of ΔTM, AG, R_full, A) is not yet locked.",
+    "D-PG-2 eligible-count arithmetic: 2,806, not 2,807."
+  ],
+  "bugs_found_during_synthetic_validation": [
+    "cue_b_vs_cue_a_on_36 initially lacked a language filter. Caught by the oracle test and fixed (framework §2.6: within model and language)."
+  ],
+  "still_to_build_before_unseal": [
+    "Real-file loader into build_observations inputs (synthetic-file tests only)",
+    "Table and figure builders T1-T7, F1-F5",
+    "Translated-judge stage seal writer"
+  ],
+  "freeze_instruction": "On approval: commit this branch, record the commit SHA and the final_analysis.py hash here (create a v2 record rather than editing this one after commit), and amend the unseal protocol to cite it."
+}

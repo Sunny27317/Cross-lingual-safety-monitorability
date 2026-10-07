@@ -1,0 +1,57 @@
+{
+  "schema_version": "workshop-v1-final-analysis-freeze/2",
+  "status": "FROZEN_BY_CONTENT_HASH_PENDING_COMMIT",
+  "frozen_utc": "2026-10-06T20:35:29Z",
+  "branch": "research/workshop-v1-final-analysis-implementation",
+  "commit": null,
+  "supersedes": {
+    "path": "research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_2026-10-06.json",
+    "sha256": "fb0e748b72ccbd2b3eb40786bc3abdf3670cf2a7de6fab37cff36026c4598686",
+    "retained_unchanged": true,
+    "why": "Overnight pre-result additions (no estimand definition changed): (1) cross_model_flag no longer applies an undecided zero-sign convention silently; it emits ZERO_SIGN_UNDECIDED unless zero_sign is passed (memo §2; D-FA-6 pending); (2) human_agreement_intervals adds the item-cluster bootstrap CIs that AGREEMENT_REPORTING already required but the V1 code lacked; (3) annotate_missingness and the covariate passthrough (compliance_fraction, visible_trace); (4) new real-file loader (synthetic-only) and table/figure builders."
+  },
+  "result_blind": {
+    "scientific_outcomes_inspected": false,
+    "judge_labels_or_distributions_read": false,
+    "translated_outputs_read": false,
+    "human_labels_exist": false,
+    "real_analysis_run": false,
+    "loader_pointed_at_real_data": false,
+    "live_translated_judge_process_touched": false,
+    "note": "At 2026-10-06T20:35Z, `ps` showed that pid 36796 (translated judge) was no longer running. Only the process table was checked. No judge file or count was inspected for outcomes."
+  },
+  "frozen_code": {
+    "src/clsm/workshop_v1/final_analysis.py": "87c3ef902dd4731cefacf311bb2f7ae148dab0cab98f994c90e07994f0793f32",
+    "src/clsm/workshop_v1/final_analysis_loader.py": "424ed81cc94a1aeb12720d833c53d2afcf97f6f0cc1a274d4b55cee0c99d4391",
+    "src/clsm/workshop_v1/final_tables.py": "535531f187e7c85c742d2b4d2c2e065038b52a4d56f25400409a63dbddc71806"
+  },
+  "frozen_tests": {
+    "tests/workshop_v1/test_final_analysis_oracle.py": "74f37d23747ef5d33fb6e224e5bea5233f68de76c0965285897aaaa09bccfae7",
+    "tests/workshop_v1/test_final_analysis_loader.py": "31d932872c4617db875d6a8ae756341a29532c89f135a01f1356cf884f0c789f",
+    "tests/workshop_v1/test_final_tables.py": "9380f5dc2961a572e7f885ba09550f33747d6b4bda38598faf7a8177d3446b2e"
+  },
+  "dependencies_unchanged": {
+    "src/clsm/workshop_v1/analysis.py": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+    "src/clsm/metrics.py": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b",
+    "src/clsm/workshop_v1/output_parsing.py": "3bf0c003db1628645e21913a24e258d7d14cca65f10c0003d808c88cd8be71e8"
+  },
+  "specification": {
+    "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31",
+    "research/WORKSHOP_V1_CANONICAL_ANALYSIS_SPECIFICATION.md": "2b0b364caf36ea0169683fcd2daa9bda6138e4443476bea1f19b149fe0efb223",
+    "research/WORKSHOP_V1_DECISION_MEMO_RFULL_AND_ZERO_SIGN.md": "09e46020d5eb1742a450b1328c31dc9a84cf0c4cd27ebf7617f6cf6b400ed9d0",
+    "research/WORKSHOP_V1_FINAL_ANALYSIS_DATA_CONTRACT.md": "ef69938e3d78deaa1b590b900f6f40fb3ed4e60591e3b6a1d012a1b9723fb40a",
+    "engineering/provenance/WORKSHOP_V1_ANALYSIS_GOVERNANCE_D-FA_2026-10-06.json": "e6a211dc5fdfa4da11a35d082bf26eba35fa62ba3d864439d52711f68df131bd"
+  },
+  "open_before_unseal": [
+    "D-FA-6 zero-sign convention (memo recommends strict)",
+    "Optional: countersign the R_full reading (memo §1)",
+    "Optional exploratory agreed-only G: decide yes or no",
+    "Commit, then a follow-up record with the commit SHA"
+  ],
+  "tests": {
+    "synthetic_new": "85 passed (oracle 57, loader 18, tables 10)",
+    "full_worktree": "896 passed, 4 failed. The 4 need gitignored run data; they pass in clsm-codex (4/4, re-run 2026-10-06).",
+    "ruff_new_files": "PASS",
+    "mypy_new_files": "PASS"
+  }
+}
