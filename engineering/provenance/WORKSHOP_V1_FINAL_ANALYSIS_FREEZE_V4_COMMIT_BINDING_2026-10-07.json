@@ -1,0 +1,39 @@
+{
+  "schema_version": "workshop-v1-freeze-commit-binding/1",
+  "freeze": {
+    "path": "research/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V4_2026-10-07.json",
+    "sha256": "824738d413523a6e01045ce60bbe48d017e16bfe485f77fc049b2a3b5b3d4572"
+  },
+  "commit": "faa0f9ca330d34d0e7a9d0993bd0cbd4ddb991f5",
+  "commit_time": "2026-10-07T07:04:55-04:00",
+  "branch": "research/workshop-v1-final-analysis-implementation",
+  "supersedes_binding": "engineering/provenance/WORKSHOP_V1_FINAL_ANALYSIS_FREEZE_V3_COMMIT_BINDING_2026-10-07.json (retained)",
+  "verified_from_commit_blobs": {
+    "src/clsm/workshop_v1/final_analysis.py": "7320a1dd66f4b60f3211a208d7fac4b64bd1d8cbc6a6345ae5c5525aab1ef1cd",
+    "src/clsm/workshop_v1/final_analysis_loader.py": "424ed81cc94a1aeb12720d833c53d2afcf97f6f0cc1a274d4b55cee0c99d4391",
+    "src/clsm/workshop_v1/final_tables.py": "1cb2e520155ad4c999ec19a023ec271d4f05b261826094bc8fdc6632a2fd6246",
+    "tests/workshop_v1/test_final_analysis_oracle.py": "68920ce52052396120ec0839b4fe2a866a84ccd87f2d8efe105d10a797d68c97",
+    "tests/workshop_v1/test_final_analysis_loader.py": "31d932872c4617db875d6a8ae756341a29532c89f135a01f1356cf884f0c789f",
+    "tests/workshop_v1/test_final_tables.py": "ae09a53f615bfec25e92a0a679b0d2110d801ba83e2c3446c4fad9bae5f05466",
+    "tests/workshop_v1/test_g_worked_example.py": "bd26b0df58ec6746979ae648f91325114b1114b7a228399d59a3e84391fceaf6",
+    "src/clsm/workshop_v1/analysis.py": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976",
+    "src/clsm/metrics.py": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b",
+    "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31",
+    "research/WORKSHOP_V1_CANONICAL_ANALYSIS_SPECIFICATION.md": "447b4abf56008f099096f4ce51aab73ae7fa4f51a4b64e1d40e85fb6a6ab5a36",
+    "research/WORKSHOP_V1_FINAL_ANALYSIS_DATA_CONTRACT.md": "ef69938e3d78deaa1b590b900f6f40fb3ed4e60591e3b6a1d012a1b9723fb40a",
+    "research/WORKSHOP_V1_FINAL_TABLES_FIGURES_SPEC.md": "ab020425206b70a8acae3e898cfb1d8e8435ff37c6ba0ea50e46ac7f2af5595c",
+    "research/WORKSHOP_V1_DISCUSSION_DECISION_TREE_FINAL.md": "c0486d05ae2dfaef043d3d9ab0749db7c57cc94ff469f70fb1c425ecabaaf67e",
+    "research/WORKSHOP_V1_TRANSLATION_AUDIT_CANONICAL_PROTOCOL.md": "0c75606a2fe6398a1872d2981aad65f668a689279193ebefc62d5eed4978b192",
+    "research/WORKSHOP_V1_HUMAN_ANNOTATION_CANONICAL_PROTOCOL.md": "b1819f7666729735ef997f015a15b344c967382c810bcd542b2658ebf51aff92",
+    "research/WORKSHOP_V1_RESULT_UNSEAL_PROTOCOL_ADDENDUM_A2_2026-10-07.md": "cdbf329574a61937d1d84411675e1c1616b290bd6512353b397adaac40665c68"
+  },
+  "all_hashes_match": true,
+  "chronology": [
+    "V3 frozen and committed c35785cd",
+    "closure package 43621f6",
+    "final audit found F4/F5; implemented with synthetic tests",
+    "V4 frozen 2026-10-07T11:02:25Z",
+    "V4 committed faa0f9ca"
+  ],
+  "result_blind_statement": "Between V3 and V4 no judge label, label distribution or scientific result was inspected, no final analysis was run and nothing was unsealed. The V4 changes add reporting only (uncertainty-flag counts; H/D/T table); no estimand, interval or sensitivity definition changed."
+}
