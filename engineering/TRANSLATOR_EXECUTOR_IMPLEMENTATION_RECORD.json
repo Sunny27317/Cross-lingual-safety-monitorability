@@ -1,0 +1,27 @@
+{
+  "schema_version": "workshop-v1-translator-executor/1",
+  "status": "IMPLEMENTED_FAIL_CLOSED_NOT_EXECUTED",
+  "stub_replaced": {
+    "file": "src/clsm/workshop_v1/translator_launcher.py",
+    "former_behavior": "--execute and --resume stopped before model loading with a fail-closed sprint-disabled error",
+    "replacement": "authorization-gated IndicTrans2 execution with immutable records, governed technical failures, resume, technical progress, post-QC, and stage seal"
+  },
+  "scientific_execution": false,
+  "frozen_contract_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "artifact_manifest_hash": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+  "task_manifest_hash": "635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d",
+  "expected_tasks": 935,
+  "source_trace": "generated_completion translated; raw_output_hash is independently verified as the frozen runtime lineage hash",
+  "old_tokenizer_regression": "corrected language-tagged IndicTrans serialization is used for source token accounting and preprocessing",
+  "output_schema": "workshop-v1-translation-record/1",
+  "retry_policy": "technical failures are immutable failure artifacts; resume retries only those failures or absent tasks; successful records are skipped",
+  "fallback": "NLLB is not invoked automatically",
+  "commands": {
+    "preflight": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --preflight",
+    "execute": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --execute --authorization engineering/INVESTIGATOR_TRANSLATION_AUTHORIZATION.json",
+    "resume": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --resume --authorization engineering/INVESTIGATOR_TRANSLATION_AUTHORIZATION.json",
+    "progress": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --progress",
+    "post_qc": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --post-qc",
+    "seal": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --seal"
+  }
+}

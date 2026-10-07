@@ -19,8 +19,30 @@ def canonical(value: Any) -> str:
     return json.dumps(value, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
 
 
+def runtime_text_bytes(text: str) -> bytes:
+    """Encode runtime text reversibly, including transport surrogates.
+
+    ``subprocess`` captures bytes and the llama.cpp adapter decodes them with
+    ``surrogateescape``.  A later hash or JSON write must therefore not assume
+    that the resulting Python string contains only Unicode scalar values.
+    Transport surrogates U+DC80..U+DCFF are mapped back to their original byte;
+    any other lone surrogate is encoded with ``surrogatepass``.  Valid Unicode
+    is encoded normally.  No character is dropped or replaced.
+    """
+    output = bytearray()
+    for char in text:
+        codepoint = ord(char)
+        if 0xDC80 <= codepoint <= 0xDCFF:
+            output.append(codepoint - 0xDC00)
+        elif 0xD800 <= codepoint <= 0xDFFF:
+            output.extend(char.encode("utf-8", errors="surrogatepass"))
+        else:
+            output.extend(char.encode("utf-8"))
+    return bytes(output)
+
+
 def content_hash(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+    return hashlib.sha256(runtime_text_bytes(text)).hexdigest()
 
 
 def object_hash(value: Any) -> str:

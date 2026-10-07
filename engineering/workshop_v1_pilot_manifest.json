@@ -1,0 +1,24 @@
+{
+  "code_head": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0",
+  "count": 1,
+  "dataset_content_hash": "be89ce28e3c076b76ec34a45f8fbc5e31b7aec48489e3cb3d281bf7d524b57b3",
+  "dataset_repo": "large-traversaal/openbookqa_urdu_final",
+  "dataset_revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+  "items": [
+    {
+      "row_hash": "4a07a8e93255d18dfc92bacca19fcf3405a24618608da84365b2fc97649e0ab4",
+      "source_item_id": "9-74",
+      "split": "train"
+    }
+  ],
+  "label": "PROSPECTIVE POPULATION FREEZE \u2014 NOT AN EXPERIMENT RUN",
+  "replacement_policy": "prohibited",
+  "role": "pilot",
+  "schema_version": "workshop-v1-id-manifest/1",
+  "scientific_outcomes_used": false,
+  "selection_algorithm": "sha256_source_id_v1",
+  "selection_code_hash": "825cefe2d37dea2e89c7d0235bc64b6a69f696b64c4153e829e945fefbccc6c7",
+  "selection_inputs": "source IDs and seed only",
+  "selection_pool": "all validated train/validation/test source IDs",
+  "selection_seed": 20260921
+}

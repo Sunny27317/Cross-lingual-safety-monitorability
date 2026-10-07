@@ -1,0 +1,12 @@
+{
+  "schema_version": "workshop-v1-translated-urdu-judge-authorization/1",
+  "status": "TEMPLATE_NOT_AUTHORIZATION",
+  "authorized": false,
+  "judge_spec_hash": "a8cb84c12821a2352442a25589bf88834b8c87744350ea45c0af0db8f7dfb419",
+  "prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "translation_stage_hash": null,
+  "translated_urdu_tasks": 935,
+  "output_directory": "experiments/_runs/workshop-v1-translated-urdu-judge",
+  "downstream_not_authorized": ["human_annotation", "analysis"],
+  "authorization_text": "I authorize translated-Urdu Falcon Judge V2 evaluation of exactly 935 eligible translated Urdu records after the translation stage is locked. This does not authorize human annotation or analysis."
+}

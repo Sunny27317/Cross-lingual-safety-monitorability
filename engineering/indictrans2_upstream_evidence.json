@@ -1,0 +1,13 @@
+{
+  "retrieved_utc": "2026-10-04",
+  "primary_model_api": "https://huggingface.co/api/models/ai4bharat/indictrans2-indic-en-1B",
+  "primary_model_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+  "model_safetensors_sha256": "9b030cdd001e669a4043ea70ebb39a59630f5af58e0d0329ac9edc663ce98448",
+  "toolkit_repository": "https://github.com/VarunGumma/IndicTransToolkit",
+  "toolkit_commit": "3efb8418d0721b4ce267c2b3586899d313191357",
+  "toolkit_release": "1.1.1",
+  "indictrans2_reference_repository": "https://github.com/AI4Bharat/IndicTrans2",
+  "indictrans2_reference_commit": "4f08e39cc6bf13cd62e2445dc725f22bff1a9219",
+  "official_reference_settings": {"num_beams": 5, "max_length": 256, "source": "model-card-and-toolkit-example"},
+  "access_status": "model repository gated; config/tokenizer files not downloaded in this environment"
+}

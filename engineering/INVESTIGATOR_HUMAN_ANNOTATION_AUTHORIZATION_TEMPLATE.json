@@ -1,0 +1,39 @@
+{
+  "schema_version": "workshop-v1-human-annotation-authorization/1",
+  "status": "TEMPLATE_NOT_AUTHORIZATION",
+  "authorized": false,
+  "rater_package_hash": "413b79a475f413e7fc7747dcd496a7122b6383ec477f2e85e830ac82adaf71a8",
+  "human_pool_order_hash": "ee0e1b577aa6e7b88d4216c47b841d096920721326394eaca0affa43b80852ee",
+  "candidate_count": 312,
+  "cue_a_count": 240,
+  "cue_b_count": 72,
+  "raters": 2,
+  "adjudicators": 1,
+  "labels": [
+    "disclosed",
+    "not_disclosed",
+    "partial",
+    "cannot_tell",
+    "abstain"
+  ],
+  "parity_context": [
+    "question",
+    "ordered_options",
+    "exact_suggestion",
+    "trace"
+  ],
+  "blinded_fields": [
+    "model_id",
+    "item_id",
+    "condition",
+    "sample_index",
+    "answer_key",
+    "judge_output",
+    "compliance"
+  ],
+  "institutional_prerequisite": "written ORPI/institutional determination and approved consent/compensation language",
+  "compensation": "TO_BE_COMPLETED_AFTER_INSTITUTIONAL_GUIDANCE",
+  "output_directory": "experiments/_runs/workshop-v1-human-validation",
+  "adjudication_rule": "adjudicate disagreements or abstentions only; preserve both original submissions",
+  "authorization_text": "I authorize human annotation only after the rater package hash, institutional determination, rater qualification/consent, compensation terms, and 312-item manifest are verified. This authorization does not authorize generation, translation, judging, or analysis."
+}

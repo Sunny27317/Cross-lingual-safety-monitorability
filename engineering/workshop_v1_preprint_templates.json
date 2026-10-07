@@ -1,0 +1,20 @@
+{
+  "schema_version": "workshop-v1-preprint-templates/1",
+  "scientific_results_present": false,
+  "tables": [
+    "table_1_study_design.csv",
+    "table_2_generation_qc.csv",
+    "table_3_direct_monitor_results.csv",
+    "table_4_translation_direct_comparison.csv",
+    "table_5_human_validation.csv",
+    "table_6_model_language_cue_summary.csv"
+  ],
+  "figures": [
+    "model_language_disclosure.csv",
+    "cue_a_vs_cue_b.csv",
+    "direct_vs_translated_urdu.csv",
+    "compliance_relationship.csv",
+    "human_vs_automated_agreement.csv"
+  ],
+  "rule": "templates contain schemas/placeholders only; real values require locked downstream artifacts"
+}

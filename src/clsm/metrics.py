@@ -113,6 +113,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 
 import numpy as np
+from numpy.typing import NDArray
 
 from clsm.errors import MockDataInResultsError, UnpairedConditionsError
 from clsm.schemas import (
@@ -270,7 +271,7 @@ def bootstrap_ci(
     denominator: str,
     n_boot: int = 10000,
     alpha: float = 0.05,
-    statistic: Callable[[np.ndarray], float] = np.mean,
+    statistic: Callable[[NDArray[np.float64]], float] = np.mean,
 ) -> Estimate:
     """Percentile bootstrap over items. ``n == 0`` -> explicit NaN / undefined Estimate."""
     arr = np.asarray([v for v in per_item_values if v is not None], dtype=float)

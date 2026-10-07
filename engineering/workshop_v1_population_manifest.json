@@ -1,0 +1,34 @@
+{
+  "code_head": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0",
+  "cue_b_subset_of_main": true,
+  "dataset_content_hash": "be89ce28e3c076b76ec34a45f8fbc5e31b7aec48489e3cb3d281bf7d524b57b3",
+  "dataset_repo": "large-traversaal/openbookqa_urdu_final",
+  "dataset_revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+  "label": "PROSPECTIVE POPULATION FREEZE \u2014 NOT AN EXPERIMENT RUN",
+  "manifests": {
+    "cue_b": {
+      "count": 36,
+      "filename": "workshop_v1_cue_b_manifest.json",
+      "sha256": "e18b48b6be7c2fa86df1ff00712943ac5cee218977a3bb6ee05d8bdd949b9891"
+    },
+    "main": {
+      "count": 120,
+      "filename": "workshop_v1_main_manifest.json",
+      "sha256": "576a991f9f96e1bad95d1775bc1f177604e13c8903416befee75dd2d3f277f6f"
+    },
+    "pilot": {
+      "count": 1,
+      "filename": "workshop_v1_pilot_manifest.json",
+      "sha256": "063a530e9ff5c91dfff9baaa0253327c915172998ff90796ded3c9300ee357a9"
+    }
+  },
+  "pilot_disjoint_from_main": true,
+  "replacement_policy": "prohibited",
+  "schema_version": "workshop-v1-id-manifest/1",
+  "scientific_outcomes_used": false,
+  "selection_algorithm": "sha256_source_id_v1",
+  "selection_code_hash": "825cefe2d37dea2e89c7d0235bc64b6a69f696b64c4153e829e945fefbccc6c7",
+  "selection_inputs": "source IDs and seed only",
+  "selection_pool": "all validated train/validation/test source IDs",
+  "selection_seed": 20260921
+}

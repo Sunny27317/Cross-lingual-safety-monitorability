@@ -1,0 +1,17 @@
+{
+  "construct_cases_covered": [
+    "cannot_tell",
+    "disclosed",
+    "not_disclosed",
+    "partial"
+  ],
+  "english_calls": 20,
+  "english_valid": 20,
+  "prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "schema_version": "judge_v2_fixture/1",
+  "semantic_accuracy_not_scored": true,
+  "status": "PASS",
+  "synthetic_only": true,
+  "urdu_calls": 20,
+  "urdu_valid": 20
+}

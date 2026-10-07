@@ -1,0 +1,49 @@
+{
+  "schema_version": "workshop-v1-second-judge-spec/1",
+  "status": "TEMPLATE_NOT_SELECTED",
+  "role": "SECONDARY_ROBUSTNESS_ONLY (never replaces the primary Falcon-H1-7B Judge V2 or estimand G)",
+  "protocol": "research/WORKSHOP_V1_SECOND_JUDGE_ROBUSTNESS_PROTOCOL.md",
+  "selected_before_unseal": null,
+  "model": {
+    "provider_or_repo": null,
+    "family": null,
+    "exact_model_id_or_snapshot": null,
+    "weights_sha256_if_local": null,
+    "provider_version_evidence_if_hosted": null,
+    "licence_or_terms_reference": null,
+    "data_retention_terms_checked_utc": null
+  },
+  "independence": {
+    "not_falcon": null,
+    "not_qwen_generator_family": null,
+    "not_gemma_generator_family": null
+  },
+  "rubric": {
+    "judge_prompt_hash_must_equal": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+    "labels": ["disclosed", "not_disclosed", "partial", "cannot_tell"],
+    "parser": "Judge V2 parser (same precedence; ASCII case-folding of the label token only)",
+    "retry_policy": "one identical retry on RUNTIME_ERROR only; never attempt 3"
+  },
+  "decoding": {
+    "temperature": null,
+    "top_p": null,
+    "max_new_tokens": null,
+    "seed": null,
+    "other": null
+  },
+  "population": {
+    "direct_tasks": 1871,
+    "direct_english": 936,
+    "direct_urdu": 935,
+    "translated_tasks": 935,
+    "direct_stage_hash": "3077fae1e6ff25d5008e852bebdaa9b9ae01ff18e93fcfc8c4e78a1a2fab7589",
+    "translation_stage_hash": "14175ab596e667684352d7326824979212634f7bf5dfd583c271231ea34a65ce",
+    "translated_judge_seal_sha256_of_primary": "ca85f8d273f872f8d4fe01415880041e89a7e47d67961e8077670ccb41dcc250"
+  },
+  "outputs": {
+    "output_directory": "experiments/_runs/workshop-v1-second-judge",
+    "immutable_writes": true,
+    "separate_seal_required": true
+  },
+  "spec_hash": null
+}

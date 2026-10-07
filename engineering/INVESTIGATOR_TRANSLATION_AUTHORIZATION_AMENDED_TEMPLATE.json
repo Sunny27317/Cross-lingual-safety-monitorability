@@ -1,0 +1,45 @@
+{
+  "artifact_inventory_sha256": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+  "authorization_text": "I authorize resumption of the Workshop-v1 scientific translation stage for exactly 935 eligible Urdu cued traces (3 attempted-unresolved tasks receiving attempt 3; 932 never-attempted tasks receiving attempt 1) under base translation config hash 74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc, contract amendment D-TR-1..6 hash 3a054e8bac831a1cbbfd25b545c15562bbc76b82824266ba707798e104720dc5, effective translation config hash 106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171, artifact manifest hash 84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd, and task manifest hash 635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d. Translation uses parsed.reasoning_span, batch size 1, num_beams 5, max_length 256, urd_Arab to eng_Latn, structural whitespace and non-Urdu bypass, exact reassembly, and the one-time deterministic re-split rule. Attempts 1 and 2 remain immutable. Run as a single process under the stage lock. Do not inspect scientific outcomes; translated judging is not authorized by this text.",
+  "authorized": false,
+  "direction": {
+    "source": "urd_Arab",
+    "target": "eng_Latn"
+  },
+  "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+  "failure_policy": "preserve failure; whole trace missing if any required chunk cannot complete",
+  "fallback_policy": "facebook/nllb-200-distilled-600M only after documented primary technical failure; no silent substitution",
+  "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "governed_retry": {
+    "next_attempt": 3,
+    "prior_attempts_immutable": true,
+    "tasks_with_prior_failures": 3
+  },
+  "output_directory": "experiments/_runs/workshop-v1-translation",
+  "post_qc": "935 task IDs, lineage, artifact hashes, no truncation, complete chunk reassembly, immutable records",
+  "primary_model": "ai4bharat/indictrans2-indic-en-1B",
+  "primary_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+  "resume_policy": "skip immutable successes; retry only documented technical failures; reject lineage/hash changes",
+  "retry_policy": "governed technical retry only; no selective regeneration",
+  "schema_version": "workshop-v1-translation-authorization/3",
+  "scientific_translation_performed": false,
+  "segmentation": {
+    "boundary_order": [
+      "line",
+      "sentence",
+      "clause",
+      "token"
+    ],
+    "complete_trace_required": true,
+    "max_source_tokens": 200,
+    "silent_truncation": false,
+    "token_counter": "IndicTrans tokenizer with urd_Arab eng_Latn prefix, excluding two marker tokens"
+  },
+  "source_population": "engineering/workshop_v1_translation_task_manifest.json",
+  "source_span": "parsed.reasoning_span",
+  "status": "PROPOSED_NOT_APPROVED",
+  "task_count": 935,
+  "translation_amendment_hash": "3a054e8bac831a1cbbfd25b545c15562bbc76b82824266ba707798e104720dc5",
+  "translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "translation_manifest_sha256": "635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d"
+}

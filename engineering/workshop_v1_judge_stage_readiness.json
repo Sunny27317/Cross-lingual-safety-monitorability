@@ -1,0 +1,31 @@
+{
+  "actual_eligible_plan": {
+    "english_direct": 936,
+    "total_judge": 2806,
+    "translated_urdu": 935,
+    "urdu_direct": 935
+  },
+  "data_kind": "SCIENTIFIC",
+  "format_contract_hash": "6da3ea0c8bc5ec5444c10bfc42a36cc9a0b6d5a1fba320d5ece0ee745524c1be",
+  "format_fixture_required": true,
+  "format_fixture_status": "PASS",
+  "judge_contract_status": "FORMAT_CONTRACT_READY_SCIENTIFIC_EXECUTION_NOT_AUTHORIZED",
+  "judge_spec_hash": "a8cb84c12821a2352442a25589bf88834b8c87744350ea45c0af0db8f7dfb419",
+  "model_config_hash": "145def0b4cd36500bf538ed7ac895b5c1851e02e802b2d1c12ffa6afdbaff25d",
+  "plan": {
+    "english_direct": 936,
+    "plan_hash": "b8a2aef19b4e3bbcfcce0b130868705dc9d76eb01d92217fec78fb31facbc58d",
+    "scientific_execution": false,
+    "total_judge": 2808,
+    "translated_urdu": 936,
+    "translation": 936,
+    "urdu_direct": 936
+  },
+  "prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "ready": false,
+  "rubric_hash": "62605c5c7d4edf89fecc2472657a7c7c259fbcdfe69a2978246f469897bfbdf5",
+  "schema_version": "judge_readiness/1",
+  "scientific_judging_authorized": false,
+  "source_runtime_blocked_tasks": 1,
+  "stage": "judge"
+}

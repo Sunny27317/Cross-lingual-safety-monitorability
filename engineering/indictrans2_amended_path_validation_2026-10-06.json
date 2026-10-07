@@ -1,0 +1,94 @@
+{
+  "bindings": {
+    "artifact_manifest_hash": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+    "current_launcher_sha256": "0c564486d9fcbaedb880120f2b293e0fbd4b4bd982698b5f02ee8e1ae8bb3eaf",
+    "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+    "executed_launcher_sha256": "8f7c241ad048a5982bbf7656ab4627d4588cfb6f5636caee06d0118b5488f9a6",
+    "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+    "task_manifest_hash": "635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d",
+    "tokenizer_files_sha256": {
+      "dict.SRC.json": "3d3b180702520742dec423a5a7f7b4e3dad399d69e40ca7df294a1567884bed5",
+      "model.SRC": "ac9257c8e76b8b607705b959cc3d075656ea33032f7a974e467b8941df6e98d4",
+      "special_tokens_map.json": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+      "tokenization_indictrans.py": "35396cf65b9fdc21379f8bc12cd658eec32fbe5de87a25fa5f4df190c5ffc4e3",
+      "tokenizer_config.json": "89a541bb0984bd9c33d202ac0e781a22e77162b4cb3f2d785711a268cefe92df"
+    },
+    "translation_amendment_hash": "3a054e8bac831a1cbbfd25b545c15562bbc76b82824266ba707798e104720dc5",
+    "translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+    "translation_population_hash": "da4f87b5e0a93ff73fcec4e155072948081af7f386524b5a1432eb67aeecb977",
+    "translation_population_hash_recipe": "sha256 over UTF-8 concatenation of '<filename>\\t<sha256(file bytes)>\\n' for every translation-*.json success record (excluding translation-failure-*), sorted by filename",
+    "translation_py_sha256": "755185ac77f45ef34592221309fabb8f1362878ce5947ae479f161601c6c5951",
+    "validator_sha256": "2ed11aec3b82c0e547c93bf537a9f9e9104a724d41fb136b748fb2c1066d1356"
+  },
+  "checks": [
+    {
+      "check": "synthetic:urdu_two_lines",
+      "failures": [],
+      "status": "PASS",
+      "translate_units": 2,
+      "units": 2
+    },
+    {
+      "check": "synthetic:structural_whitespace",
+      "failures": [],
+      "status": "PASS",
+      "translate_units": 1,
+      "units": 4
+    },
+    {
+      "check": "synthetic:bypass_latin_digits",
+      "failures": [],
+      "status": "PASS",
+      "translate_units": 1,
+      "units": 3
+    },
+    {
+      "check": "synthetic:urdu_punctuation_only",
+      "failures": [],
+      "status": "PASS",
+      "translate_units": 1,
+      "units": 2
+    },
+    {
+      "check": "synthetic:zero_urdu_identity",
+      "failures": [],
+      "status": "PASS",
+      "translate_units": 0,
+      "units": 3
+    },
+    {
+      "check": "synthetic:long_resplit",
+      "failures": [],
+      "status": "PASS",
+      "translate_units": 3,
+      "units": 3
+    },
+    {
+      "check": "replay:completed_success_records",
+      "failing_records": 0,
+      "failures": {},
+      "identity_records": 0,
+      "records": 935,
+      "status": "PASS",
+      "unit_kinds": {
+        "bypass": 8618,
+        "structural": 7927,
+        "translate": 11613
+      }
+    }
+  ],
+  "command": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.amended_path_validation",
+  "created_utc": "2026-10-06T13:37:03.007240+00:00",
+  "immutable": true,
+  "model_loaded": false,
+  "schema_version": "workshop-v1-amended-path-validation/1",
+  "scientific_outcomes_inspected": false,
+  "status": "PASS",
+  "supersedes_for_manuscript": {
+    "note": "historical artifact (not valid JSON; validated the pre-amendment segment_source_chunks path) is retained unchanged",
+    "path": "engineering/indictrans2_segmentation_validation.json",
+    "sha256": "4f3f9f6672d773955ec04eddc4f76995aaaa9e1e2784405e9aa0b53b71e58a98"
+  },
+  "tokenizer_loaded": true,
+  "translation_outputs_modified": false
+}

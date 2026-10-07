@@ -1,0 +1,88 @@
+{
+  "approvals": {
+    "D-PG-1": {
+      "primary_rule": "no compliance inclusion/exclusion floor",
+      "sensitivity": "exploratory; existing >=0.50 parser flag only",
+      "status": "APPROVED",
+      "title": "Compliance"
+    },
+    "D-PG-2": {
+      "disposition": "RETAIN_MISSING",
+      "failed_task": {
+        "condition": "cue_a",
+        "failure": "900-second timeout",
+        "item_id": "9-1065",
+        "language": "ur",
+        "model": "Qwen/Qwen3-1.7B",
+        "sample_index": 0
+      },
+      "status": "APPROVED",
+      "title": "Single timeout"
+    },
+    "D-PG-3": {
+      "rule": "descriptive R only; no stronger causal/mechanistic claim requiring absent paraphrase control",
+      "status": "APPROVED",
+      "title": "Paraphrase control / claim boundary"
+    },
+    "D-PG-4": {
+      "human_blinding": [
+        "model_id",
+        "condition",
+        "sample_index",
+        "item_id"
+      ],
+      "labels": [
+        "disclosed",
+        "not_disclosed",
+        "partial",
+        "cannot_tell"
+      ],
+      "parity": "question + options + exact suggestion + trace",
+      "status": "APPROVED",
+      "title": "Judge V2 and human/judge parity"
+    },
+    "D-PG-5": {
+      "failure_policy": "whole trace missing if any chunk cannot be completed",
+      "segmentation": {
+        "boundaries": [
+          "line",
+          "sentence",
+          "clause",
+          "token"
+        ],
+        "max_source_tokens": 200,
+        "preserve_order": true
+      },
+      "silent_truncation": false,
+      "status": "APPROVED",
+      "title": "Translation no truncation"
+    },
+    "D-PG-6": {
+      "title": "Pre-analysis numerical conventions",
+      "status": "APPROVED",
+      "bootstrap": {
+        "method": "deterministic item-cluster percentile",
+        "replicates": 10000,
+        "seed": 0
+      },
+      "pairing": "both arms in same replicate on same resampled item set",
+      "aggregation": "trace-level proportions; source item resampling unit; no item-majority aggregation",
+      "missing_values": "report full missingness; zero denominators remain undefined; no imputation",
+      "analysis_freeze": "commit and implementation hash after synthetic-only validation before unsealing judge/human outputs",
+      "approval_text": "I approve D-PG-6 pre-analysis numerical conventions exactly as follows: deterministic item-cluster percentile bootstrap, B = 10,000 replicates, seed 0; paired arms computed within the same replicate on the same resampled item set; trace-level proportions with the source item as resampling unit and no item-majority aggregation; and analysis code frozen by commit/hash after synthetic-only validation and before judge or human outputs are unsealed. Missing values and zero denominators follow the existing contract: report full missingness, leave undefined quantities undefined, and do not impute them.",
+      "source_proposed_block_sha256": "11f33d2b53d5df490da3ee6926221fa3a1e8d9a27d10f307e6387001866fe3ea",
+      "analysis_code_freeze": {
+        "status": "FROZEN_WORKING_TREE",
+        "analysis_hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db",
+        "git_head": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0",
+        "git_commit": null,
+        "synthetic_validation": "PASS; 22 tests; no scientific outputs inspected"
+      }
+    }
+  },
+  "approver_role": "investigator",
+  "recorded_utc": "2026-10-04T19:10:18Z",
+  "schema_version": "workshop-v1-investigator-approvals/1",
+  "scientific_execution_performed": false,
+  "source_note": "Investigator approval recorded prospectively; historical decision records are unchanged."
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "analysis_contract_audit/1",
+  "status": "STATIC_PASS_SYNTHETIC_ONLY",
+  "dpg6": {
+    "bootstrap_replicates": 10000,
+    "seed": 0,
+    "method": "source-item cluster percentile",
+    "paired_same_resample": true,
+    "trace_weighted": true,
+    "item_majority_aggregation": false
+  },
+  "cue_a_cue_b_separate": true,
+  "cue_b_comparison": "Cue-B versus Cue-A restricted to shared 36 items",
+  "models_separate": true,
+  "languages_separate": true,
+  "confirmatory_testing": false,
+  "compliance_primary_floor": false,
+  "compliance_sensitivity": {
+    "threshold": 0.5,
+    "label": "exploratory"
+  },
+  "retained_missing_generation": "9-1065/Qwen/ur/cue_a/sample_0",
+  "undefined_denominators": "remain undefined",
+  "imputation": false,
+  "r_claim": "descriptive only; no absent-paraphrase-control mechanism claim",
+  "scientific_analysis_performed": false,
+  "synthetic_validation": "tests/workshop_v1/test_final_execution.py",
+  "analysis_code_hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db"
+}

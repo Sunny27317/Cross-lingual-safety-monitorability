@@ -1,0 +1,104 @@
+{
+  "approved_no_truncation_policy": {
+    "boundary_order": [
+      "line",
+      "sentence",
+      "clause",
+      "token"
+    ],
+    "chunk_failure": "whole trace failed/missing; no partial scientific trace",
+    "chunk_metadata": [
+      "index",
+      "source_token_count",
+      "boundary_level",
+      "text_hash"
+    ],
+    "max_source_tokens": 200,
+    "preserve_source_order": true,
+    "reassemble_in_original_order": true,
+    "segmentation_implementation": "clsm.workshop_v1.translation.segment_source_chunks",
+    "silent_truncation": false
+  },
+  "artifact_inventory": "engineering/indictrans2_artifact_inventory.json",
+  "fallback": {
+    "activation": "only after documented technical failure of primary; no silent per-item substitution",
+    "model_id": "facebook/nllb-200-distilled-600M",
+    "revision": null,
+    "status": "GOVERNED_PRIMARY_FAILURE_ONLY_NOT_IN_USE"
+  },
+  "population": {
+    "eligible_tasks": 935,
+    "generation_failures_excluded": [
+      "9-1065"
+    ],
+    "source": "engineering/workshop_v1_translation_manifest.json"
+  },
+  "primary": {
+    "artifact_file_count": 16,
+    "artifact_inventory_sha256": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+    "backend": "Transformers AutoModelForSeq2SeqLM with trust_remote_code=True",
+    "batch_size": 1,
+    "config_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+    "config_sha256": "a9161fba84df4a365188f17551affe1152444a7825b74689f33e389ad9cdacf6",
+    "decoding": {
+      "max_length": 256,
+      "min_length": 0,
+      "num_beams": 5,
+      "num_return_sequences": 1,
+      "use_cache": true
+    },
+    "deterministic_settings": "beam search; no sampling; CPU float32; pinned runtime versions",
+    "device": "cpu",
+    "dtype": "torch.float32",
+    "huggingface_hub_version": "0.36.2",
+    "indic_nlp_library_itt_version": "0.1.1",
+    "indictrans2_reference_repo_commit": "4f08e39cc6bf13cd62e2445dc725f22bff1a9219",
+    "indictrans_toolkit_commit": "3efb8418d0721b4ce267c2b3586899d313191357",
+    "indictrans_toolkit_version": "1.1.1",
+    "model_id": "ai4bharat/indictrans2-indic-en-1B",
+    "model_safetensors_bytes": 4092117552,
+    "model_safetensors_sha256": "9b030cdd001e669a4043ea70ebb39a59630f5af58e0d0329ac9edc663ce98448",
+    "postprocessing": "IndicProcessor.postprocess_batch(decoded, lang='eng_Latn')",
+    "preprocessing": "IndicProcessor(inference=True).preprocess_batch(..., src_lang='urd_Arab', tgt_lang='eng_Latn', visualize=False)",
+    "pytorch_version": "2.6.0",
+    "revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+    "revision_source": "Hugging Face model API observed 2026-10-04",
+    "sacremoses_version": "0.2.0",
+    "sentencepiece_version": "0.2.2",
+    "source_language": "urd_Arab",
+    "source_token_accounting": "IndicTrans tokenizer encode('urd_Arab eng_Latn ' + text) minus two language-marker tokens",
+    "target_language": "eng_Latn",
+    "tokenizer_files_sha256": {
+      "dict.SRC.json": "3d3b180702520742dec423a5a7f7b4e3dad399d69e40ca7df294a1567884bed5",
+      "dict.TGT.json": "13c3a162fe655dbe99c790a413675c5d0634cd771fadcefe8d407676a7d1a311",
+      "model.SRC": "ac9257c8e76b8b607705b959cc3d075656ea33032f7a974e467b8941df6e98d4",
+      "model.TGT": "3cedc5cbcc740369b76201942a0f096fec7287fee039b55bdb956f301235b914",
+      "special_tokens_map.json": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+      "tokenization_indictrans.py": "35396cf65b9fdc21379f8bc12cd658eec32fbe5de87a25fa5f4df190c5ffc4e3",
+      "tokenizer_config.json": "89a541bb0984bd9c33d202ac0e781a22e77162b4cb3f2d785711a268cefe92df"
+    },
+    "tokenizer_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+    "tokenizers_version": "0.21.1",
+    "transformers_version": "4.51.3"
+  },
+  "resume": {
+    "cache_path": "experiments/_runs/workshop-v1-translation",
+    "duplicate_prevention": true,
+    "policy": "immutable per-translation-task checkpoint; skip immutable success; retry only documented technical failure"
+  },
+  "schema_version": "workshop-v1-translator-contract/3",
+  "scientific_translation_performed": false,
+  "status": "FROZEN",
+  "synthetic_validation": {
+    "device": "cpu",
+    "dtype": "torch.float32",
+    "model_load": "PASS",
+    "no_silent_truncation": "PASS",
+    "segmentation": "PASS",
+    "segmentation_artifact": "engineering/indictrans2_segmentation_validation.json",
+    "smoke_artifact": "engineering/indictrans2_synthetic_smoke_result.json",
+    "translation": "PASS"
+  },
+  "translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "unresolved": []
+}

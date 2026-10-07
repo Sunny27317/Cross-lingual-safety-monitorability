@@ -1,0 +1,14 @@
+{
+  "schema_version": "workshop-v1-orpi-request-record/1",
+  "record_type": "investigator_reported_event",
+  "event": "ORPI determination request email sent",
+  "reported_by": "investigator",
+  "reported_utc_date": "2026-10-04",
+  "sent_date": "on or before 2026-10-04 (exact send time not provided)",
+  "recipient_per_package": "crunden@charlotte.edu",
+  "text_source": "docs/ORPI_DETERMINATION_PACKAGE.md section 1 (final email); the exact sent text, including the filled name/department/supervisor fields, is not stored in the repository",
+  "determination_received": false,
+  "recruitment_started": false,
+  "annotation_started": false,
+  "note": "Save ORPI's written reply verbatim in this directory with its date and SHA-256 when received. Optionally also save a copy of the sent email."
+}

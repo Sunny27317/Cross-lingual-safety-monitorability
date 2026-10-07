@@ -1,0 +1,14 @@
+{
+  "analysis_stage_hash": null,
+  "analysis_status": "READY_AWAITING_DOWNSTREAM_ARTIFACTS",
+  "final_status": "NOT_READY",
+  "final_whole_study_hash": null,
+  "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "generation_status": "LOCKED",
+  "human_stage_hash": null,
+  "human_status": "READY_AWAITING_INSTITUTIONAL_AUTHORIZATION",
+  "judge_stage_hash": "3077fae1e6ff25d5008e852bebdaa9b9ae01ff18e93fcfc8c4e78a1a2fab7589",
+  "judge_status": "LOCKED_TECHNICAL_QC_NO_LABEL_DISTRIBUTION_INSPECTION",
+  "translation_stage_hash": null,
+  "translation_status": "NOT_READY"
+}

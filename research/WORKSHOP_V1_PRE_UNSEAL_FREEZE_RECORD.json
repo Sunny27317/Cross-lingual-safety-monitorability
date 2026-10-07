@@ -1,0 +1,16 @@
+{
+  "schema_version": "workshop-v1-pre-unseal-freeze/1",
+  "status": "READY_BEFORE_DIRECT_JUDGE_UNSEAL",
+  "scientific_results_inspected": false,
+  "governance": ["D-PG-1", "D-PG-2", "D-PG-3", "D-PG-4", "D-PG-5", "D-PG-6"],
+  "analysis_implementation_hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db",
+  "judge_prompt_hash": "050ed49289b435ed84ab565dcca000cafd4554de3c11230edc2fe56d29844984",
+  "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "human_package_order": "lexicographic blind_id; 312 items; 240 Cue-A; 72 Cue-B",
+  "missingness_policy": "retain 9-1065 missing; undefined denominators remain undefined; no imputation",
+  "cue_grouping": "Cue-A and Cue-B remain separate; Cue-B comparisons use shared 36 items",
+  "compliance_policy": "no primary floor; existing >=0.50 flag only for exploratory sensitivity",
+  "analysis_code_synthetic_validation": "PASS",
+  "direct_judge_post_qc_pending": true,
+  "downstream_stage_hashes_pending": true
+}

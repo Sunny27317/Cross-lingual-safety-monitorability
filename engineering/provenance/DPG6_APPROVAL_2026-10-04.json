@@ -1,0 +1,11 @@
+{
+  "schema_version": "workshop-v1-dpg6-approval/1",
+  "decision_id": "D-PG-6",
+  "status": "APPROVED",
+  "approver_role": "investigator",
+  "recorded_utc": "2026-10-04T19:10:18Z",
+  "approval_text": "I approve D-PG-6 pre-analysis numerical conventions exactly as follows: deterministic item-cluster percentile bootstrap, B = 10,000 replicates, seed 0; paired arms computed within the same replicate on the same resampled item set; trace-level proportions with the source item as resampling unit and no item-majority aggregation; and analysis code frozen by commit/hash after synthetic-only validation and before judge or human outputs are unsealed. Missing values and zero denominators follow the existing contract: report full missingness, leave undefined quantities undefined, and do not impute them.",
+  "source_proposed_block": "research/WORKSHOP_V1_DPG6_APPROVAL_BLOCK.md",
+  "source_proposed_block_sha256": "11f33d2b53d5df490da3ee6926221fa3a1e8d9a27d10f307e6387001866fe3ea",
+  "scientific_outputs_inspected_before_approval": false
+}

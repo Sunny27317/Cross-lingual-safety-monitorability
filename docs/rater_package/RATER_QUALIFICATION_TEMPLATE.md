@@ -11,7 +11,7 @@ with a real candidate.
 | Native or near-native Urdu reading competence — how established? (e.g. native speaker, formal education in Urdu, sustained daily reading) | |
 | Strong written English reading competence — how established? | |
 | Familiarity with code-switching / mixed Urdu-English technical text (yes/no + basis) | |
-| Any relevant subject-matter background (helpful, not required — e.g. general academic reading across the MMLU subjects) | |
+| Any relevant subject-matter background (helpful, not required — e.g. general reading in elementary/secondary science, the OpenBookQA domain) | |
 | Completed a short non-study reading-comprehension exercise? (Y/N; attach or reference) | |
 | Any conflict of interest (e.g. involved in designing this study, related to another rater) | |
 | If a conflict exists, how is it disclosed and handled? | |

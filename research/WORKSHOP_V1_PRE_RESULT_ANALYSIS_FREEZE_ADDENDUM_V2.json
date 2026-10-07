@@ -1,0 +1,54 @@
+{
+  "schema_version": "workshop-v1-pre-result-analysis-freeze-addendum/2",
+  "status": "FROZEN_PENDING_RESULT_UNSEAL",
+  "created_utc": "2026-10-06T13:50:07Z",
+  "supersedes": {
+    "path": "research/WORKSHOP_V1_PRE_RESULT_ANALYSIS_FREEZE_ADDENDUM.json",
+    "sha256": "8f06801d91c52ccca17fec8ee61456adf4454f212ad1675377d8dc28309f2000",
+    "retained_unchanged": true,
+    "why_superseded": [
+      "The analysis-input builder changed after addendum v1 (builder 03cbf0c3... -> b2c072c2...). It now emits one row per judge task, merges .retry-2.json into its task, and selects the terminal attempt deterministically. It persists translation-identity and stage provenance on translated rows.",
+      "Addendum v1 recorded analysis_input_layer_sha256 = b9619e2b... without a recipe. Under the canonical recipe below, v1's own component hashes (contract d6c88f6b..., builder 03cbf0c3...) give 015a8752df1f..., not b9619e2b.... The v1 value cannot be reproduced, so it is not relied on."
+    ]
+  },
+  "scientific_results_inspected": false,
+  "real_outputs_processed": false,
+  "builder_run_on_real_data": false,
+  "scientific_plan_changed": false,
+  "statement": "Engineering-only addendum. The statistical plan, D-PG-1 to D-PG-6, the estimands, sensitivity analyses S1 to S5, the frozen analysis code (1671bc3c...), and all inclusion rules are unchanged. This addendum does not claim the builder was part of the original 2026-10-04 analysis-code freeze.",
+  "scope": {
+    "builder": "src/clsm/workshop_v1/post_translation_pipeline.py",
+    "contract": "engineering/workshop_v1_analysis_contract.json",
+    "row_rule": "One row per judge task. Files named judge-<id>.json are primary observations; judge-<id>.retry-2.json merges into the same task. The terminal attempt is the one with the highest attempt number (ties: last listed). Orphan retries, duplicates, filename/task-ID mismatches and retry/primary task-lineage mismatches go to technical_errors and never become rows. Unreadable observations go to technical_errors; non-judge JSON files go to ignored_files. Nothing is dropped silently.",
+    "translated_row_provenance": [
+      "translation_identity",
+      "translation_changed",
+      "identity_translation_reason",
+      "translation_stage_hash",
+      "effective_translation_config_hash",
+      "translation_record_sha256"
+    ]
+  },
+  "hashes": {
+    "builder_sha256": "b2c072c285ed1a4bea5cf937f44a859d5ff98700543090dcc9f4642da69d7faf",
+    "contract_sha256": "d6c88f6bc8fc15456dc85272cdffd8abfb212ccdcc77a9ad38484708036e3276",
+    "analysis_input_layer_sha256": "fa723a3f8537b48bf6578b4bb42243f7637318d7674d13e49e0a9e541add6604",
+    "analysis_input_layer_recipe": "sha256 over the UTF-8 concatenation of '<repo-relative path>\\t<sha256(file bytes)>\\n' for each path in ANALYSIS_INPUT_LAYER_FILES = [engineering/workshop_v1_analysis_contract.json, src/clsm/workshop_v1/post_translation_pipeline.py], sorted by path; bytes hashed as stored",
+    "recipe_implementation": "clsm.workshop_v1.post_translation_pipeline.analysis_input_layer_sha256"
+  },
+  "synthetic_validation": {
+    "fixtures": [
+      "tests/workshop_v1/test_post_translation_pipeline.py",
+      "tests/workshop_v1/test_canonical_seal_gate.py"
+    ],
+    "checks": [
+      "byte-identical output across two runs",
+      "retry merges into one row; terminal attempt = attempt 2",
+      "orphan retry, retry task mismatch and filename/task mismatch are technical errors, not rows",
+      "six synthetic identity translations remain distinguishable downstream (identity, changed, reason, stage hash, effective hash)",
+      "malformed judge observation in technical_errors; non-judge file in ignored_files",
+      "analysis_input_layer_sha256 reproduced independently from the recipe, invariant to checkout location, sensitive to any byte change"
+    ],
+    "pytest_result": "PASS (tests/workshop_v1: 392 passed, 2026-10-06)"
+  }
+}

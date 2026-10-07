@@ -1,0 +1,199 @@
+{
+  "code_head": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0",
+  "count": 36,
+  "dataset_content_hash": "be89ce28e3c076b76ec34a45f8fbc5e31b7aec48489e3cb3d281bf7d524b57b3",
+  "dataset_repo": "large-traversaal/openbookqa_urdu_final",
+  "dataset_revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+  "items": [
+    {
+      "row_hash": "88d7bd0dfc1151ecf8bbc1e3fc81e733580b8e30e4cc80c52d79f04d0353267f",
+      "source_item_id": "370",
+      "split": "train"
+    },
+    {
+      "row_hash": "3a1d0719a59b9e05ca68bf9947d81feb42e1d8ac2a113586d37a1efadb6b670d",
+      "source_item_id": "7-774",
+      "split": "train"
+    },
+    {
+      "row_hash": "1b9b7d5157199d5292ebd7009a810e09c3e349da4124504da001449d51dd61d7",
+      "source_item_id": "14-518",
+      "split": "train"
+    },
+    {
+      "row_hash": "f99c68b54f6a932ccafd4a97ce19482f9ca34a4a79199d9444e0e146fb0018c3",
+      "source_item_id": "9-759",
+      "split": "test"
+    },
+    {
+      "row_hash": "da79967fa3e532af713855750c068c0ad12614aaeb9177e83163ca93f8480b4a",
+      "source_item_id": "383",
+      "split": "train"
+    },
+    {
+      "row_hash": "f48328859ad5f4b4e3bf486fea9cb5c61f798c0753e56fdbe6f8440caf89f910",
+      "source_item_id": "13-1025",
+      "split": "train"
+    },
+    {
+      "row_hash": "59f027096097ed8f50748dbe50d18d580ead85b957733e35913a59b05b066881",
+      "source_item_id": "13-543",
+      "split": "train"
+    },
+    {
+      "row_hash": "a269c4d09e352133cbf2c3bfa94e543b273b8797e654ceac68f216db5a1eb22d",
+      "source_item_id": "10-501",
+      "split": "train"
+    },
+    {
+      "row_hash": "fe4c88b2d4f5d2e7e4176b9428171585a32c19de8b4395ddd8ea02118efc7225",
+      "source_item_id": "12-706",
+      "split": "train"
+    },
+    {
+      "row_hash": "447e3b7c764b6d86dc855f62e32dcc198e8c50b0d47897bd0d16d81e61e567c8",
+      "source_item_id": "14-702",
+      "split": "train"
+    },
+    {
+      "row_hash": "57b399ada5f195b046d0a792edcb8b4ed7aaa10ad833cebcf69a9b379be0fb85",
+      "source_item_id": "13-146",
+      "split": "train"
+    },
+    {
+      "row_hash": "418f44136cb6c0ec30d04ca5c555f4c9f00436eec0ab88a3cc4ead8bc39edbaf",
+      "source_item_id": "105",
+      "split": "train"
+    },
+    {
+      "row_hash": "3fef1074aa7c7273f4c3472a4387b75a41b6d076423e97677b96867b9144499c",
+      "source_item_id": "9-84",
+      "split": "validation"
+    },
+    {
+      "row_hash": "26fd692e975055ee4a3582d5f1e508ef7f117ef87c1a8f574a5008c0133950af",
+      "source_item_id": "12-118",
+      "split": "train"
+    },
+    {
+      "row_hash": "37258e9d6ae0ffd609348f850bb9fe4f12c4c5a9e12b9c57ce7997190974ec7f",
+      "source_item_id": "1432",
+      "split": "train"
+    },
+    {
+      "row_hash": "167b568ca278a72a6add97c05d14bc31772ddca7756d69e6315093dc98baf071",
+      "source_item_id": "13-219",
+      "split": "train"
+    },
+    {
+      "row_hash": "d258df053263af78fb1b52e11c75cfda4f5607207d8f235610a996cb86d7938c",
+      "source_item_id": "13-40",
+      "split": "train"
+    },
+    {
+      "row_hash": "9bf023c5ca637d559c49eb2b27b5746859221703325b6a8bf6ed971cdaabbbe0",
+      "source_item_id": "13-958",
+      "split": "train"
+    },
+    {
+      "row_hash": "05791d17d15a4a6f6680b82eac512df13ca3e2e329e64564645d941d5e01dabd",
+      "source_item_id": "12-404",
+      "split": "train"
+    },
+    {
+      "row_hash": "99c88625d2fd983ce55a97e0b622bedf46acca5edd8ae0685e53d85e896e92d5",
+      "source_item_id": "7-901",
+      "split": "train"
+    },
+    {
+      "row_hash": "ede707e985061bf602d4422eee5ae0b36c1d7685553e2088f187c55b99369804",
+      "source_item_id": "13-1053",
+      "split": "train"
+    },
+    {
+      "row_hash": "7b4943688a44504dcb41356578af529e7fb723857da15aa25b214c76bfe5d5a6",
+      "source_item_id": "9-1098",
+      "split": "validation"
+    },
+    {
+      "row_hash": "ee64792f67772cd2c49c1dcfde1ef7646f04421409d588ba4d915e5ceaea65de",
+      "source_item_id": "9-92",
+      "split": "train"
+    },
+    {
+      "row_hash": "a6693b510109bd778be55fb025f36b583171de6974ff9c1181b203f962625a39",
+      "source_item_id": "7-555",
+      "split": "train"
+    },
+    {
+      "row_hash": "b9cdfdd9e5f85697a721b778862e364094b001c54a80c3616ba0cc36889ca90d",
+      "source_item_id": "12-227",
+      "split": "train"
+    },
+    {
+      "row_hash": "0b29cc466d9b3218fce001808fe8bec13c632d491f9bd4e6f8c6525052c455bc",
+      "source_item_id": "9-1005",
+      "split": "validation"
+    },
+    {
+      "row_hash": "3971d6ab7dd41b7ac95ce83b3c7aabb008c83805df8e08cb2aee7c0051f10000",
+      "source_item_id": "8-98",
+      "split": "validation"
+    },
+    {
+      "row_hash": "bc3719ab0f3d0724a0edac1cebc644488cea4554490538900f4cf387d1ecb420",
+      "source_item_id": "14-445",
+      "split": "train"
+    },
+    {
+      "row_hash": "8ef5101cd4e6055fed69b56f9b0888b04746f80ed04067958a12246d138ec8ce",
+      "source_item_id": "12-732",
+      "split": "train"
+    },
+    {
+      "row_hash": "87d2c8068e3b47a244c6a015c252b86f9e6b9df53819f11556af524ae9adcdc3",
+      "source_item_id": "578",
+      "split": "train"
+    },
+    {
+      "row_hash": "2d8380bdd241b79810f62b1077bab6d780dc71506c0a28e24ed2ba0734cc4bfa",
+      "source_item_id": "12-988",
+      "split": "train"
+    },
+    {
+      "row_hash": "5dde9e5a444c555cab24385fcc01b4dcb226ce96f29f3f6ce6139e4fd59dee45",
+      "source_item_id": "14-1225",
+      "split": "train"
+    },
+    {
+      "row_hash": "b1ccce64787bbf67afddf0e56fa28abbfe23a408265671b8f8ff1b3d931cd5d2",
+      "source_item_id": "14-1499",
+      "split": "train"
+    },
+    {
+      "row_hash": "3d1186f66aa029ff46d095f0eeae924b687ef5e39534691ab555fb025e8aadad",
+      "source_item_id": "12-647",
+      "split": "train"
+    },
+    {
+      "row_hash": "37667849c3648d904a74e9ac6bb8943bcf496b51a84b62514be538068b13f68e",
+      "source_item_id": "14-263",
+      "split": "train"
+    },
+    {
+      "row_hash": "eb7817b65b8a46144983d9060ae6f32e108a8a784e6c2ddbbfb97bc52daf2976",
+      "source_item_id": "14-720",
+      "split": "train"
+    }
+  ],
+  "label": "PROSPECTIVE POPULATION FREEZE \u2014 NOT AN EXPERIMENT RUN",
+  "replacement_policy": "prohibited",
+  "role": "cue_b",
+  "schema_version": "workshop-v1-id-manifest/1",
+  "scientific_outcomes_used": false,
+  "selection_algorithm": "sha256_source_id_v1",
+  "selection_code_hash": "825cefe2d37dea2e89c7d0235bc64b6a69f696b64c4153e829e945fefbccc6c7",
+  "selection_inputs": "source IDs and seed only",
+  "selection_pool": "all validated train/validation/test source IDs",
+  "selection_seed": 20260921
+}

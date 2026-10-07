@@ -1,0 +1,21 @@
+{
+  "protocol_version": "workshop-v1/protocol-amendment-1-provisional",
+  "scientific_execution_authorized": false,
+  "mapping": {
+    "GENERATOR_PILOT": {"status": "COMPLETED_ORIGINAL_ONLY", "stage_gates": []},
+    "MAIN_GENERATION": {"status": "BLOCKED", "stage_gates": ["G7_URDU_EQUIVALENCE", "G8_URDU_AUTHORIZATION", "G11_CONFIRMATORY_AUTHORIZATION"]},
+    "TRANSLATION": {"status": "BLOCKED", "stage_gates": ["G9_TRANSLATION_AUTHORIZATION"]},
+    "DIRECT_JUDGE": {"status": "BLOCKED", "stage_gates": ["G5_JUDGE_CRITERIA", "G6_JUDGE_CALIBRATION"]},
+    "TRANSLATED_JUDGE": {"status": "BLOCKED", "stage_gates": ["G5_JUDGE_CRITERIA", "G6_JUDGE_CALIBRATION", "G9_TRANSLATION_AUTHORIZATION"]},
+    "HUMAN_ANNOTATION": {"status": "BLOCKED", "stage_gates": ["G1_ETHICS", "G2_REFERENCE_PROTOCOL", "G3_RATER_RECRUITMENT", "G4_REFERENCE_LOCKED"]},
+    "ANALYSIS": {"status": "BLOCKED", "stage_gates": ["G12_FINAL_ANALYSIS"]}
+  },
+  "pending_non_ledger_governance": [
+    "NATIVE_LANGUAGE_INSTRUCTION_REVIEW_PENDING",
+    "NATIVE_CUE_EQUIVALENCE_PENDING",
+    "ITEM_EQUIVALENCE_PENDING",
+    "HUMAN_AUTHORIZATION_PENDING",
+    "FALCON_CASE_NORMALIZATION_GOVERNANCE_PENDING"
+  ],
+  "approvals": []
+}

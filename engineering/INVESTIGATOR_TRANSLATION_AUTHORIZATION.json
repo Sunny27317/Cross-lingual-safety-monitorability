@@ -1,0 +1,37 @@
+{
+  "schema_version": "workshop-v1-translation-authorization/2",
+  "status": "APPROVED",
+  "authorized": true,
+  "authorization_text": "I authorize the Workshop-v1 scientific translation stage for exactly 935 eligible Urdu cued traces under translation config hash 74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc and artifact manifest hash 84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd, using the frozen failure, retry, segmentation, and fallback policies. Do not modify the contract or inspect scientific outcomes.",
+  "task_count": 935,
+  "source_population": "engineering/workshop_v1_translation_task_manifest.json",
+  "translation_manifest_sha256": "635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d",
+  "generation_stage_hash": "7b00e996320ccb76571b2a9af5723940eee084aa07b4097ec7b9ceba51ce0fec",
+  "translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+  "artifact_inventory_sha256": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+  "primary_model": "ai4bharat/indictrans2-indic-en-1B",
+  "primary_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+  "direction": {
+    "source": "urd_Arab",
+    "target": "eng_Latn"
+  },
+  "segmentation": {
+    "boundary_order": [
+      "line",
+      "sentence",
+      "clause",
+      "token"
+    ],
+    "max_source_tokens": 200,
+    "token_counter": "IndicTrans tokenizer with urd_Arab eng_Latn prefix, excluding two marker tokens",
+    "silent_truncation": false,
+    "complete_trace_required": true
+  },
+  "retry_policy": "governed technical retry only; no selective regeneration",
+  "failure_policy": "preserve failure; whole trace missing if any required chunk cannot complete",
+  "fallback_policy": "facebook/nllb-200-distilled-600M only after documented primary technical failure; no silent substitution",
+  "output_directory": "experiments/_runs/workshop-v1-translation",
+  "resume_policy": "skip immutable successes; retry only documented technical failures; reject lineage/hash changes",
+  "post_qc": "935 task IDs, lineage, artifact hashes, no truncation, complete chunk reassembly, immutable records",
+  "scientific_translation_performed": false
+}

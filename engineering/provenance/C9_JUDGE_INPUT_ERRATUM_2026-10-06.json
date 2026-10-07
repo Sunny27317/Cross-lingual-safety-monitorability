@@ -1,0 +1,35 @@
+{
+  "schema_version": "workshop-v1-erratum/1",
+  "erratum_id": "C9",
+  "created_utc": "2026-10-06T13:50:07Z",
+  "type": "documentation erratum (no change to code, data, or executed behavior)",
+  "historical_claim": {
+    "path": "/Users/sullah1/clsm-claude/research/JUDGE_GOVERNANCE_RECORD.md (Claude-side worktree, research/workshop-v1-scientific; file untracked there)",
+    "sha256": "71c07d9397af800f20b3b373c75f8ae0a3437dba376d5713acbb63f10e83d41e",
+    "section": "3. What the judge sees / does not see",
+    "quote": "the visible reasoning trace (or its English translation, for `T`); the English canonical question, four options, and the exact suggestion sentence as it appeared in that trace's condition",
+    "retained_unchanged": true
+  },
+  "correction": "The implemented judge does not use an English canonical question or options for Urdu traces. Direct judging recovers the question, the four options and the exact suggestion sentence from that trace's own generation prompt, so for Urdu traces these are the Urdu question, Urdu options and Urdu suggestion. Translated judging (T) reuses exactly the same Urdu question, options and suggestion and replaces only the trace with its English translation. This is D-PG-4 parity: D_ur and T differ only in the trace.",
+  "authoritative_sources": [
+    {
+      "path": "src/clsm/workshop_v1/direct_judge_launcher.py",
+      "function": "_judge_inputs",
+      "sha256": "0a97be6251a22ae3c6a5700296479b67eedff102e6755f2a5b76b04b6c8666d8"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translated_judge_launcher.py",
+      "function": "execute (calls _judge_inputs on the source Urdu generation; validate_task_context enforces that only the trace differs)",
+      "sha256": "6bc4447d4c87f7b1d7f087b407cc8674112d2d467644fbb0ef44d00721ef34d3"
+    },
+    {
+      "path": "src/clsm/workshop_v1/translated_context.py",
+      "function": "validate_translated_context"
+    },
+    {
+      "path": "paper/WORKSHOP_V1_PREPRINT.md",
+      "section": "Methods 4.6 (states the implemented behavior)"
+    }
+  ],
+  "impact": "None on executed stages. The direct judge ran (sealed 3077fae1...) with the implemented behavior, and translated judging has not run. The manuscript describes the implemented behavior; list this erratum in Appendix J."
+}

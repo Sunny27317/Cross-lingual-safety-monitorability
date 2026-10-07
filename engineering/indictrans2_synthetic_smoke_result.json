@@ -1,0 +1,10 @@
+{
+  "status": "SYNTHETIC_TRANSLATION_PASS",
+  "synthetic_only": true,
+  "device": "cpu",
+  "dtype": "torch.float32",
+  "chunks": 2,
+  "source_token_counts": [6, 18],
+  "output_count": 2,
+  "scientific_translation_performed": false
+}

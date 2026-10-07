@@ -1,0 +1,20 @@
+{
+  "schema_version": "workshop-v1-amna-training-review-canonical/1",
+  "status": "VERBAL_ONLY_SYNTHETIC_TRAINING",
+  "reviewer": "Amna Anwar Riaz",
+  "scope": "16 synthetic Urdu rater-training examples; no scientific traces",
+  "outcome": "same meaning confirmed for all 16",
+  "review_mode": "investigator_recorded_verbal_confirmation",
+  "written_or_signed_form": false,
+  "scientific_outputs_reviewed": false,
+  "training_file": "docs/rater_package/URDU_TRAINING_EXAMPLES_NATIVE_REVIEW.md",
+  "training_file_sha256": "89b5f3b98914e6a43432361b26ec6bd96228ce2dc77e4c58cd5f25b0f7555e78",
+  "source_records": [
+    {"path": "engineering/provenance/AMNA_TRAINING_EXAMPLES_VERBAL_REVIEW_2026-10-04.json", "status": "superseded"},
+    {"path": "engineering/provenance/AMNA_URDU_TRAINING_VERBAL_REVIEW_2026-10-04.json", "status": "superseded"}
+  ],
+  "retained_history": [
+    "engineering/provenance/AMNA_TELEPHONE_CLARIFICATION_2026-10-01.json"
+  ],
+  "note": "Superseded records are preserved; no underlying review form was modified."
+}

@@ -1,0 +1,8 @@
+{
+  "contract": "engineering/indictrans2_final_contract.json",
+  "manifest": "engineering/workshop_v1_translation_manifest.json",
+  "model_revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+  "scientific_translation_authorized": false,
+  "status": "PROVISIONAL_NOT_EXECUTABLE",
+  "translation_config_hash": "4ef0a4de36c7ce4b58a4fda1877be30c9755d526e7e82340b8dc784edccfeaf2"
+}

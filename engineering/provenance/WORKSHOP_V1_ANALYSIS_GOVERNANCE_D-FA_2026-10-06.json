@@ -1,0 +1,99 @@
+{
+  "schema_version": "workshop-v1-analysis-governance/1",
+  "record_type": "investigator decisions D-FA-1 to D-FA-5 (final analysis freeze)",
+  "decided_by": "investigator (Sana Ullah)",
+  "decision_date": "2026-10-06",
+  "recorded_by": "Claude Code, at the investigator's written instruction of 2026-10-06",
+  "result_blind": {
+    "scientific_judge_labels_inspected": false,
+    "human_labels_exist": false,
+    "translated_outputs_inspected": false,
+    "result_distributions_inspected": false,
+    "statement": "Every decision below was taken without inspecting any judge label, human label, translated output or result distribution. The translated-judge run was live and was not touched."
+  },
+  "D-FA-1": {
+    "title": "Recovered analysis plan",
+    "status": "APPROVED",
+    "canonical_plan": {
+      "path": "research/frozen_sources/ANALYSIS_PLAN_FREEZE.md",
+      "sha256": "6615dd7dc189caf517dd41680d644bcc6675720d1bc5332420219ccf5aad482f",
+      "import_record": "research/frozen_sources/PROVENANCE.json"
+    },
+    "authority_hierarchy": [
+      "1. research/frozen_sources/ANALYSIS_PLAN_FREEZE.md (sha256 6615dd7d...)",
+      "2. D-PG-1 to D-PG-6 (engineering/provenance/INVESTIGATOR_DOWNSTREAM_APPROVALS_2026-10-04.json; engineering/provenance/DPG6_APPROVAL_2026-10-04.json), overriding conflicting earlier plan text",
+      "3. Records A and B (engineering/provenance/C1_IDENTITY_TRANSLATION_DECISION_2026-10-06.json; research/WORKSHOP_V1_PRE_RESULT_IDENTITY_ROBUSTNESS_ADDENDUM.json)",
+      "4. docs/rater_package/AGREEMENT_REPORTING.md (frozen agreement-reporting specification)",
+      "5. research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md, locked by D-FA-2 (sha256 ac28af75...)"
+    ],
+    "not_authority": "Divergent copies of literature/DECISION_LOG.md are not analysis authority.",
+    "date_provenance": {
+      "statement": "Dates such as 2026-10-13 and 2026-10-15 in the recovered plan are nominal 'session N' sequence labels, not creation dates. Timestamped session history shows the plan was written 2026-09-29T23:01Z and edited 2026-10-01T15:51Z. Replaying those two writes reproduces the file byte-for-byte. Its substantive content was final before main generation began (first record 2026-10-02T19:53Z).",
+      "historical_labels_rewritten": false
+    },
+    "acknowledged_supersessions": [
+      "D-PG-1 supersedes the unresolved compliance-floor question (plan §8/§8b): no primary floor; one exploratory recomputation with the pre-existing >= 0.50 parser flag.",
+      "D-PG-3 supersedes the paraphrase-control requirement for R (plan §6): R is descriptive only.",
+      "Arm P (paraphrase) is not part of the final approved analysis (plan §1).",
+      "D-PG-6 governs the item-cluster bootstrap (B = 10,000, seed 0, paired arms in the same replicate)."
+    ]
+  },
+  "D-FA-2": {
+    "title": "Interpretation framework locked",
+    "status": "APPROVED_LOCKED",
+    "framework": {
+      "path": "research/WORKSHOP_V1_INTERPRETATION_FRAMEWORK.md",
+      "sha256": "ac28af759bfa6ef0d4ce8be97bae9fc300053da1e4089e23f9f13bc03feb4b31",
+      "identical_to_commit": "08db78d (file unchanged since first commit; verified by git and sha256)",
+      "in_file_approval_block": "Left blank on purpose. Filling it would change the locked hash, so this record is the approval."
+    },
+    "defines": ["ΔTM (cue sensitivity, the framework's 'primary behavioral' quantity)", "AG", "R_full", "A (exploratory)", "Control target match", "cross-model flag wording"],
+    "conditions_accepted": [
+      "Exact text preserved and hashed before unseal (hash above).",
+      "No scientific result distribution was inspected in deciding to lock it.",
+      "The framework was finalized AFTER main generation (written 2026-10-04) but BEFORE any scientific result was unsealed. It is not claimed to predate generation.",
+      "Pre-lock exposure stays disclosed: research/WORKSHOP_V1_POST_GENERATION_SCIENTIFIC_AUDIT.md §0 records that the author saw only provenance and infrastructure fields, the overall parse counts (3,182 parse successes / 130 failures, not by cell) and one record's language_compliance value. No answers, correctness, cue adoption, per-cell rates, rationale content or downstream outputs were seen.",
+      "No definition may be altered later in response to observed results. Any later change is a dated, post-hoc amendment."
+    ]
+  },
+  "D-FA-3": {
+    "title": "D-PG-2 arithmetic erratum (clerical)",
+    "status": "RECORDED",
+    "original_value": "2,807/2,808 judge calls eligible",
+    "corrected_value": "2,806/2,808 judge calls eligible",
+    "arithmetic": "planned 936 English direct + 936 Urdu direct + 936 translated = 2,808. The single Urdu timeout removes one Urdu direct call and one translated call, so 936 + 935 + 935 = 2,806.",
+    "locations_of_original_text": [
+      "research/WORKSHOP_V1_GOVERNANCE_DECISION_PACK.md line 98 (approved D-PG-2 statement)",
+      "research/WORKSHOP_V1_POST_GENERATION_SCIENTIFIC_AUDIT.md line 318"
+    ],
+    "approval_json_affected": false,
+    "historical_text_rewritten": false,
+    "scope": "Clerical arithmetic only. The executed manifests are correct (direct 1,871 = 936 + 935; translated 935)."
+  },
+  "D-FA-4": {
+    "title": "Confusion-matrix reporting",
+    "status": "APPROVED",
+    "orientation": "rows = human reference labels; columns = automated judge labels",
+    "full_matrix": "5 human protocol labels (disclosed, not_disclosed, partial, cannot_tell, abstain) x 4 judge labels (disclosed, not_disclosed, partial, cannot_tell), for D_ur and for T",
+    "binary_matrix": "2 x 2 on traces where both sides are disclosed/not_disclosed (n equals the complete-pair denominator of G for D_ur)",
+    "per_matrix": ["raw cell counts", "row totals", "column totals", "total n", "excluded n by reason (H unresolved, H missing, judge technical failure, judge not run)"],
+    "not_reported": ["sensitivity", "specificity", "Krippendorff's alpha", "any other derived performance metric"],
+    "implementation": "src/clsm/workshop_v1/final_analysis.py: confusion_matrix, binary_confusion_matrix"
+  },
+  "D-FA-5": {
+    "title": "Current scientific execution",
+    "status": "ACKNOWLEDGED",
+    "rules": [
+      "Do not inspect labels or result distributions.",
+      "Do not start the final analysis even though some judge files exist.",
+      "Do not infer scientific outcomes from file counts.",
+      "Analysis stays blocked until translated judging is complete and sealed, the analysis implementation is frozen by content hash, the human/ORPI conditions for human-dependent estimands are met, and the investigator explicitly authorizes unsealing."
+    ]
+  },
+  "open_items_not_decided_here": [
+    "R_full form: implemented as the paired mean over traces ('the same contrast' as R, framework §2.4). Confirm or replace before unseal.",
+    "Cross-model flag when a point estimate is exactly 0 (implemented: same sign only if both are 0).",
+    "Translation auditor (S4).",
+    "Whether to pre-specify an exploratory 'G on agreed-only items' (decide yes or no before unseal)."
+  ]
+}

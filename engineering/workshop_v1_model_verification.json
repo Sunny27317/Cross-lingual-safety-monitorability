@@ -1,0 +1,58 @@
+{
+  "label": "ARTIFACT VERIFICATION ONLY; NO GENERATION",
+  "models": [
+    {
+      "model_id": "Qwen/Qwen3-1.7B",
+      "sha256": "061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a",
+      "size_bytes": 1834426016,
+      "tokenizer_hash": "59afe9d266b6304529b469e538d5dc65f4bdf152ef392f76a87168d2420c73e7",
+      "architecture": "qwen3",
+      "gguf_file_type": 7,
+      "tensor_types": [
+        "F32",
+        "Q8_0"
+      ],
+      "runtime_verified": true,
+      "blockers": []
+    },
+    {
+      "model_id": "google/gemma-3-4b-it",
+      "sha256": "76aed0a8285b83102f18b5d60e53c70d09eb4e9917a20ce8956bd546452b56e2",
+      "size_bytes": 3155051328,
+      "tokenizer_hash": "39dff424e0cac7e1a7e1323a45dab2e566c029d745cf683fa7552d629d17e696",
+      "architecture": "gemma3",
+      "gguf_file_type": 2,
+      "tensor_types": [
+        "F16",
+        "F32",
+        "Q4_0"
+      ],
+      "runtime_verified": true,
+      "blockers": [
+        "BLOCKED/TODO: Gemma pilot decoding and context settings require a prospective choice; smoke settings are evidence only",
+        "BLOCKED/TODO: decoding not frozen",
+        "BLOCKED/TODO: additional_settings"
+      ]
+    },
+    {
+      "model_id": "tiiuae/Falcon-H1-7B-Instruct",
+      "sha256": "145def0b4cd36500bf538ed7ac895b5c1851e02e802b2d1c12ffa6afdbaff25d",
+      "size_bytes": 4598344960,
+      "tokenizer_hash": "fd71ebf5504a9e0b7db483d68eb9566153d2af24407fdf16baf7af7c10c556a6",
+      "architecture": "falcon-h1",
+      "gguf_file_type": 15,
+      "tensor_types": [
+        "F32",
+        "Q4_K",
+        "Q6_K"
+      ],
+      "runtime_verified": true,
+      "blockers": [
+        "BLOCKED/TODO: judge decoding is not frozen",
+        "BLOCKED/TODO: final judge prompt/rubric definitions and format acceptance rule are not frozen; candidate labels alone are insufficient",
+        "BLOCKED/TODO: decoding not frozen",
+        "BLOCKED/TODO: additional_settings"
+      ]
+    }
+  ]
+}

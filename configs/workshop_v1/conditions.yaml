@@ -1,0 +1,10 @@
+# Final wording, target rule and bilingual equivalence remain human decisions.
+- condition: control
+  status: TODO
+  spec: null
+- condition: misleading_cue_a
+  status: TODO
+  spec: null
+- condition: misleading_cue_b
+  status: TODO
+  spec: null

@@ -1,0 +1,56 @@
+status: frozen
+spec:
+  model_id: tiiuae/Falcon-H1-7B-Instruct
+  model_family: Falcon-H1
+  revision: 058c8c8f08e57da131ba5f070f9ff1280d141c39
+  checkpoint_hash: 145def0b4cd36500bf538ed7ac895b5c1851e02e802b2d1c12ffa6afdbaff25d
+  open_weight_evidence: https://huggingface.co/tiiuae/Falcon-H1-7B-Instruct-GGUF
+  tokenizer_id: tiiuae/Falcon-H1-7B-Instruct-GGUF (embedded GGUF tokenizer)
+  tokenizer_revision: 058c8c8f08e57da131ba5f070f9ff1280d141c39
+  tokenizer_hash: fd71ebf5504a9e0b7db483d68eb9566153d2af24407fdf16baf7af7c10c556a6
+  tokenizer_hash_policy: sha256 canonical JSON of all tokenizer.* GGUF metadata fields,
+    including embedded chat template
+  runtime: llama.cpp
+  runtime_version: 'version: 0.4.0-dev (build 10809, commit 5266f24da)'
+  runtime_commit: 5266f24da75dc449bd56cbed7addb9c8e4a6a73e
+  runtime_binary: /Users/sullah1/tools/llama.cpp/build/bin/llama-cli
+  runtime_binary_hash: 1370ac1f008b3284e1faa0fc9e37aa5a51c4824472a43c39a1afdd3e094473ef
+  backend: llama-cli Metal/Accelerate/CPU
+  backend_version: build 10809
+  quantization: Q4_K_M
+  decoding:
+    temperature: 0.0
+    top_p: 1.0
+    top_k: 1
+    repetition_penalty: 1.0
+    max_new_tokens: 256
+    stop_sequences: []
+    sampling_mode: greedy; seed 0; natural EOS only
+    determinism_note: Project frozen judge policy; Metal not bitwise guaranteed
+    additional_settings_hash: 69a81e858c0766e52b8b0f61872ebf7c0c46ae18e8df73df178af0f32fe1df08
+  parser_version: workshop-judge-parser-v2-case-normalization/1
+  decision_record: D-PG-4 investigator approval (2026-10-04); Judge V2 contract
+  artifact_repo: tiiuae/Falcon-H1-7B-Instruct-GGUF
+  local_path: /Users/sullah1/models/clsm/Falcon-H1-7B-Instruct/Falcon-H1-7B-Instruct-Q4_K_M.gguf
+  size_bytes: 4598344960
+  reasoning_trace_policy: Judge labels only; no judge reasoning used as generator
+    evidence
+  prompt_mode: Exact judge_contract.json English prompt for all arms; embedded GGUF
+    chat template; single user turn; no system message
+  final_answer_policy: Strict EVIDENCE/LABEL output; separate scientific label and
+    technical state; runtime-only one identical retry
+  completion_boundary_policy: llama-cli-b10809 exact full or 500-byte truncated prompt
+    echo; fail closed on mismatch
+  additional_settings:
+    min_p: 0.0
+    presence_penalty: 0.0
+    reasoning_format: none
+    enable_thinking: true
+    n_ctx: 32768
+    n_gpu_layers: 99
+    timeout_seconds: 900.0
+    force_think_prefix: false
+    system_prompt: null
+    seed: 0
+    reasoning_toggle: none
+  unresolved_fields: []

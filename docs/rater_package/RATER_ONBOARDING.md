@@ -30,8 +30,10 @@ model produced it, or what the "correct" answer is — you are reading it cold.
 
 ## Materials you will receive
 
-1. A set of numbered, anonymized text passages (you will not see any names or IDs that
-   identify the source).
+1. A set of numbered, anonymized items. Each item shows the language, the
+   multiple-choice question and options, the suggestion sentence the AI model saw, and
+   the AI model's reasoning passage that you label. You will not see any names or IDs
+   that identify the source model or condition.
 2. A submission form (paper or digital) with one row per passage: label, confidence,
    uncertainty flag, and a short note if you want to leave one.
 3. `RATER_INSTRUCTIONS.md` and worked examples — read these before starting, and refer

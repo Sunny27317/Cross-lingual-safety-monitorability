@@ -1,0 +1,77 @@
+{
+  "schema_version": "workshop-v1-translation-stage-provenance/1",
+  "created_utc": "2026-10-06T13:50:07Z",
+  "record_type": "superseding provenance record (new file; prior records retained unchanged)",
+  "supersedes_fields_of": {
+    "path": "engineering/provenance/PRE_RESULT_ARCHIVAL_SNAPSHOT_STATE.json",
+    "sha256": "30df98b63d0ce96e7d00d05ac932a38dc4062bc07ebda317a7960fcf2211b9c6",
+    "fields": [
+      "translator_config_hash",
+      "translator_config_hash_history",
+      "translator_final_config_hash",
+      "translator_runtime_status"
+    ],
+    "correction": "The prior record lists the BASE translation config hash (74b81473...) as 'translator_final_config_hash'. Under D-TR-1..6 (amendment 2026-10-05), the base config alone was NOT the final effective configuration for any of the 935 successful translations. The operative configuration is the effective hash below (base + amendment). The prior file is not edited in place."
+  },
+  "translation_configuration": {
+    "base_translation_config_hash": "74b81473f4c714e8146c352c6c351772ea995b3dff6f37c8a4af06ca311f99bc",
+    "base_contract": "engineering/indictrans2_final_contract.json",
+    "translation_amendment_hash": "3a054e8bac831a1cbbfd25b545c15562bbc76b82824266ba707798e104720dc5",
+    "amendment_record": {
+      "path": "engineering/indictrans2_contract_amendment_DTR_2026-10-05.json",
+      "sha256": "28c84bb0d07f4f90522f1b2ceab79b9aeb00149a5310e28d349b2eeb55daf0fe"
+    },
+    "effective_translation_config_hash": "106f366c7a0010dab11849150e48b2fb88cb3a4d23260a9abdd750760e6b4171",
+    "effective_hash_recipe": "sha256(canonical JSON {amendment_hash, base_translation_config_hash}, sort_keys, separators (',',':'))",
+    "artifact_manifest_hash": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+    "translator": "ai4bharat/indictrans2-indic-en-1B @ ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a, CPU, float32",
+    "translation_py_sha256": "755185ac77f45ef34592221309fabb8f1362878ce5947ae479f161601c6c5951"
+  },
+  "executed_code": {
+    "executed_launcher_sha256": "8f7c241ad048a5982bbf7656ab4627d4588cfb6f5636caee06d0118b5488f9a6",
+    "executed_launcher_evidence": "launcher sha256 verified 2026-10-05T14:29Z after the seal-authorization fix; resume process pid 95917 started 2026-10-05T14:30:46Z (stage lock) and ran until the last record 2026-10-06T12:01Z; on-disk edits at 2026-10-06T10:43Z were not loaded by that process",
+    "current_launcher_sha256": "0c564486d9fcbaedb880120f2b293e0fbd4b4bd982698b5f02ee8e1ae8bb3eaf",
+    "current_launcher_note": "Recorded separately and never substituted for the executed hash. The current file differs only in post-execution technical code: the canonical seal v2 writer and verifier, canonical QC, and the population-hash function. No translation was produced by this file."
+  },
+  "population": {
+    "task_manifest_hash": "635d5f8b58b972dcaa40bc4c2933b0529fb2a5b35fc3b76f1dd2f8b1e1f7fb8d",
+    "expected_tasks": 935,
+    "successful_records": 935,
+    "historical_failure_records": 6,
+    "unresolved_failures": 0,
+    "identity_translations": 6,
+    "translation_population_hash": "da4f87b5e0a93ff73fcec4e155072948081af7f386524b5a1432eb67aeecb977",
+    "translation_population_hash_recipe": "sha256 over UTF-8 concatenation of '<filename>\\t<sha256(file bytes)>\\n' for every translation-*.json success record (excluding translation-failure-*), sorted by filename",
+    "source": "read-only technical QC (translator_launcher.canonical_qc) on 2026-10-06; counts only, no translated text or labels inspected"
+  },
+  "authorizations": {
+    "operative": {
+      "path": "engineering/INVESTIGATOR_TRANSLATION_AUTHORIZATION_AMENDED_2026-10-05.json",
+      "sha256": "75e69dd7c3e909a1ec706fae3a70adff15b667639374315b430fdb8b330a5b13"
+    },
+    "historical": {
+      "path": "engineering/INVESTIGATOR_TRANSLATION_AUTHORIZATION.json",
+      "sha256": "13b8e05fbe9cbdc950afbd016867b9b945fdd991c905017eeda7a5e0626c6880",
+      "status": "SUPERSEDED_HISTORICAL (pre-amendment; does not validate against the amended contract)"
+    }
+  },
+  "validation_artifacts": {
+    "amended_path_validation": {
+      "path": "engineering/indictrans2_amended_path_validation_2026-10-06.json",
+      "sha256": "22372034b7ef9028c1a447483023f3301664c8a28c9fef95432acf8343178390",
+      "status": "PASS",
+      "note": "Non-model (tokenizer only). Its 'identity_records: 0' counts records that carry an explicit translation_identity=true flag; the executed launcher did not persist that flag. The six identity translations are verified by the per-record identity_rule replay (zero translatable units AND translated text == source span) and by translation_qc."
+    },
+    "historical_segmentation_validation": {
+      "path": "engineering/indictrans2_segmentation_validation.json",
+      "sha256": "4f3f9f6672d773955ec04eddc4f76995aaaa9e1e2784405e9aa0b53b71e58a98",
+      "note": "Retained unchanged. It is not valid JSON (a Python repr), and it validated the pre-amendment segment_source_chunks path."
+    }
+  },
+  "canonical_seal": {
+    "status": "NOT YET WRITTEN",
+    "writer": "PYTHONPATH=src .venv/bin/python -m clsm.workshop_v1.translator_launcher --seal",
+    "schema": "workshop-v1-translation-seal/2",
+    "note": "Once written, the seal's translation_stage_hash is the value a translated-judge authorization must bind."
+  }
+}

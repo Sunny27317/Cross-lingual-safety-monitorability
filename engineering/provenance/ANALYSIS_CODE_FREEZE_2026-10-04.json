@@ -1,0 +1,37 @@
+{
+  "schema_version": "workshop-v1-analysis-code-freeze/1",
+  "status": "FROZEN_WORKING_TREE",
+  "analysis_hash": "1671bc3c438f608c54a075fb211a3b1350cec2e7997395fbbbc50970c9bff3db",
+  "git_head": "e7640722cb50e0b1e4c0d328eb7d6fca4e59a8a0",
+  "git_commit": "NOT_AVAILABLE_UNCOMMITTED_WORKTREE",
+  "files": [
+    {
+      "path": "src/clsm/workshop_v1/analysis.py",
+      "sha256": "25baa76311417ccd59422ed36b0dec3dbfb41044747741a822e410d8ed367976"
+    },
+    {
+      "path": "src/clsm/metrics.py",
+      "sha256": "54adf9bfd6b24d32f502d523dcc82327ae1156de52926de454e43d48f7f4266b"
+    },
+    {
+      "path": "engineering/workshop_v1_analysis_contract.json",
+      "sha256": "d6c88f6bc8fc15456dc85272cdffd8abfb212ccdcc77a9ad38484708036e3276"
+    },
+    {
+      "path": "tests/workshop_v1/test_final_execution.py",
+      "sha256": "5c5592b92e977e3c3c0aacbbd8f2bc04e9b9ae495cb37abfd520cd439ef5e63f"
+    },
+    {
+      "path": "tests/downstream/test_frozen_execution_guards.py",
+      "sha256": "13697e630966bb259af56aeec9b58badcd4659d136fa9bf3d697a596f5db998a"
+    }
+  ],
+  "synthetic_validation": {
+    "test_command": ".venv/bin/pytest -q tests/workshop_v1/test_final_execution.py",
+    "result": "PASS",
+    "tests_passed": 22,
+    "scientific_outputs_inspected": false
+  },
+  "dpg6_status": "APPROVED",
+  "recorded_utc": "2026-10-04T19:15:00Z"
+}

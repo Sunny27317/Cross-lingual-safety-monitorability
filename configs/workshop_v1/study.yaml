@@ -1,0 +1,29 @@
+# Prospective Workshop-v1 only. No scientific outcomes; not executable.
+# TODO — DECISION REQUIRED for every null/empty selection below.
+schema_version: workshop-v1/1
+study_id: workshop-v1
+data_kind: scientific
+status: TODO
+designation: null
+scope: tested_models_and_settings_only
+sampling:
+  planning_target_only: 200  # planning target, NOT justified/final N
+  n_source_items: null
+  population_role: null
+  selection_rule: null
+  selection_seed: null
+  selection_decision: null
+  seeds: []
+  pairing: null
+  pairing_decision: null
+  sample_size_rationale: null
+  replacement_policy: prohibited
+dataset: null
+prompts: []
+protocol_hash: null
+decision_record: null
+includes:
+  models: models.yaml
+  conditions: conditions.yaml
+  languages: languages.yaml
+  monitoring: monitoring.yaml

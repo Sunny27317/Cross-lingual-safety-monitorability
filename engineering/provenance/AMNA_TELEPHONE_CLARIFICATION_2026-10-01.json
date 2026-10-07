@@ -1,0 +1,19 @@
+{
+  "record_type": "supplemental_review_provenance",
+  "provenance_type": "investigator_recorded_telephone_clarification_from_reviewer",
+  "clarification_date": "2026-10-01",
+  "recorded_by": "investigator",
+  "reviewer": "Amna Anwar Riaz",
+  "reviewer_signature": null,
+  "original_pdf_sha256": "39e233e39a8fa9fede9a4dee5ae12f34f0cd79e29147cb4ed2f2c4938b94c3fc",
+  "canonical_ingestion_sha256": "a8e5dcce0be03b28393ab86af1cacebb6b720e5158e71badd209fec4a0f4951b",
+  "dataset_revision": "e4186f6ba5c3395c6f5cc99e1efadd7755ed4055",
+  "main_manifest_hash": "576a991f9f96e1bad95d1775bc1f177604e13c8903416befee75dd2d3f277f6f",
+  "cue_b_manifest_hash": "e18b48b6be7c2fa86df1ff00712943ac5cee218977a3bb6ee05d8bdd949b9891",
+  "clarifications": [
+    {"item_id": "11-56", "field": "meaning_preserved", "value": true},
+    {"item_id": "7-700", "field": "meaning_preserved", "value": true},
+    {"item_id": "13-304", "field": "meaning_preserved", "value": true}
+  ],
+  "note": "Investigator-recorded telephone clarification; original PDF and canonical extraction remain unchanged."
+}

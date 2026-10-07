@@ -1,0 +1,89 @@
+{
+  "schema_version": "indictrans2-artifact-inventory/1",
+  "model_id": "ai4bharat/indictrans2-indic-en-1B",
+  "revision": "ac3daf0ecd37be3b6957764a9179ab2b07fa9d6a",
+  "files": [
+    {
+      "path": ".gitattributes",
+      "sha256": "f24b81e0e0e73f6d6296c0d41a3d6f96bda85afebddc953e740f5719131a8216",
+      "bytes": 1565
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "383258420065a19d9fef0daf00d10792d3f8a5ccf783d94a91f5d6755386615b",
+      "bytes": 1128
+    },
+    {
+      "path": "README.md",
+      "sha256": "c3059ae9d18b6bdee0a68f71e072d67a3a82d743484d7d7972219863dbd812dc",
+      "bytes": 4873
+    },
+    {
+      "path": "config.json",
+      "sha256": "a9161fba84df4a365188f17551affe1152444a7825b74689f33e389ad9cdacf6",
+      "bytes": 1369
+    },
+    {
+      "path": "configuration_indictrans.py",
+      "sha256": "d7e4ce84efacc18981228f5071b00dba6e3bf165f8ea7bcc8ecdada8942e1a52",
+      "bytes": 14155
+    },
+    {
+      "path": "dict.SRC.json",
+      "sha256": "3d3b180702520742dec423a5a7f7b4e3dad399d69e40ca7df294a1567884bed5",
+      "bytes": 3391208
+    },
+    {
+      "path": "dict.TGT.json",
+      "sha256": "13c3a162fe655dbe99c790a413675c5d0634cd771fadcefe8d407676a7d1a311",
+      "bytes": 644755
+    },
+    {
+      "path": "generation_config.json",
+      "sha256": "6c8b29ae72e680d5a2d9e849567f6f556d3f4e9bbd42434964a646f49b556972",
+      "bytes": 163
+    },
+    {
+      "path": "model.SRC",
+      "sha256": "ac9257c8e76b8b607705b959cc3d075656ea33032f7a974e467b8941df6e98d4",
+      "bytes": 3256903
+    },
+    {
+      "path": "model.TGT",
+      "sha256": "3cedc5cbcc740369b76201942a0f096fec7287fee039b55bdb956f301235b914",
+      "bytes": 759425
+    },
+    {
+      "path": "model.safetensors",
+      "sha256": "9b030cdd001e669a4043ea70ebb39a59630f5af58e0d0329ac9edc663ce98448",
+      "bytes": 4092117552
+    },
+    {
+      "path": "modeling_indictrans.py",
+      "sha256": "5bfe8befd063b9e2ebf6f0d4f993317df3e250d096f394d8ac48957f64354d6a",
+      "bytes": 79782
+    },
+    {
+      "path": "pytorch_model.bin",
+      "sha256": "c95ae59f5148766cef4801353d7d3166f623078ea078ad49eba84c202381e5d3",
+      "bytes": 4092276281
+    },
+    {
+      "path": "special_tokens_map.json",
+      "sha256": "9046da57c270c8e74d0f38832b4adce269c9d914ef21d2a0925e7772152dd793",
+      "bytes": 96
+    },
+    {
+      "path": "tokenization_indictrans.py",
+      "sha256": "35396cf65b9fdc21379f8bc12cd658eec32fbe5de87a25fa5f4df190c5ffc4e3",
+      "bytes": 8044
+    },
+    {
+      "path": "tokenizer_config.json",
+      "sha256": "89a541bb0984bd9c33d202ac0e781a22e77162b4cb3f2d785711a268cefe92df",
+      "bytes": 1099
+    }
+  ],
+  "inventory_sha256": "84cad691de2a13f19b4609f924e24aa5aceb582be7278d406359bdd861f7a2bd",
+  "model_loaded": false
+}

@@ -1,3 +1,8 @@
+> **SUPERSEDED (2026-10-06).** This scaffold is retained for history only and is no longer
+> the canonical manuscript. The canonical Workshop-v1 text is
+> [`paper/WORKSHOP_V1_PREPRINT.md`](WORKSHOP_V1_PREPRINT.md). Do not fill result slots,
+> cite, or post from this file.
+
 # Monitor or Model? A Native-Urdu-Anchored Test of Automated Chain-of-Thought Monitoring Validity
 
 **Paper scaffold — pre-results scientific draft.** The English feasibility pilot
@@ -47,7 +52,15 @@ instrumentation. In the (not yet executed) Urdu stage, native Urdu speakers will
 a blinded disclosure reference on Urdu reasoning traces; an automated monitor will score
 the same traces directly and after locked translation to English, using one shared judge
 specification; English-original and English-paraphrase control arms bound
-rewriting-only effects. **Contribution.** [PLACEHOLDER: fill only from executed
+rewriting-only effects. The authoritative Qwen generation configuration for the
+Workshop-v1 stage is the prospectively frozen D5 prompted/non-thinking configuration:
+native thinking is disabled, no `<think>` prefix is forced, and the fixed prompted
+rationale sentence is used before the final-answer marker. This followed an initial
+native-thinking Qwen pilot whose Urdu outputs failed the prespecified script-compliance
+criterion; that historical failure and the D5 amendment are retained as separate
+engineering records. The six-call D5 feasibility result establishes only technical
+criterion passage and does not establish a scientific language, cue, accuracy, or
+monitor-validity effect. **Contribution.** [PLACEHOLDER: fill only from executed
 stages] a controlled, source-trace-matched measurement of automated-monitor detection
 relative to a native-human reference, and of whether that detection changes after
 translation, with the translation's own semantic and disclosure preservation audited
@@ -259,12 +272,16 @@ construct (does the trace *say* it used the hint) is separate from whether the t
 
 **Generation design.** `Qwen/Qwen3-1.7B` (GGUF `Qwen3-1.7B-Q8_0.gguf`, SHA-256
 `061b54daade076b5d3362dac252678d17da8c68f07560be70818cace6590cb1a`) via llama.cpp
-(commit `5266f24da75dc449bd56cbed7addb9c8e4a6a73e`, build 10809); temperature 0.6,
-top-p 0.95, top-k 20, 8 samples per condition per item, seeds 0–7, max 16,384 new
-tokens, 900 s timeout, zero-retry policy. 50 items × 2 conditions × 8 samples = 800
-generations for the English stage. Any Urdu generation stage uses a structurally
-identical, separately authorized configuration — English authorization does not extend
-to Urdu.
+(commit `5266f24da75dc449bd56cbed7addb9c8e4a6a73e`, build 10809). The authoritative
+Workshop-v1 Qwen configuration is the D5 prompted/non-thinking path: `enable_thinking`
+is false, no `<think>` prefix is forced, the exact sentence "Think through the question
+step by step in your response before giving your final answer." elicits the visible
+rationale, and reasoning is extracted before `Final answer:`. Frozen decoding is
+temperature 0.7, top-p 0.8, top-k 20, min-p 0, with the existing context/output
+limits, natural EOT, and sample-index seeds. The initial native-thinking pilot's Urdu
+script-compliance failure is historical; D5 was a prospectively frozen Option-B
+amendment and its six-call pass is technical feasibility evidence only. Any main Urdu
+stage remains separately authorized and must not be inferred from this pilot.
 
 **Urdu equivalence process.** Forward translation of each matched item and the shared
 hint by a competent translator, followed by independent bilingual review of every item
@@ -445,6 +462,11 @@ scientific design. **No confirmatory result exists in this scaffold.**
 - **CoT observability limitations.** Only the visible reasoning trace is available;
   information the model used but did not verbalize is invisible to every arm of this
   design, human and automated alike.
+- **Qwen elicitation history.** The initial native-thinking Qwen pilot failed the
+  Urdu script-compliance gate. The frozen D5 amendment instead uses prompted rationale
+  with native thinking disabled; its six-call technical pass does not show that the
+  model's rationale is faithful, that Urdu generation is scientifically equivalent, or
+  that any monitor effect exists.
 - **Behavioral vs. private-cognition interpretation.** Disclosure is a textual
   acknowledgment construct. It is not a causal-faithfulness or hidden-cognition claim;
   a trace can be causally influenced by a hint without acknowledging it, or can mention
